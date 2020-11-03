@@ -1,8 +1,10 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(APITest());
@@ -46,7 +48,7 @@ class _FirstRecipesState extends State<FirstRecipes> {
   int count = 0;
 
   Future<dynamic> fetchJson() async {
-    final response = await http.get('http://www.recipepuppy.com/api/?i=milk');
+    final response = await http.get('http://www.recipepuppy.com/api/?i=pork');
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -61,7 +63,7 @@ class _FirstRecipesState extends State<FirstRecipes> {
   }
 
   Future<Recipe> fetchRecipe(int resNumber) async {
-    final response = await http.get('http://www.recipepuppy.com/api/?i=milk');
+    final response = await http.get('http://www.recipepuppy.com/api/?i=pork');
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -128,10 +130,44 @@ class _FirstRecipesState extends State<FirstRecipes> {
     ));
     int i;
     for(i = 0; i < count; i++){
+
       children.add(FutureBuilder<Recipe>(
         future: futureRecipes[i],
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+
+            return Card(
+              child: InkWell(
+                splashColor: Colors.blue.withAlpha(30),
+                onTap: () {
+                  print('Card tapped.');
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+
+                    ListTile(
+                      leading: Image.network(
+                          snapshot.data.thumbnail),
+                      title: Text(snapshot.data.title),
+                      subtitle: Text("Ingredients: " + snapshot.data.ingredients),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        TextButton(
+                          child: const Text('CHECK IT OUT'),
+                          onPressed: () {
+                            _launchURL(snapshot.data.href);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +188,7 @@ class _FirstRecipesState extends State<FirstRecipes> {
           return CircularProgressIndicator();
         },
       ));
-      children.add(SizedBox(height: 100,));
+      children.add(SizedBox(height: 10,));
     }
 
     if(count == 0){
@@ -161,6 +197,15 @@ class _FirstRecipesState extends State<FirstRecipes> {
 
     return children;
 
+  }
+
+  _launchURL(String url) async {
+    //const url = 'https://flutter.dev';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
 
