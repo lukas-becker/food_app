@@ -168,18 +168,6 @@ class _FirstRecipesState extends State<FirstRecipes> {
                 ),
               ),
             );
-
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  snapshot.data.title,
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-                Text(snapshot.data.ingredients),
-                Text(snapshot.data.href)
-              ],
-            );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}" " Test");
           }
@@ -200,7 +188,6 @@ class _FirstRecipesState extends State<FirstRecipes> {
   }
 
   _launchURL(String url) async {
-    //const url = 'https://flutter.dev';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
