@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/classes/DatabaseUtil.dart';
+import 'package:food_app/classes/Ingredient.dart';
 import 'package:http/http.dart' as http;
+import 'package:powerset/powerset.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,17 +33,33 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
+  
   var futureRecipes = [];
   Future<dynamic> futureJson;
   int count = 0;
-
-  String ingredients = 'pork';
+  
+  List<Ingredient> ingredients;
+  List<Recipe> recipes = new List();
+  
+  String ingredientsOld = 'pork';
 
   final tController = new TextEditingController();
 
+  Future<List<Recipe>> fetchJsonNew(String ingr) async {
+    ingr = ingr.substring(1,ingr.length-1);
+    ingr = ingr.replaceAll(" ", "");
+    print('http://www.recipepuppy.com/api/?i=' + ingr);
+    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingr);
+    if (response.statusCode == 200){
+      List list = jsonDecode(response.body)['results'];
+      List<Recipe> res = List.generate(list.length, (index) => Recipe.fromJson(jsonDecode(response.body)['results'][index]));
+      return res;
+    }
+  }
+
   Future<dynamic> fetchJson() async {
-    print('http://www.recipepuppy.com/api/?i=' + ingredients);
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    print('http://www.recipepuppy.com/api/?i=' + ingredientsOld);
+    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredientsOld);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -55,7 +74,7 @@ class _RecipesState extends State<Recipes> {
   }
 
   Future<Recipe> fetchRecipe(int resNumber) async {
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredientsOld);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -71,11 +90,12 @@ class _RecipesState extends State<Recipes> {
   @override
   void initState() {
     super.initState();
-    futureJson = fetchJson().then((value) => complete(value));
-
+    //futureJson = fetchJson().then((value) => jsonFetchComplete(value));
+    DatabaseUtil.getDatabase();
+    DatabaseUtil.getIngredients().then((value) => ingredientsFetchComplete(value));
   }
 
-  void complete(dynamic json){
+  void jsonFetchComplete(dynamic json){
     List jsonInner = json;
     jsonInner.forEach((element) {
       futureRecipes.add(fetchRecipe(count));
@@ -85,6 +105,22 @@ class _RecipesState extends State<Recipes> {
     setState(() {
       this.futureRecipes = futureRecipes;
       this.count = count;
+    });
+
+  }
+  
+  void ingredientsFetchComplete(List<Ingredient> ingr){
+    powerset(ingr).forEach((element) {
+      if(element.toString() != "[]"){
+        print(element);
+        fetchJsonNew(element.toString()).then((value) => addToRecipeList(value));
+      }});
+  }
+
+  void addToRecipeList(List<Recipe> newRecipes){
+    newRecipes.forEach((element) {recipes.add(element);});
+    setState(() {
+      this.recipes = recipes;
     });
 
   }
@@ -109,10 +145,61 @@ class _RecipesState extends State<Recipes> {
 
         child: SingleChildScrollView(
           child: Column(
-            children: _printRecipes()),
+            children: _compileRecipes()),
         )
       )
     );
+  }
+
+  List<Widget> _compileRecipes(){
+    List<Widget> result = new List();
+    if(recipes.length == 0){
+      result.add(SizedBox(width: 8, height: 15,));
+      result.add(Text("You have nothing in your Pantry!"));
+      result.add(Text("Add some food, to see what you could cook!"));
+      result.add(RaisedButton(
+        color: Colors.green,
+        onPressed: () {
+          TabController tc = DefaultTabController.of(context);
+          tc.animateTo(tc.index-1);
+
+        },
+        child: Text("Take me there")));
+    }
+    for(int i = 0; i < recipes.length; i++){
+      if(recipes[i].thumbnail == null)
+        recipes[i].thumbnail = "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+      result.add(SizedBox(width: 8, height: 15,));
+      result.add(
+          Card(
+            child:
+              InkWell(
+                splashColor: Colors.blue.withAlpha(30),
+                onTap: () {print('Card tapped.');},
+                child:
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: Image.network(recipes[i].thumbnail),
+                        title: Text(recipes[i].title),subtitle: Text("Ingredients: " + recipes[i].ingredients)
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          TextButton(
+                            child: const Text('CHECK IT OUT'),onPressed: () {_launchURL(recipes[i].href);},
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ],
+                  ),
+              ),
+          )
+      );
+    }
+    return result;
   }
 
   List<Widget> _printRecipes(){
@@ -141,8 +228,8 @@ class _RecipesState extends State<Recipes> {
                     this.count = 0;
                     this.futureRecipes.clear();
                     this.futureJson = null;
-                    this.ingredients = tController.text;
-                    this.futureJson = fetchJson().then((value) => this.complete(value));
+                    this.ingredientsOld = tController.text;
+                    this.futureJson = fetchJson().then((value) => this.jsonFetchComplete(value));
                   });
 
                 },

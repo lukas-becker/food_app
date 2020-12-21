@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as Path;
+import 'package:flutter/services.dart';
+import 'package:food_app/classes/DatabaseUtil.dart';
+import 'package:food_app/classes/Ingredient.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:powerset/powerset.dart';
 
 //First Tab - Pantry
 class PantryWidget extends StatelessWidget {
@@ -27,40 +30,33 @@ class Pantry extends StatefulWidget{
 }
 
 class _PantryState extends State<Pantry> {
+  bool refreshDB = true;
   List<Ingredient> ingredients = new List();
 
-  Future<Database> database = getDatabasesPath().then((String path) {
-    return openDatabase(
-      Path.join(path, 'food_app_database.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount INTEGER); INSERT INTO ingredient VALUES(1,'Salt',5); INSERT INTO ingredient VALUES(2,'Pepper',5);",
-        );
-      },
-      version: 3,
-    );
-  });
-
-  //final Map<String, int> ingredients = {'Salt':1, 'Pepper':1,'Milk':5};
-  final List<String> entries = <String>['Salt','Pepper','Olive oil','Vegetable oil','flour','Chicken stock','Chicken broth','Beef stock',
-    'Beef broth','Tomato sauce','Tomato paste','Tuna','Pasta','Rice','Lentils','Onions','Garlic','Vinegar','Soy sauce','basil','Cayenne pepper',
-    'Chili powder','Cumin','Cinnamon','Garlic powder','Oregano','Paprika','Eggs','Milk','Butter','margarine','Ketchup','Mayonnaise','cheese','corn',
-    'spinach','peas','Chicken breast','Capers','horseradish','Almond','Cornstarch','sugar','Honey','mustard'];
+  final List<String> entries = <String>['Salt','Pepper','Olive oil','Vegetable oil','Flour','Chicken stock','Chicken broth','Beef stock',
+    'Beef broth','Tomato sauce','Tomato paste','Tuna','Pasta','Rice','Lentils','Onions','Garlic','Vinegar','Soy sauce','Basil','Cayenne pepper',
+    'Chili powder','Cumin','Cinnamon','Garlic powder','Oregano','Paprika','Eggs','Milk','Butter','Margarine','Ketchup','Mayonnaise','Cheese','Corn',
+    'Spinach','Peas','Chicken breast','Capers','Horseradish','Almond','Cornstarch','Sugar','Honey','Mustard'];
 
   var tController = new TextEditingController();
 
   @override
   void initState() {
-    getIngredients().then((value) => ingredientsFinished(value));
+    if(refreshDB){
+      DatabaseUtil.getDatabase();
+      DatabaseUtil.getIngredients().then((value) => ingredientsFinished(value));
+      refreshDB = false;
+    }
     super.initState();
+
 
   }
 
-  List<Ingredient> ingredientsFinished(List<Ingredient> ingr){
+  void ingredientsFinished(List<Ingredient> ingr){
     setState(() {
       ingredients = ingr;
     });
-    return ingr;
+
   }
 
   @override
@@ -78,9 +74,9 @@ class _PantryState extends State<Pantry> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(icon: Icon(Icons.remove), onPressed: (){setState(() {ingredients[index].amount -= 1; updateIngredient(ingredients[index]); if(ingredients[index].amount == 0) ingredients.remove(ingredients[index]); });}),
+                    IconButton(icon: Icon(Icons.remove), onPressed: (){setState(() {refreshDB = true; ingredients[index].amount -= 1; DatabaseUtil.updateIngredient(ingredients[index]); if(ingredients[index].amount == 0) DatabaseUtil.deleteIngredient(ingredients[index].id).whenComplete(() => initState());});}),
                     Text(ingredients[index].name + " : " + ingredients[index].amount.toString()),
-                    IconButton(icon: Icon(Icons.add), onPressed: (){/*setState(() {ingredients.update(keys[index], (value) => value += 1);});*/}),
+                    IconButton(icon: Icon(Icons.add), onPressed: (){setState(() {refreshDB = true; ingredients[index].amount += 1; DatabaseUtil.updateIngredient(ingredients[index]);});}),
                   ]
                   ),
                 onLongPress: () => _askForDelete(index),
@@ -96,54 +92,15 @@ class _PantryState extends State<Pantry> {
     );
   }
 
-  Future<List<Ingredient>> getIngredients() async {
-    // Get a reference to the database.
-    final Database db = await database;
 
-    // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('ingredient', where: 'amount > 0');
-
-    // Convert the List<Map<String, dynamic> into a List<Dog>.
-    return List.generate(maps.length, (i) {
-      return Ingredient(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        amount: maps[i]['amount'],
-      );
-    });
-  }
-
-  Future<void> insertIngredient(Ingredient ingredient) async {
-    // Get a reference to the database.
-    final Database db = await database;
-
-    await db.insert(
-      'ingredient',
-      ingredient.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<void> updateIngredient(Ingredient ingredient) async {
-    // Get a reference to the database.
-    final db = await database;
-
-    // Update the given Dog.
-    await db.update(
-      'ingredient',
-      ingredient.toMap(),
-      // Ensure that the Dog has a matching id.
-      where: "id = ?",
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [ingredient.id],
-    );
-  }
 
   void _addItem() {
 
   String newAmount;
   int amount;
-  String dropdownValue = entries[0];
+  String dropdownValue;
+  dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
+  print(dropdownValue);
 
   showDialog(
       context: context,
@@ -168,10 +125,11 @@ class _PantryState extends State<Pantry> {
                             color: Colors.deepPurpleAccent,
                           ),
                           items: entries.map<DropdownMenuItem<String>>((String value) {return DropdownMenuItem<String>(value: value,child: Text(value),);}).toList(),
-                          onChanged: (String newValue) {setState(() {dropdownValue = newValue;});},
+                          onChanged: (String newValue) => {setState(() {dropdownValue = newValue;})},
                       ),
                       TextField(
                       controller: tController,
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Amount',
@@ -206,9 +164,10 @@ class _PantryState extends State<Pantry> {
   }
   
   Future<void> insertFromDropdown(int id, String name, int amount) async{
-    if(amount != Null) {
+    refreshDB = true;
+    if(amount != null) {
       final ing = Ingredient(id: id, name: name, amount: amount);
-      insertIngredient(ing).whenComplete(() => initState());
+      DatabaseUtil.checkDBForIngredient(name).then((value) => value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState()));
     }
   }
 
@@ -244,26 +203,6 @@ class _PantryState extends State<Pantry> {
     setState(() {
       entries.removeAt(index);
     });
-  }
-}
-
-class Ingredient {
-  final int id;
-  final String name;
-  int amount;
-
-  Ingredient({this.id, this.name, this.amount});
-
-  void updateAmount(int newAmount){
-    amount = newAmount;
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'amount': amount,
-    };
   }
 }
 
