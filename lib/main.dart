@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/tabs/GroceryList.dart';
 
 import 'tabs/pantryWidget.dart';
 import 'tabs/recipeListWidget.dart';
@@ -35,7 +36,7 @@ class TabNavigation extends StatelessWidget {
             children: [
               PantryWidget(),
               RecipeListWidget(),
-              Icon(Icons.directions_bike),
+              GroceryListWidget(),
             ],
           ),
         ),
