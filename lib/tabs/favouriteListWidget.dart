@@ -3,7 +3,7 @@ import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../classes/Recipe.dart';
 
-class FavoriteListWidget extends StatelessWidget {
+class FavouriteListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -12,22 +12,22 @@ class FavoriteListWidget extends StatelessWidget {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FavoriteList(storage: FavouriteStorage()),
+      home: FavouriteList(storage: FavouriteStorage()),
     );
   }
 }
 
-class FavoriteList extends StatefulWidget {
+class FavouriteList extends StatefulWidget {
   final FavouriteStorage storage;
-  FavoriteList({Key key, @required this.storage}) : super(key: key);
+  FavouriteList({Key key, @required this.storage}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return FavoriteListState();
+    return FavouriteListState();
   }
 }
 
-class FavoriteListState extends State<FavoriteList> {
+class FavouriteListState extends State<FavouriteList> {
   var favourites = [];
   List<String> favouritesString = [];
   String loadString;

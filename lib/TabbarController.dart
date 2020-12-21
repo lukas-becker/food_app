@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'tabs/favoriteListWidget.dart';
+import 'tabs/favouriteListWidget.dart';
 import 'tabs/pantryWidget.dart';
 import 'tabs/recipeListWidget.dart';
 
@@ -50,7 +50,7 @@ class _TabBarControllerWidgetState extends State<TabBarControllerWidget>
         PantryWidget(),
         RecipeListWidget(),
         Icon(Icons.directions_bike),
-        FavoriteListWidget(),
+        FavouriteListWidget(),
       ]),
     );
   }
