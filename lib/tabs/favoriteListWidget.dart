@@ -24,7 +24,7 @@ class FavoriteList extends StatefulWidget {
 }
 
 class FavoriteListState extends State<FavoriteList> {
-  final List<Recipe> favorites = <Recipe>[];
+  final List<Recipe> favorites = <Recipe>[Recipe(title: "Ich" , thumbnail: "http:\/\/img.recipepuppy.com\/1021.jpg",href: "http:\/\/google.com", ingredients: "Apple")];
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +60,7 @@ class FavoriteListState extends State<FavoriteList> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
+                      // TODO: URL Launch has to work
                       _launchURL(favorites[i].href);
                     },
                   ),
@@ -74,7 +75,7 @@ class FavoriteListState extends State<FavoriteList> {
         height: 10,
       ));
     }
-    
+
     if (printedFavorites.length == 0){
       printedFavorites.add(Text("No favorites selected"));
     }

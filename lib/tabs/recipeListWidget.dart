@@ -31,6 +31,7 @@ class Recipes extends StatefulWidget {
 
 class _RecipesState extends State<Recipes> {
   var futureRecipes = [];
+  var favoriteRecipes = [];
   Future<dynamic> futureJson;
   int count = 0;
 
@@ -153,6 +154,8 @@ class _RecipesState extends State<Recipes> {
         future: futureRecipes[i],
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            AsyncSnapshot<Recipe> current = snapshot;
+            bool isSaved = favoriteRecipes.contains(current);
             return Card(
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
@@ -164,6 +167,20 @@ class _RecipesState extends State<Recipes> {
                   children: <Widget>[
                     ListTile(
                       leading: Image.network(snapshot.data.thumbnail),
+                      trailing: IconButton(
+                        icon: Icon(
+                            isSaved ? Icons.favorite : Icons.favorite_border),
+                        color: isSaved ? Colors.red : null,
+                        onPressed: () {
+                          setState(() {
+                            if (isSaved) {
+                              favoriteRecipes.remove(snapshot);
+                            } else {
+                              favoriteRecipes.add(snapshot);
+                            }
+                          });
+                        },
+                      ),
                       title: Text(snapshot.data.title),
                       subtitle:
                           Text("Ingredients: " + snapshot.data.ingredients),
