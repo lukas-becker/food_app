@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../classes/Recipe.dart';
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 
 //Center Tab Recipe List
 class RecipeListWidget extends StatelessWidget {
@@ -15,13 +19,15 @@ class RecipeListWidget extends StatelessWidget {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Recipes(title: 'Get your first recipe'),
+      home:
+          Recipes(title: 'Get your first recipe', storage: FavouriteStorage()),
     );
   }
 }
 
 class Recipes extends StatefulWidget {
-  Recipes({Key key, this.title}) : super(key: key);
+  final FavouriteStorage storage;
+  Recipes({Key key, this.title, @required this.storage}) : super(key: key);
 
   final String title;
 
@@ -31,7 +37,7 @@ class Recipes extends StatefulWidget {
 
 class _RecipesState extends State<Recipes> {
   var futureRecipes = [];
-  var favoriteRecipes = [];
+  var favouriteRecipes = [];
   Future<dynamic> futureJson;
   int count = 0;
 
@@ -75,6 +81,17 @@ class _RecipesState extends State<Recipes> {
   void initState() {
     super.initState();
     futureJson = fetchJson().then((value) => complete(value));
+    print("Before init:" + favouriteRecipes.toString());
+    widget.storage.readFavourites().then((value) => favouritesFinished(value));
+  }
+
+  List<String> favouritesFinished(List<String> fav) {
+    setState(() {
+      favouriteRecipes = fav;
+      print("Fav from asynchron loading:" + fav.toString());
+      print("After init:" + favouriteRecipes.toString());
+    });
+    return fav;
   }
 
   void complete(dynamic json) {
@@ -109,7 +126,9 @@ class _RecipesState extends State<Recipes> {
             // in the middle of the parent.
 
             child: SingleChildScrollView(
-      child: Column(children: _printRecipes()),
+      child: Column(
+        children: _printRecipes(),
+      ),
     )));
   }
 
@@ -155,7 +174,7 @@ class _RecipesState extends State<Recipes> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             AsyncSnapshot<Recipe> current = snapshot;
-            bool isSaved = favoriteRecipes.contains(current);
+            bool isSaved = favouriteRecipes.contains(current.data.toString());
             return Card(
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
@@ -174,10 +193,19 @@ class _RecipesState extends State<Recipes> {
                         onPressed: () {
                           setState(() {
                             if (isSaved) {
-                              favoriteRecipes.remove(snapshot);
+                              print("Before removing favourite:" +
+                                  favouriteRecipes.toString());
+                              favouriteRecipes.remove(current.data.toString());
+                              print("After removing favourite:" +
+                                  favouriteRecipes.toString());
                             } else {
-                              favoriteRecipes.add(snapshot);
+                              print("Before adding favourite:" +
+                                  favouriteRecipes.toString());
+                              favouriteRecipes.add(current.data.toString());
+                              print("After adding favourite:" +
+                                  favouriteRecipes.toString());
                             }
+                            _saveFavourites();
                           });
                         },
                       ),
@@ -227,6 +255,15 @@ class _RecipesState extends State<Recipes> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  _saveFavourites() {
+    String favourites = "";
+    for (String current in favouriteRecipes) {
+      if (current != "") favourites = favourites + current + ";";
+    }
+    print("Before saving" + favourites);
+    widget.storage.writeFavourite(favourites);
   }
 }
 //End of Recipe list
