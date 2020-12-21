@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:filter_list/filter_list.dart';
 
 import '../classes/Recipe.dart';
 
@@ -30,6 +31,11 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
+  final List<String> filterIngredients = <String>['Salt','Pepper','Olive oil','Vegetable oil','flour','Chicken stock','Chicken broth','Beef stock',
+    'Beef broth','Tomato sauce','Tomato paste','Tuna','Pasta','Rice','Lentils','Onions','Garlic','Vinegar','Soy sauce','basil','Cayenne pepper',
+    'Chili powder','Cumin','Cinnamon','Garlic powder','Oregano','Paprika','Eggs','Milk','Butter','margarine','Ketchup','Mayonnaise','cheese','corn',
+    'spinach','peas','Chicken breast','Capers','horseradish','Almond','Cornstarch','sugar','Honey','mustard'];
+  List<String> selectedFilterIngredients = [];
   var futureRecipes = [];
   Future<dynamic> futureJson;
   int count = 0;
@@ -40,7 +46,8 @@ class _RecipesState extends State<Recipes> {
 
   Future<dynamic> fetchJson() async {
     print('http://www.recipepuppy.com/api/?i=' + ingredients);
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    final response =
+        await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -55,7 +62,8 @@ class _RecipesState extends State<Recipes> {
   }
 
   Future<Recipe> fetchRecipe(int resNumber) async {
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    final response =
+        await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -72,10 +80,9 @@ class _RecipesState extends State<Recipes> {
   void initState() {
     super.initState();
     futureJson = fetchJson().then((value) => complete(value));
-
   }
 
-  void complete(dynamic json){
+  void complete(dynamic json) {
     List jsonInner = json;
     jsonInner.forEach((element) {
       futureRecipes.add(fetchRecipe(count));
@@ -86,9 +93,7 @@ class _RecipesState extends State<Recipes> {
       this.futureRecipes = futureRecipes;
       this.count = count;
     });
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +102,8 @@ class _RecipesState extends State<Recipes> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(/*
+    return Scaffold(
+      /*
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -108,106 +114,118 @@ class _RecipesState extends State<Recipes> {
         // in the middle of the parent.
 
         child: SingleChildScrollView(
-          child: Column(
-            children: _printRecipes()),
-        )
-      )
+          child: Column(children: _printRecipes()),
+        ),
+      ),
     );
   }
 
-  List<Widget> _printRecipes(){
+  List<Widget> _printRecipes() {
     List<Widget> children = new List();
-    children.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-          children: [
-            Expanded(child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: tController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Ingredients',
-                ),
-              ),
-            )),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                color: Colors.red,
-                onPressed: () {
-                  setState(() {
-                    this.count = 0;
-                    this.futureRecipes.clear();
-                    this.futureJson = null;
-                    this.ingredients = tController.text;
-                    this.futureJson = fetchJson().then((value) => this.complete(value));
-                  });
-
-                },
-                child: Text("Search"),),
-            )
-          ],
-        )
-    );
+    children.add(Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 8.0,
+          ),
+          child: FloatingActionButton(
+            onPressed: _openFilterDialog,
+            child: Icon(Icons.filter_outlined),
+          ),
+        ),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: tController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Ingredients',
+            ),
+          ),
+        )),
+        Padding(
+          padding: const EdgeInsets.only(
+            right: 8.0,
+          ),
+          child: FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                this.count = 0;
+                this.futureRecipes.clear();
+                this.futureJson = null;
+                this.ingredients = tController.text;
+                this.futureJson =
+                    fetchJson().then((value) => this.complete(value));
+              });
+            },
+            child: Icon(Icons.search),
+          ),
+        ),
+      ],
+    ));
     int i;
-    for(i = 0; i < count; i++){
-
-      children.add(FutureBuilder<Recipe>(
-        future: futureRecipes[i],
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-
-            return Card(
-              child: InkWell(
-                splashColor: Colors.blue.withAlpha(30),
-                onTap: () {
-                  print('Card tapped.');
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-
-                    ListTile(
-                      leading: Image.network(
-                          snapshot.data.thumbnail),
-                      title: Text(snapshot.data.title),
-                      subtitle: Text("Ingredients: " + snapshot.data.ingredients),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        TextButton(
-                          child: const Text('CHECK IT OUT'),
-                          onPressed: () {
-                            _launchURL(snapshot.data.href);
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ),
-                  ],
+    for (i = 0; i < count; i++) {
+      children.add(
+        FutureBuilder<Recipe>(
+          future: futureRecipes[i],
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Card(
+                child: InkWell(
+                  splashColor: Colors.blue.withAlpha(30),
+                  onTap: () {
+                    print('Card tapped.');
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: Image.network(snapshot.data.thumbnail),
+                        title: Text(snapshot.data.title),
+                        subtitle:
+                            Text("Ingredients: " + snapshot.data.ingredients),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          TextButton(
+                            child: const Text('CHECK IT OUT'),
+                            onPressed: () {
+                              _launchURL(snapshot.data.href);
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}" " Test");
-          }
+              );
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}" " Test");
+            }
 
-          // By default, show a loading spinner.
-          return CircularProgressIndicator();
-        },
-      ));
-      children.add(SizedBox(height: 10,));
+            // By default, show a loading spinner.
+            return CircularProgressIndicator();
+          },
+        ),
+      );
+      children.add(
+        SizedBox(
+          height: 10,
+        ),
+      );
     }
 
-    if(count == 0){
-      children.add(Text("No elements yet"));
+    if (count == 0) {
+      children.add(
+        Text("No elements yet"),
+      );
     }
 
     return children;
-
   }
 
   _launchURL(String url) async {
@@ -216,6 +234,25 @@ class _RecipesState extends State<Recipes> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  
+  void _openFilterDialog() async {
+    await FilterListDialog.display(
+      context,
+      allTextList: filterIngredients,
+      height: 480,
+      borderRadius: 20,
+      headlineText: "Select Count",
+      searchFieldHintText: "Search Here",
+      selectedTextList: selectedFilterIngredients,
+      onApplyButtonClick: (list) {
+        if (list != null) {
+          setState(() {
+            selectedFilterIngredients = List.from(list);
+          });
+        }
+      });
   }
 }
 //End of Recipe list
