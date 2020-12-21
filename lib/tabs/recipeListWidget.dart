@@ -40,7 +40,8 @@ class _RecipesState extends State<Recipes> {
 
   Future<dynamic> fetchJson() async {
     print('http://www.recipepuppy.com/api/?i=' + ingredients);
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    final response =
+        await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -55,7 +56,8 @@ class _RecipesState extends State<Recipes> {
   }
 
   Future<Recipe> fetchRecipe(int resNumber) async {
-    final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
+    final response =
+        await http.get('http://www.recipepuppy.com/api/?i=' + ingredients);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -72,10 +74,9 @@ class _RecipesState extends State<Recipes> {
   void initState() {
     super.initState();
     futureJson = fetchJson().then((value) => complete(value));
-
   }
 
-  void complete(dynamic json){
+  void complete(dynamic json) {
     List jsonInner = json;
     jsonInner.forEach((element) {
       futureRecipes.add(fetchRecipe(count));
@@ -86,9 +87,7 @@ class _RecipesState extends State<Recipes> {
       this.futureRecipes = futureRecipes;
       this.count = count;
     });
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -97,68 +96,63 @@ class _RecipesState extends State<Recipes> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(/*
+    return Scaffold(
+        /*
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),*/
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+        body: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
 
-        child: SingleChildScrollView(
-          child: Column(
-            children: _printRecipes()),
-        )
-      )
-    );
+            child: SingleChildScrollView(
+      child: Column(children: _printRecipes()),
+    )));
   }
 
-  List<Widget> _printRecipes(){
+  List<Widget> _printRecipes() {
     List<Widget> children = new List();
-    children.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-          children: [
-            Expanded(child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: tController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Ingredients',
-                ),
-              ),
-            )),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                color: Colors.red,
-                onPressed: () {
-                  setState(() {
-                    this.count = 0;
-                    this.futureRecipes.clear();
-                    this.futureJson = null;
-                    this.ingredients = tController.text;
-                    this.futureJson = fetchJson().then((value) => this.complete(value));
-                  });
-
-                },
-                child: Text("Search"),),
-            )
-          ],
+    children.add(Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: tController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Ingredients',
+            ),
+          ),
+        )),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RaisedButton(
+            color: Colors.red,
+            onPressed: () {
+              setState(() {
+                this.count = 0;
+                this.futureRecipes.clear();
+                this.futureJson = null;
+                this.ingredients = tController.text;
+                this.futureJson =
+                    fetchJson().then((value) => this.complete(value));
+              });
+            },
+            child: Text("Search"),
+          ),
         )
-    );
+      ],
+    ));
     int i;
-    for(i = 0; i < count; i++){
-
+    for (i = 0; i < count; i++) {
       children.add(FutureBuilder<Recipe>(
         future: futureRecipes[i],
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-
             return Card(
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
@@ -168,12 +162,11 @@ class _RecipesState extends State<Recipes> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-
                     ListTile(
-                      leading: Image.network(
-                          snapshot.data.thumbnail),
+                      leading: Image.network(snapshot.data.thumbnail),
                       title: Text(snapshot.data.title),
-                      subtitle: Text("Ingredients: " + snapshot.data.ingredients),
+                      subtitle:
+                          Text("Ingredients: " + snapshot.data.ingredients),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -199,15 +192,16 @@ class _RecipesState extends State<Recipes> {
           return CircularProgressIndicator();
         },
       ));
-      children.add(SizedBox(height: 10,));
+      children.add(SizedBox(
+        height: 10,
+      ));
     }
 
-    if(count == 0){
+    if (count == 0) {
       children.add(Text("No elements yet"));
     }
 
     return children;
-
   }
 
   _launchURL(String url) async {

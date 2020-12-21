@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/tabs/favoriteListWidget.dart';
 
 import 'tabs/pantryWidget.dart';
 import 'tabs/recipeListWidget.dart';
@@ -18,7 +19,7 @@ class TabNavigation extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: DefaultTabController(
-        length: 3,
+        length: 4,
         initialIndex: 1,
         child: Scaffold(
           appBar: AppBar(
@@ -27,6 +28,7 @@ class TabNavigation extends StatelessWidget {
                 Tab(icon: Icon(Icons.kitchen)),
                 Tab(icon: Icon(Icons.fastfood_outlined)),
                 Tab(icon: Icon(Icons.food_bank_outlined)),
+                Tab(icon: Icon(Icons.star)),
               ],
             ),
             title: Text('Food App '),
@@ -36,6 +38,7 @@ class TabNavigation extends StatelessWidget {
               PantryWidget(),
               RecipeListWidget(),
               Icon(Icons.directions_bike),
+              FavoriteListWidget(),
             ],
           ),
         ),
