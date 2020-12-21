@@ -95,7 +95,7 @@ class FavouriteListState extends State<FavouriteList> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Image.network(favourites[i].thumbnail),
+                leading: Image.network(current.thumbnail),
                 trailing: IconButton(
                   icon: Icon(isSaved ? Icons.favorite : Icons.favorite_border),
                   color: isSaved ? Colors.red : null,
@@ -120,8 +120,8 @@ class FavouriteListState extends State<FavouriteList> {
                     });
                   },
                 ),
-                title: Text(favourites[i].title),
-                subtitle: Text("Ingredients: " + favourites[i].ingredients),
+                title: Text(current.title),
+                subtitle: Text("Ingredients: " + current.ingredients),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -129,7 +129,7 @@ class FavouriteListState extends State<FavouriteList> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(favourites[i].href);
+                      _launchURL(current.href);
                     },
                   ),
                   const SizedBox(width: 8),
