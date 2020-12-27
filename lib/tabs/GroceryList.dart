@@ -40,13 +40,15 @@ class _GroceryState extends State<GroceryList> {
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     GroceryItem result;
     if (index > items.length - 1) {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditGrocery(null)));
-      setState(() {
-        items.insert(index, result);
-      });
+      result = await Navigator.push(
+          context, MaterialPageRoute(builder: (context) => EditGrocery(null)));
+      if (result != null)
+        setState(() {
+          items.insert(index, result);
+        });
     } else {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditGrocery(items[index])));
-
+      result = await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => EditGrocery(items[index])));
       setState(() {
         items[index] = result;
       });
@@ -69,8 +71,7 @@ class _GroceryState extends State<GroceryList> {
                   caption: "Edit",
                   color: Colors.blue,
                   icon: Icons.edit,
-                  onTap: () => {_awaitResultFromEditScreen(context, index)}
-                  ),
+                  onTap: () => {_awaitResultFromEditScreen(context, index)}),
             ],
             secondaryActions: <Widget>[
               IconSlideAction(

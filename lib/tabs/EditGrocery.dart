@@ -40,7 +40,9 @@ class _EditState extends State<EditGrocery> {
       nameController.text = item.name;
       quantityController.text = "${item.quantity}";
     }
+    final node = FocusScope.of(context);
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,6 +54,7 @@ class _EditState extends State<EditGrocery> {
               child: TextField(
                 controller: nameController,
                 decoration: InputDecoration(hintText: "Enter name"),
+                onEditingComplete: () => node.nextFocus(),
               ),
             ),
             Container(
@@ -60,6 +63,7 @@ class _EditState extends State<EditGrocery> {
               child: TextField(
                 controller: quantityController,
                 decoration: InputDecoration(hintText: "Enter quantity"),
+                onEditingComplete: () => node.unfocus(),
               ),
             ),
           ],
