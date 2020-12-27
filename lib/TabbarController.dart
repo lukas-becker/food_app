@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/tabs/GroceryList.dart';
 
 import 'tabs/favouriteListWidget.dart';
 import 'tabs/pantryWidget.dart';
@@ -49,7 +50,7 @@ class _TabBarControllerWidgetState extends State<TabBarControllerWidget>
       body: TabBarView(controller: _tabController, children: [
         PantryWidget(),
         RecipeListWidget(),
-        Icon(Icons.directions_bike),
+        GroceryListWidget(),
         FavouriteListWidget(),
       ]),
     );
