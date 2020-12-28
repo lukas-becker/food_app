@@ -8,7 +8,8 @@ class EditGroceryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: EditGrocery(this.item));
+    return MaterialApp(
+        debugShowCheckedModeBanner: false, home: EditGrocery(this.item));
   }
 }
 
@@ -33,6 +34,7 @@ class _EditState extends State<EditGrocery> {
 
   var nameController = new TextEditingController();
   var quantityController = new TextEditingController();
+  var unitController
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +68,19 @@ class _EditState extends State<EditGrocery> {
                 onEditingComplete: () => node.unfocus(),
               ),
             ),
+            Container(
+              width: 200,
+              margin: EdgeInsets.all(16),
+              child: TextField(
+                controller: ,
+              ),)
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pop(context, new GroceryItem(nameController.text, int.parse(quantityController.text), null));
+          Navigator.pop(context, new GroceryItem(
+              nameController.text, int.parse(quantityController.text), null));
         },
         child: Icon(Icons.add),
       ),

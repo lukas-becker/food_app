@@ -34,7 +34,6 @@ class GroceryStorage {
 
     } catch (e) {
       print("Error");
-      print(e);
       return [];
     }
   }
