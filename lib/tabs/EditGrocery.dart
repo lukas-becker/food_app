@@ -71,7 +71,7 @@ class _EditState extends State<EditGrocery> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pop(context, new GroceryItem(nameController.text, int.parse(quantityController.text)));
+          Navigator.pop(context, new GroceryItem(nameController.text, int.parse(quantityController.text), null));
         },
         child: Icon(Icons.add),
       ),

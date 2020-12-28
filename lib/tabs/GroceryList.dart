@@ -1,16 +1,24 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:food_app/classes/GroceryItem.dart';
+import 'package:food_app/classes/GroceryStorage.dart';
 import 'package:food_app/tabs/EditGrocery.dart';
 
 class GroceryListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: GroceryList());
+    return MaterialApp(debugShowCheckedModeBanner: false,
+        home: GroceryList(GroceryStorage()));
   }
 }
 
 class GroceryList extends StatefulWidget {
+  final GroceryStorage storage;
+
+  GroceryList(this.storage);
+
   @override
   createState() => new _GroceryState();
 }
@@ -21,6 +29,13 @@ class _GroceryState extends State<GroceryList> {
   @override
   void initState() {
     super.initState();
+    widget.storage.readGroceriesFromFile().then((value) => groceriesFinished(value));
+  }
+
+  void groceriesFinished(List<GroceryItem> items){
+    setState(() {
+      this.items = items;
+    });
   }
 
   void addNewGroceryItem(GroceryItem item) {
@@ -35,6 +50,18 @@ class _GroceryState extends State<GroceryList> {
       items.removeAt(index);
     });
     print("Removed Grocery Item");
+    _saveGrocery();
+  }
+
+  void _saveGrocery() {
+    String output = "";
+    for (int i = 0; i < items.length; i++) {
+      var grocery = items[i];
+      output += jsonEncode(grocery);
+      if (i < items.length - 1) output += ";";
+    }
+
+    widget.storage.writeGroceries(output);
   }
 
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
@@ -53,6 +80,7 @@ class _GroceryState extends State<GroceryList> {
         items[index] = result;
       });
     }
+    _saveGrocery();
   }
 
   @override
@@ -87,6 +115,7 @@ class _GroceryState extends State<GroceryList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_awaitResultFromEditScreen(context, items.length)},
         child: Icon(Icons.add),
+        backgroundColor: Colors.lime,
       ),
     );
   }
