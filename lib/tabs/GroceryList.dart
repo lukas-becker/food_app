@@ -9,7 +9,8 @@ import 'package:food_app/tabs/EditGrocery.dart';
 class GroceryListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false,
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: GroceryList(GroceryStorage()));
   }
 }
@@ -29,10 +30,12 @@ class _GroceryState extends State<GroceryList> {
   @override
   void initState() {
     super.initState();
-    widget.storage.readGroceriesFromFile().then((value) => groceriesFinished(value));
+    widget.storage
+        .readGroceriesFromFile()
+        .then((value) => groceriesFinished(value));
   }
 
-  void groceriesFinished(List<GroceryItem> items){
+  void groceriesFinished(List<GroceryItem> items) {
     setState(() {
       this.items = items;
     });
@@ -76,9 +79,10 @@ class _GroceryState extends State<GroceryList> {
     } else {
       result = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => EditGrocery(items[index])));
-      setState(() {
-        items[index] = result;
-      });
+      if (result != null)
+        setState(() {
+          items[index] = result;
+        });
     }
     _saveGrocery();
   }
@@ -93,7 +97,10 @@ class _GroceryState extends State<GroceryList> {
           return Slidable(
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
-            child: ListTile(title: Text(item.name)),
+            child: ListTile(
+              title: Text(item.name),
+              subtitle: Text("Quantity: ${item.quantity} ${item.unit}"),
+            ),
             actions: <Widget>[
               IconSlideAction(
                   caption: "Edit",

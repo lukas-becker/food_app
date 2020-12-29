@@ -1,3 +1,4 @@
+@deprecated
 enum Unit {
   gram,
   kilogram,
@@ -5,7 +6,11 @@ enum Unit {
   pound
 }
 
+@deprecated
 extension UnitExtension on Unit{
+  String toShortString(){
+    return this.toString().split(".").last;
+  }
   String get abbreviation {
     switch (this){
       case Unit.gram:
@@ -38,6 +43,27 @@ extension UnitExtension on Unit{
         break;
       case Unit.pound:
         return "pound";
+        break;
+      default:
+        return null;
+        break;
+    }
+  }
+
+  static Unit fromString (String input){
+    String lowercaseInput = input.toLowerCase();
+    switch (lowercaseInput){
+      case "gram":
+        return Unit.gram;
+        break;
+      case "kilogram":
+        return Unit.kilogram;
+        break;
+      case "ounce":
+        return Unit.ounce;
+        break;
+      case "pound":
+        return Unit.pound;
         break;
       default:
         return null;

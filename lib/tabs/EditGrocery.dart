@@ -23,26 +23,66 @@ class EditGrocery extends StatefulWidget {
 }
 
 class _EditState extends State<EditGrocery> {
-  final GroceryItem item;
+  var nameController = new TextEditingController();
+  var quantityController = new TextEditingController();
+  String unitDropdown;
+  bool once = true;
 
-  _EditState(this.item);
+  final GroceryItem item;
+  bool quantityError = false;
+
+  FocusScopeNode node;
+
+  List<String> units = [
+    "gram",
+    "kilogram",
+    "ounce",
+    "pound",
+    "liter",
+    "gallon"
+  ];
+
+  _EditState(this.item) {
+    if (item != null && once) {
+      nameController.text = item.name;
+      quantityController.text = "${item.quantity}";
+      if (item.unit.contains("s")) item.unit.replaceAll("s", "");
+      unitDropdown = item.unit;
+      once = false;
+    } else {
+      unitDropdown = units[0];
+    }
+  }
 
   @override
   void initState() {
     super.initState();
   }
 
-  var nameController = new TextEditingController();
-  var quantityController = new TextEditingController();
-  var unitController
+  String checkForPlural(int quantity, String unit) {
+    return quantity > 1 ? unit += "s" : unit;
+  }
+
+  double validateQuantity() {
+    try {
+      if (quantityController.text.contains(",")) {
+        quantityController.text = quantityController.text.replaceAll(",", ".");
+      }
+      double quantity = double.parse(quantityController.text);
+      if (node != null) node.nextFocus();
+      quantityError = false;
+      return quantity;
+    } catch (e) {
+      print("Quantity Input was not an Integer");
+      quantityError = true;
+      _showError();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (item != null) {
-      nameController.text = item.name;
-      quantityController.text = "${item.quantity}";
-    }
-    final node = FocusScope.of(context);
+    this.node = FocusScope.of(context);
+
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: Center(
@@ -55,7 +95,7 @@ class _EditState extends State<EditGrocery> {
               margin: EdgeInsets.all(16),
               child: TextField(
                 controller: nameController,
-                decoration: InputDecoration(hintText: "Enter name"),
+                decoration: InputDecoration(labelText: "Enter name"),
                 onEditingComplete: () => node.nextFocus(),
               ),
             ),
@@ -64,26 +104,58 @@ class _EditState extends State<EditGrocery> {
               margin: EdgeInsets.all(16),
               child: TextField(
                 controller: quantityController,
-                decoration: InputDecoration(hintText: "Enter quantity"),
-                onEditingComplete: () => node.unfocus(),
+                decoration: InputDecoration(labelText: "Enter quantity"),
+                onEditingComplete: () => validateQuantity(),
               ),
             ),
             Container(
-              width: 200,
-              margin: EdgeInsets.all(16),
-              child: TextField(
-                controller: ,
-              ),)
+                width: 200,
+                margin: EdgeInsets.all(16),
+                child: DropdownButton<String>(
+                  value: unitDropdown,
+                  isExpanded: true,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 20,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  underline: Container(
+                    height: 1,
+                    color: Colors.grey,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      unitDropdown = newValue;
+                    });
+                  },
+                  items: units.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Align(
+                          alignment: Alignment.center, child: Text(value)),
+                    );
+                  }).toList(),
+                ))
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context, new GroceryItem(
-              nameController.text, int.parse(quantityController.text), null));
-        },
+        onPressed: () => {sendToGroceryList()},
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  sendToGroceryList() {
+    double quantity = validateQuantity();
+    if (!quantityError) {
+      Navigator.pop(
+          context,
+          new GroceryItem(
+              nameController.text, quantity, unitDropdown));
+    }
+  }
+
+  void _showError() {
+    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the quantity!")));
   }
 }

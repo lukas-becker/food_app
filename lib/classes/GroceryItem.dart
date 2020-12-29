@@ -2,8 +2,8 @@ import 'UnitEnum.dart';
 
 class GroceryItem{
   final String name;
-  final int quantity;
-  final Unit unit;
+  final double quantity;
+  final String unit;
 
   GroceryItem(this.name, this.quantity, this.unit);
 
@@ -17,6 +17,6 @@ class GroceryItem{
   GroceryItem.fromJson(Map<String, dynamic> json)
       : name = json['name'],
         quantity = json['quantity'],
-        unit = json["unit"];
+        unit = json['unit'];
 }
 
