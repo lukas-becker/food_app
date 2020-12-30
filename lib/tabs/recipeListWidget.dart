@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Ingredient.dart';
 import 'package:http/http.dart' as http;
@@ -43,14 +44,23 @@ class _RecipesState extends State<Recipes> {
   
   String ingredientsOld = 'pork';
 
+  //Speed Dial
+  bool _dialVisible = true;
+
+  //filtering
+  List<String> allIngredients = new List();
+  bool _exact = false;
+
+
   final tController = new TextEditingController();
 
   Future<List<Recipe>> fetchJsonNew(String ingr) async {
     ingr = ingr.substring(1,ingr.length-1);
     ingr = ingr.replaceAll(" ", "");
-    print('http://www.recipepuppy.com/api/?i=' + ingr);
+    print('Downloading: http://www.recipepuppy.com/api/?i=' + ingr);
     final response = await http.get('http://www.recipepuppy.com/api/?i=' + ingr);
     if (response.statusCode == 200){
+      print("Got response");
       List list = jsonDecode(response.body)['results'];
       List<Recipe> res = List.generate(list.length, (index) => Recipe.fromJson(jsonDecode(response.body)['results'][index]));
       return res;
@@ -110,9 +120,10 @@ class _RecipesState extends State<Recipes> {
   }
   
   void ingredientsFetchComplete(List<Ingredient> ingr){
+    ingr.forEach((element) {allIngredients.add(element.name.toUpperCase());});
     powerset(ingr).forEach((element) {
       if(element.toString() != "[]"){
-        print(element);
+        print("Checking api for: " + element.toString());
         fetchJsonNew(element.toString()).then((value) => addToRecipeList(value));
       }});
   }
@@ -139,6 +150,65 @@ class _RecipesState extends State<Recipes> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),*/
+        /*bottomNavigationBar: BottomAppBar(
+          child: Row(
+            children: [
+              IconButton(icon: Icon(Icons.search), onPressed: () {}),
+              Spacer(),
+              IconButton(icon: Icon(Icons.refresh), onPressed: () {}),
+              IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+            ],
+          ),
+        ),*/
+        /*floatingActionButton: FloatingActionButton(child: Icon(Icons.filter_list), onPressed: () {}),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,*/
+        floatingActionButton: SpeedDial(
+          // both default to 16
+          marginRight: 16,
+          marginBottom: 16,
+          animatedIcon: AnimatedIcons.menu_close,
+          animatedIconTheme: IconThemeData(size: 22.0),
+          // this is ignored if animatedIcon is non null
+          // child: Icon(Icons.add),
+          visible: _dialVisible,
+          // If true user is forced to close dial manually
+          // by tapping main button and overlay is not rendered.
+          closeManually: false,
+          curve: Curves.bounceIn,
+          overlayColor: Colors.black,
+          overlayOpacity: 0.5,
+          onOpen: () => print('OPENING DIAL'),
+          onClose: () => print('DIAL CLOSED'),
+          tooltip: 'Options',
+          heroTag: 'speed-dial-hero-tag',
+          backgroundColor: Colors.lime,
+          foregroundColor: Colors.black,
+          elevation: 8.0,
+          shape: CircleBorder(),
+          children: [
+            SpeedDialChild(
+                child: Icon(Icons.filter_list),
+                backgroundColor: Colors.red,
+                label: 'Filter',
+                labelStyle: TextStyle(fontSize: 18.0),
+                onTap: () => print('FIRST CHILD')
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.all_inclusive),
+              backgroundColor: Colors.blue,
+              label: 'Exact Matches',
+              labelStyle: TextStyle(fontSize: 18.0),
+              onTap: () => setState(() {  _exact = _exact ^ true; print("toggle: " + _exact.toString());}),
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.search),
+              backgroundColor: Colors.green,
+              label: 'Search',
+              labelStyle: TextStyle(fontSize: 18.0),
+              onTap: () => print('THIRD CHILD'),
+            ),
+          ],
+        ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -165,10 +235,85 @@ class _RecipesState extends State<Recipes> {
 
         },
         child: Text("Take me there")));
+
+      return result;
     }
+
     for(int i = 0; i < recipes.length; i++){
       if(recipes[i].thumbnail == null)
         recipes[i].thumbnail = "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+
+
+      bool _continue = false;
+      if(_exact){
+        String _ingredients = recipes[i].ingredients;
+        String _ingredient;
+        int countIngredients = _ingredients.split(",").length;
+        print("Ingredients for recipe ("+countIngredients.toString()+"): " + _ingredients);
+        int index = 0;
+        int nextIndex;
+        for(int j = 0; j < countIngredients; j++){
+          nextIndex = _ingredients.indexOf(",", index);
+
+          if(nextIndex == -1){
+            print("Checking range from " + index.toString());
+            _ingredient = _ingredients.substring(index);
+          } else {
+            print("Checking range between " + index.toString() + " and " + nextIndex.toString());
+            _ingredient = _ingredients.substring(index,nextIndex);
+          }
+
+          if(_ingredient.startsWith(" "))
+            _ingredient.replaceFirst(" ", "");
+
+          print(_ingredient);
+
+          print("checking: " + _ingredient);
+          if(_ingredient.contains(" ")){
+            int spaceIndex = 0;
+            int loopCondition = _ingredient.split(" ").length;
+            for(int k = 0; k < loopCondition; k++){
+              String toCheck;
+              print(spaceIndex);
+              if(spaceIndex == -1)
+                toCheck = _ingredient.substring(spaceIndex);
+              else
+                toCheck = _ingredient.substring(spaceIndex, _ingredient.indexOf(" ", spaceIndex));
+
+              toCheck = toCheck.toUpperCase();
+
+              if(toCheck.startsWith(" "))
+                toCheck.replaceFirst(" ", "");
+
+              print("Checking: " + toCheck + " (" + (k+1).toString() + "/" + (loopCondition).toString() + ")");
+
+              if(!(allIngredients.contains(toCheck))){
+                _continue = true;
+                print(_ingredient.substring(spaceIndex) + " is not in the List");
+              } else {
+                _continue = false;
+                break;
+              }
+
+              spaceIndex = (_ingredient.indexOf(" ", spaceIndex) == -1 ? spaceIndex: _ingredient.indexOf(" ", spaceIndex));
+              print(spaceIndex);
+            }
+          } else {
+            if(!(allIngredients.contains(_ingredient.toUpperCase()))) {
+              print(_ingredient + " is not in the List");
+              _continue = true;
+              break;
+            }
+          }
+
+          index = nextIndex;
+
+        }
+      }
+
+      if(_continue)
+        continue;
+
       result.add(SizedBox(width: 8, height: 15,));
       result.add(
           Card(
@@ -199,6 +344,36 @@ class _RecipesState extends State<Recipes> {
           )
       );
     }
+
+    if(recipes.length == 0){
+      result.add(SizedBox(width: 8, height: 15,));
+      result.add(Text("You have nothing in your Pantry!"));
+      result.add(Text("Add some food, to see what you could cook!"));
+      result.add(RaisedButton(
+          color: Colors.green,
+          onPressed: () {
+            TabController tc = DefaultTabController.of(context);
+            tc.animateTo(tc.index-1);
+
+          },
+          child: Text("Take me there")));
+    }
+
+    if(result.length == 0){
+      result.add(SizedBox(width: 8, height: 15,));
+      result.add(Text("Your Filter fit no results!"));
+      result.add(Text("Add some food, or adjust it!"));
+      result.add(RaisedButton(
+          color: Colors.green,
+          onPressed: () {
+            TabController tc = DefaultTabController.of(context);
+            tc.animateTo(tc.index-1);
+
+          },
+          child: Text("Take me to the Pantry")));
+    }
+
+
     return result;
   }
 
