@@ -14,4 +14,9 @@ class Recipe {
       thumbnail: json['thumbnail'],
     );
   }
+
+  @override
+  String toString() {
+    return title + "_SEPERATOR_" + href + "_SEPERATOR_" + ingredients + "_SEPERATOR_" + thumbnail ; 
+  }
 }
