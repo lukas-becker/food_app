@@ -167,7 +167,8 @@ class _PantryState extends State<Pantry> {
     refreshDB = true;
     if(amount != null) {
       final ing = Ingredient(id: id, name: name, amount: amount);
-      DatabaseUtil.checkDBForIngredient(name).then((value) => value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState()));
+      DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
+
     }
   }
 
