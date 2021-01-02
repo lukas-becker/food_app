@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/tabs/GroceryList.dart';
 import 'package:food_app/TabbarController.dart';
+import 'package:food_app/tabs/pantryWidget.dart';
+import 'package:food_app/tabs/recipeListWidget.dart';
 import './TabbarController.dart';
 
 void main() {
@@ -21,7 +24,7 @@ class _TabNavigationState extends State<TabNavigation> {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: TabBarControllerWidget()
+      home: TabBarControllerWidget(),
     );
   }
 }
