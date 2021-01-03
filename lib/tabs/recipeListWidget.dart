@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/classes/FavouriteStorage.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Ingredient.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:filter_list/filter_list.dart';
+import 'package:food_app/globalVariables.dart' as globals;
 
 import '../classes/Recipe.dart';
 import 'dart:async';
@@ -56,13 +55,12 @@ class _RecipesState extends State<Recipes> {
 
   //filtering
   List<String> allIngredients = new List();
-  bool _exact = false;
 
   //for Textboxes
   final tController = new TextEditingController();
 
   //Load json from Api, ingredient as parameter
-  Future<List<Recipe>> fetchJsonNew(String ingr) async {
+  Future<List<Recipe>> fetchJson(String ingr) async {
     ingr = ingr.substring(1, ingr.length - 1);
     ingr = ingr.replaceAll(" ", "");
     print('Downloading: http://www.recipepuppy.com/api/?i=' + ingr);
@@ -77,6 +75,22 @@ class _RecipesState extends State<Recipes> {
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
       return res;
     }
+  }
+
+  Future<List<Recipe>> searchRecipe(String recipeName) async {
+    print("Downloading: http://www.recipepuppy.com/api/?q=" + recipeName);
+    List<Recipe> res = [];
+    final response =
+        await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
+    if (response.statusCode == 200) {
+      print("got Response");
+      List list = jsonDecode(response.body)['results'];
+      res = List.generate(
+          list.length,
+          (index) =>
+              Recipe.fromJson(jsonDecode(response.body)['results'][index]));
+    }
+    return res;
   }
 
   @override
@@ -110,8 +124,7 @@ class _RecipesState extends State<Recipes> {
     powerset(ingr).forEach((element) {
       if (element.toString() != "[]") {
         print("Checking api for: " + element.toString());
-        fetchJsonNew(element.toString())
-            .then((value) => addToRecipeList(value));
+        fetchJson(element.toString()).then((value) => addToRecipeList(value));
       }
     });
   }
@@ -128,59 +141,12 @@ class _RecipesState extends State<Recipes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: SpeedDial(
-          // both default to 16
-          marginRight: 16,
-          marginBottom: 16,
-          animatedIcon: AnimatedIcons.menu_close,
-          animatedIconTheme: IconThemeData(size: 22.0),
-          // this is ignored if animatedIcon is non null
-          // child: Icon(Icons.add),
-          visible: _dialVisible,
-          // If true user is forced to close dial manually
-          // by tapping main button and overlay is not rendered.
-          closeManually: false,
-          curve: Curves.bounceIn,
-          overlayColor: Colors.black,
-          overlayOpacity: 0.5,
-          onOpen: () => print('OPENING DIAL'),
-          onClose: () => print('DIAL CLOSED'),
-          tooltip: 'Options',
-          heroTag: 'speed-dial-hero-tag',
-          backgroundColor: Colors.lime,
-          foregroundColor: Colors.black,
-          elevation: 8.0,
-          shape: CircleBorder(),
-          children: [
-            SpeedDialChild(
-                child: Icon(Icons.filter_list),
-                backgroundColor: Colors.red,
-                label: 'Filter',
-                labelStyle: TextStyle(fontSize: 18.0),
-                onTap: () => print('FIRST CHILD')),
-            SpeedDialChild(
-              child: Icon(Icons.all_inclusive),
-              backgroundColor: Colors.blue,
-              label: 'Exact Matches',
-              labelStyle: TextStyle(fontSize: 18.0),
-              onTap: () => setState(() {
-                _exact = _exact ^ true;
-                print("toggle: " + _exact.toString());
-              }),
-            ),
-            SpeedDialChild(
-              child: Icon(Icons.search),
-              backgroundColor: Colors.green,
-              label: 'Search',
-              labelStyle: TextStyle(fontSize: 18.0),
-              onTap: () => print('THIRD CHILD'),
-            ),
-          ],
-        ),
-        body: Center(
-            child: SingleChildScrollView(
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(children: _compileRecipes()),
-        )));
+        ),
+      ),
+    );
   }
 
   List<Widget> _compileRecipes() {
@@ -195,7 +161,7 @@ class _RecipesState extends State<Recipes> {
 
       bool _continue = false;
       //If only "makeable" recipes should be shown
-      if (_exact) {
+      if (globals.exact) {
         //Ingredients of current recipe
         String _ingredients = recipes[i].ingredients;
         //One ingredient of possible list
