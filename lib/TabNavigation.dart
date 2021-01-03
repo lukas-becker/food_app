@@ -29,6 +29,7 @@ class _TabNavigationState extends State<TabNavigation> {
         final TabController tabController = DefaultTabController.of(context);
         tabController.addListener(() {
           if (tabController.indexIsChanging) {
+            globals.search = false;
             if (tabController.index == 1) {
               setState(() {
                 _secondTabActive = true;
@@ -42,39 +43,37 @@ class _TabNavigationState extends State<TabNavigation> {
         });
         return Scaffold(
           appBar: AppBar(
-            bottom: TabBar(
-              tabs: myTabs,
-            ),
-            title: Text("Snack Hunter"),
-            actions: (_secondTabActive)
-                ? <Widget>[
-                    IconButton(
-                      icon: Icon(
-                        Icons.filter_list,
+              bottom: TabBar(
+                tabs: myTabs,
+              ),
+              title: Text("Snack Hunter"),
+              actions: (_secondTabActive)
+                  ? <Widget>[
+                      IconButton(
+                        icon: Icon(
+                          Icons.filter_list,
+                        ),
+                        onPressed: null,
                       ),
-                      onPressed: null,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.search_outlined,
+                      IconButton(
+                        icon: Icon(
+                          Icons.search_outlined,
+                        ),
+                        onPressed: () {
+                          _searchRecipe();
+                        },
                       ),
-                      onPressed: () {
-                        _searchRecipe();
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.all_inclusive,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          globals.exact = globals.exact ^ true;
-                        });
-                      }
-                    ),
-                  ]
-                : null
-          ),
+                      IconButton(
+                          icon: Icon(
+                            Icons.all_inclusive,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              globals.exact = globals.exact ^ true;
+                            });
+                          }),
+                    ]
+                  : null),
           body: TabBarView(children: [
             PantryWidget(),
             RecipeListWidget(),
@@ -99,8 +98,28 @@ class _TabNavigationState extends State<TabNavigation> {
               labelText: 'Recipe',
             ),
           ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: _search,
+              child: Text("Search"),
+            ),
+            TextButton(
+              onPressed: () => {
+                Navigator.pop(context),
+              },
+              child: Text("Cancel"),
+            )
+          ],
         );
       },
     );
+  }
+
+  _search() {
+    setState(() {
+      globals.search = true;
+      globals.searchString = tController.text;
+    });
+    Navigator.pop(context);
   }
 }

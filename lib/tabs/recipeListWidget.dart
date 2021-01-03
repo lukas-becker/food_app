@@ -77,11 +77,10 @@ class _RecipesState extends State<Recipes> {
     }
   }
 
-  Future<List<Recipe>> searchRecipe(String recipeName) async {
+  Future<List<Recipe>> _searchRecipeApi(String recipeName) async {
     print("Downloading: http://www.recipepuppy.com/api/?q=" + recipeName);
     List<Recipe> res = [];
-    final response =
-        await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
+    final response = await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
     if (response.statusCode == 200) {
       print("got Response");
       List list = jsonDecode(response.body)['results'];
@@ -90,6 +89,9 @@ class _RecipesState extends State<Recipes> {
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
     }
+    res.forEach((element) {
+      print(element.toString());
+    });
     return res;
   }
 
@@ -101,11 +103,14 @@ class _RecipesState extends State<Recipes> {
     widget.favStorage
         .readFavourites()
         .then((value) => favouritesFinished(value));
-
-    //Ingredients from "Pantry"
-    DatabaseUtil.getDatabase();
-    DatabaseUtil.getIngredients()
-        .then((value) => ingredientsFetchComplete(value));
+    if (!globals.search) {
+      //Ingredients from "Pantry"
+      DatabaseUtil.getDatabase();
+      DatabaseUtil.getIngredients()
+          .then((value) => ingredientsFetchComplete(value));
+    } else {
+      _searchRecipeApi(globals.searchString).then((value) => setRecipeList(value));
+    }
   }
 
   List<String> favouritesFinished(List<String> fav) {
@@ -131,6 +136,16 @@ class _RecipesState extends State<Recipes> {
 
   void addToRecipeList(List<Recipe> newRecipes) {
     newRecipes.forEach((element) {
+      recipes.add(element);
+    });
+    setState(() {
+      this.recipes = recipes;
+    });
+  }
+
+  void setRecipeList(List<Recipe> searchedRecipes) {
+    recipes = [];
+    searchedRecipes.forEach((element) {
       recipes.add(element);
     });
     setState(() {
