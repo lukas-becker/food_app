@@ -17,6 +17,12 @@ class Recipe {
 
   @override
   String toString() {
-    return title + "_SEPERATOR_" + href + "_SEPERATOR_" + ingredients + "_SEPERATOR_" + thumbnail ; 
+    return title +
+        "_SEPERATOR_" +
+        href +
+        "_SEPERATOR_" +
+        ingredients +
+        "_SEPERATOR_" +
+        thumbnail;
   }
 }

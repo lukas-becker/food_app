@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/TabbarController.dart';
-import './TabbarController.dart';
+import 'tabs/favouriteListWidget.dart';
+import 'tabs/pantryWidget.dart';
+import 'tabs/recipeListWidget.dart';
 
 void main() {
   runApp(TabNavigation());
@@ -13,6 +14,13 @@ class TabNavigation extends StatefulWidget {
 }
 
 class _TabNavigationState extends State<TabNavigation> {
+  final List<Tab> myTabs = <Tab>[
+    Tab(icon: Icon(Icons.kitchen)),
+    Tab(icon: Icon(Icons.fastfood_outlined)),
+    Tab(icon: Icon(Icons.food_bank_outlined)),
+    Tab(icon: Icon(Icons.star)),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +29,22 @@ class _TabNavigationState extends State<TabNavigation> {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: TabBarControllerWidget()
+      home: DefaultTabController(
+          length: myTabs.length,
+          child: Scaffold(
+            appBar: AppBar(
+              bottom: TabBar(
+                tabs: myTabs,
+              ),
+              title: Text("Snack Hunter"),
+            ),
+            body: TabBarView(children: [
+              PantryWidget(),
+              RecipeListWidget(),
+              Icon(Icons.directions_bike),
+              FavouriteListWidget(),
+            ]),
+          )),
     );
   }
 }
