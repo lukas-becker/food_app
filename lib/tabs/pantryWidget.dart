@@ -67,30 +67,29 @@ class _PantryState extends State<Pantry> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () {
-                        setState(() {
-                          refreshDB = true;
-                          ingredients[index].amount -= 1;
-                          DatabaseUtil.updateIngredient(ingredients[index]);
-                          if (ingredients[index].amount == 0)
-                            DatabaseUtil.deleteIngredient(ingredients[index].id)
-                                .whenComplete(() => initState());
-                        });
-                      }),
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      setState(() {
+                        refreshDB = true;
+                        ingredients[index].amount -= 1;
+                        DatabaseUtil.updateIngredient(ingredients[index]);
+                        if (ingredients[index].amount == 0)
+                          DatabaseUtil.deleteIngredient(ingredients[index].id)
+                              .whenComplete(() => initState());
+                      });
+                    },
+                  ),
                   Text(ingredients[index].name +
                       " : " +
                       ingredients[index].amount.toString()),
                   IconButton(
                     icon: Icon(Icons.add),
                     onPressed: () {
-                      setState(
-                        () {
-                          refreshDB = true;
-                          ingredients[index].amount += 1;
-                          DatabaseUtil.updateIngredient(ingredients[index]);
-                        },
-                      );
+                      setState(() {
+                        refreshDB = true;
+                        ingredients[index].amount += 1;
+                        DatabaseUtil.updateIngredient(ingredients[index]);
+                      });
                     },
                   ),
                 ],
@@ -122,52 +121,46 @@ class _PantryState extends State<Pantry> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("New List Item"),
-          content: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      DropdownButton(
-                        value: dropdownValue,
-                        icon: Icon(Icons.arrow_downward),
-                        iconSize: 24,
-                        elevation: 16,
-                        style: TextStyle(color: Colors.deepPurple),
-                        underline: Container(
-                          height: 2,
-                          color: Colors.deepPurpleAccent,
-                        ),
-                        items: entries
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String newValue) => {
-                          setState(
-                            () {
-                              dropdownValue = newValue;
-                            },
-                          )
-                        },
-                      ),
-                      TextField(
-                        controller: tController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Amount',
-                        ),
-                      ),
-                    ],
+          content: Row(children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(children: [
+                  DropdownButton(
+                    value: dropdownValue,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    items:
+                        entries.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String newValue) => {
+                      setState(() {
+                        dropdownValue = newValue;
+                      })
+                    },
                   ),
-                ),
+                  TextField(
+                    controller: tController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Amount',
+                    ),
+                  ),
+                ]),
               ),
-            ],
-          ),
+            ),
+          ]),
           actions: [
             FlatButton(
                 onPressed: () {
@@ -183,7 +176,7 @@ class _PantryState extends State<Pantry> {
                 Navigator.of(context).pop();
               },
             ),
-          ],
+          ]
         );
       },
     ).then((value) =>
@@ -206,6 +199,7 @@ class _PantryState extends State<Pantry> {
     }
   }
 
+  // Not working --> Discuss if we want to fix it
   void _askForDelete(int index) {
     showDialog(
         context: context,

@@ -139,9 +139,11 @@ class FavouriteListState extends State<FavouriteList> {
           ),
         ),
       ));
-      printedFavorites.add(SizedBox(
-        height: 10,
-      ));
+      printedFavorites.add(
+        SizedBox(
+          height: 10,
+        ),
+      );
     }
 
     if (printedFavorites.length == 0) {
