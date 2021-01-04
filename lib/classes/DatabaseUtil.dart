@@ -81,7 +81,7 @@ class DatabaseUtil {
     // Get a reference to the database.
     final db = await database;
 
-    // Update the given Dog.
+    // Update the given Ingredient.
     await db.execute("UPDATE ingredient SET amount = " + amount.toString() + " WHERE name = '" + name + "';");
   }
 
@@ -97,6 +97,15 @@ class DatabaseUtil {
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
     );
+  }
+
+  static Future<int> getNextIngredientID() async {
+    final db = await database;
+    List<String> queryList = new List(1);
+    queryList[0] = "MAX(id)";
+    final List<Map<String, dynamic>> maps = await db.query("ingredient", columns: queryList);
+    return maps.first["MAX(id)"] + 1;
+
   }
 
 }

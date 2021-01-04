@@ -92,84 +92,91 @@ class _PantryState extends State<Pantry> {
     );
   }
 
-
+  String dropdownValue;
 
   void _addItem() {
 
-  String newAmount;
-  int amount;
-  String dropdownValue;
-  dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
-  print(dropdownValue);
+    String newAmount;
+    int amount;
+    dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
 
-  showDialog(
-      context: context,
-      builder: (BuildContext context){
-        return AlertDialog(
-          title: Text("New List Item"),
-          content: Row(
-            children: [
-              Expanded(child: 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      DropdownButton(
-                          value: dropdownValue,
-                          icon: Icon(Icons.arrow_downward),
-                          iconSize: 24,
-                          elevation: 16,
-                          style: TextStyle(color: Colors.deepPurple),
-                          underline: Container(
-                            height: 2,
-                            color: Colors.deepPurpleAccent,
-                          ),
-                          items: entries.map<DropdownMenuItem<String>>((String value) {return DropdownMenuItem<String>(value: value,child: Text(value),);}).toList(),
-                          onChanged: (String newValue) => {setState(() {dropdownValue = newValue;})},
-                      ),
-                      TextField(
-                      controller: tController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Amount',
-                      ),
-                    ),]
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text("New List Item"),
+            content: Row(
+              children: [
+                Expanded(child:
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        DropdownButton(
+                            value: dropdownValue,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.deepPurple),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            items: entries.map<DropdownMenuItem<String>>((String value) {return DropdownMenuItem<String>(value: value,child: Text(value),);}).toList(),
+                            onChanged: (value) => {setState(() {dropdownValue = value; Navigator.of(context).pop(); _addItem();})}, //Close the Dropdown and reopen it immediately to reflect value change
+                        ),
+                        TextField(
+                        controller: tController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Amount',
+                        ),
+                      ),]
+                    )
                   )
-                )
+                ),
+                ],
+            ),
+            actions: [
+              FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Close")
               ),
-              ],
-          ),
-          actions: [
-            FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text("Close")
-            ),
-            FlatButton(
-            child: Text("Save"),
-            onPressed: (){
-              amount = null;
-              newAmount = tController.text;
-              amount = int.tryParse(newAmount);
-              Navigator.of(context).pop();
-            },
-            ),
+              FlatButton(
+              child: Text("Save"),
+              onPressed: (){
+                amount = null;
+                newAmount = tController.text;
+                amount = int.tryParse(newAmount);
+                dropdownValue = null;
+                Navigator.of(context).pop();
+              },
+              ),
 
-          ],
-        );
-      }
-  ).then((value)  => insertFromDropdown(ingredients.length + 1, dropdownValue, amount));
-  }
-  
-  Future<void> insertFromDropdown(int id, String name, int amount) async{
-    refreshDB = true;
-    if(amount != null) {
-      final ing = Ingredient(id: id, name: name, amount: amount);
-      DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
-
+            ],
+          );
+        }
+    ).then((value)  => getIdThenInsertFromDropdown(dropdownValue, amount));
     }
+
+    Future<void> getIdThenInsertFromDropdown(String name, int amount) async{
+      refreshDB = true;
+
+      DatabaseUtil.getNextIngredientID().then((value) => insertFromDropdown(value, name, amount));
+    }
+
+    Future<void> insertFromDropdown(int id, String name, int amount) async{
+      refreshDB = true;
+      DatabaseUtil.getNextIngredientID().then((value) => id = value);
+
+      if(amount != null) {
+        final ing = Ingredient(id: id, name: name, amount: amount);
+        DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
+
+      }
   }
 
   void _askForDelete(int index) {

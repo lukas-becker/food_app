@@ -63,7 +63,7 @@ class _RecipesState extends State<Recipes> {
   final tController = new TextEditingController();
 
   //Load json from Api, ingredient as parameter
-  Future<List<Recipe>> fetchJsonNew(String ingr) async {
+  Future<List<Recipe>> fetchJson(String ingr) async {
     ingr = ingr.substring(1,ingr.length-1);
     ingr = ingr.replaceAll(" ", "");
     print('Downloading: http://www.recipepuppy.com/api/?i=' + ingr);
@@ -102,7 +102,7 @@ class _RecipesState extends State<Recipes> {
     powerset(ingr).forEach((element) {
       if(element.toString() != "[]"){
         print("Checking api for: " + element.toString());
-        fetchJsonNew(element.toString()).then((value) => addToRecipeList(value));
+        fetchJson(element.toString()).then((value) => addToRecipeList(value));
       }});
   }
 
