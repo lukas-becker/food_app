@@ -5,7 +5,7 @@ class Ingredient {
 
   Ingredient({this.id, this.name, this.amount});
 
-  void updateAmount(int newAmount){
+  void updateAmount(int newAmount) {
     amount = newAmount;
   }
 

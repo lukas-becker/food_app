@@ -4,22 +4,23 @@ import 'package:path/path.dart' as Path;
 import 'Ingredient.dart';
 
 class DatabaseUtil {
-
   static Future<Database> database;
 
-  static Future<Database> getDatabase(){
-    if(database == null) {
-      database = getDatabasesPath().then((String path) {
-        return openDatabase(
-          Path.join(path, 'food_app_database.db'),
-          onCreate: (db, version) {
-            return db.execute(
-              "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);",
-            );
-          },
-          version: 3,
-        );
-      });
+  static Future<Database> getDatabase() {
+    if (database == null) {
+      database = getDatabasesPath().then(
+        (String path) {
+          return openDatabase(
+            Path.join(path, 'food_app_database.db'),
+            onCreate: (db, version) {
+              return db.execute(
+                "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);",
+              );
+            },
+            version: 3,
+          );
+        },
+      );
 
       return database;
     } else {
@@ -32,7 +33,8 @@ class DatabaseUtil {
     final Database db = await database;
 
     // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('ingredient', where: 'amount > 0');
+    final List<Map<String, dynamic>> maps =
+        await db.query('ingredient', where: 'amount > 0');
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
@@ -46,7 +48,8 @@ class DatabaseUtil {
 
   static Future<bool> checkDBForIngredient(String key) async {
     final Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('ingredient', where: 'name = ?', whereArgs: [key]);
+    final List<Map<String, dynamic>> maps =
+        await db.query('ingredient', where: 'name = ?', whereArgs: [key]);
     print(maps);
     return maps.length > 0;
   }
@@ -98,6 +101,7 @@ class DatabaseUtil {
       whereArgs: [id],
     );
   }
+}
 
   static Future<int> getNextIngredientID() async {
     final db = await database;

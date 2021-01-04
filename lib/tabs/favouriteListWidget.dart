@@ -139,9 +139,11 @@ class FavouriteListState extends State<FavouriteList> {
           ),
         ),
       ));
-      printedFavorites.add(SizedBox(
-        height: 10,
-      ));
+      printedFavorites.add(
+        SizedBox(
+          height: 10,
+        ),
+      );
     }
 
     if (printedFavorites.length == 0) {
@@ -154,7 +156,8 @@ class FavouriteListState extends State<FavouriteList> {
   _saveFavourites() {
     String currentfavourites = "";
     for (Recipe current in favourites) {
-      if (current != null) currentfavourites = currentfavourites + current.toString() + ";";
+      if (current != null)
+        currentfavourites = currentfavourites + current.toString() + ";";
     }
     print("Before saving" + currentfavourites);
     widget.storage.writeFavourite(currentfavourites);
