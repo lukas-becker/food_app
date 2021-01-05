@@ -25,4 +25,21 @@ class Recipe {
         "_SEPERATOR_" +
         thumbnail;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Recipe &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          href == other.href &&
+          ingredients == other.ingredients &&
+          thumbnail == other.thumbnail;
+
+  @override
+  int get hashCode =>
+      title.hashCode ^
+      href.hashCode ^
+      ingredients.hashCode ^
+      thumbnail.hashCode;
 }

@@ -14,6 +14,7 @@ class FavouriteStorage {
   }
 
   Future<File> writeFavourite(String favourite) async {
+    print(favourite);
     final file = await _localFile;
     return file.writeAsString(favourite);
   }

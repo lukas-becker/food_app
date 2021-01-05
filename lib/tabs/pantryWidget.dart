@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
@@ -108,18 +110,12 @@ class _PantryState extends State<Pantry> {
   }
 
   String dropdownValue;
+  bool savePopUp = false;
 
   void _addItem() {
     String newAmount;
     int amount;
-    String dropdownValue;
-    dropdownValue == null
-        ? dropdownValue = entries[0]
-        : dropdownValue = dropdownValue;
-    print(dropdownValue);
 
-    String newAmount;
-    int amount;
     dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
 
     showDialog(
@@ -173,8 +169,8 @@ class _PantryState extends State<Pantry> {
                 amount = null;
                 newAmount = tController.text;
                 amount = int.tryParse(newAmount);
-                dropdownValue = null;
                 Navigator.of(context).pop();
+                savePopUp = true;
               },
               ),
 
@@ -194,7 +190,8 @@ class _PantryState extends State<Pantry> {
       refreshDB = true;
       DatabaseUtil.getNextIngredientID().then((value) => id = value);
 
-      if(amount != null) {
+      if(savePopUp && amount != null) {
+        savePopUp = false;
         final ing = Ingredient(id: id, name: name, amount: amount);
         DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
 

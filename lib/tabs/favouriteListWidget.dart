@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/FavouriteStorage.dart';
+import 'package:food_app/classes/DatabaseUtil.dart';
+import 'package:food_app/classes/Favorite.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../classes/Recipe.dart';
 
@@ -12,14 +13,12 @@ class FavouriteListWidget extends StatelessWidget {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FavouriteList(storage: FavouriteStorage()),
+      home: FavouriteList(),
     );
   }
 }
 
 class FavouriteList extends StatefulWidget {
-  final FavouriteStorage storage;
-  FavouriteList({Key key, @required this.storage}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -28,44 +27,13 @@ class FavouriteList extends StatefulWidget {
 }
 
 class FavouriteListState extends State<FavouriteList> {
-  var favourites = [];
-  List<String> favouritesString = [];
-  String loadString;
+  List<Favorite> favorites = new List();
 
   @override
   void initState() {
     super.initState();
-    widget.storage
-        .readFavourites()
-        .then((value) => {favouritesFinished(value), stringToList()});
-  }
-
-  List<String> favouritesFinished(List<String> fav) {
-    setState(() {
-      favouritesString = fav;
-      print("Asynchrones Laden von der Datei:" + favouritesString.toString());
-    });
-    return fav;
-  }
-
-  stringToList() {
-    print('call StringToList');
-    print(favouritesString.toString());
-    for (String favourite in favouritesString) {
-      print("Before error");
-      List<String> singleComponentsRecipe = favourite.split("_SEPERATOR_");
-      print(singleComponentsRecipe.toString());
-      if (singleComponentsRecipe.length == 4) {
-        Recipe currentFav = Recipe(
-            title: singleComponentsRecipe[0],
-            href: singleComponentsRecipe[1],
-            ingredients: singleComponentsRecipe[2],
-            thumbnail: singleComponentsRecipe[3]);
-        print("current Recipe:" + currentFav.toString());
-        favourites.add(currentFav);
-      }
-      print("After adding recipes:" + favourites.toString());
-    }
+    DatabaseUtil.getDatabase();
+    DatabaseUtil.getFavorites().then((value) => setState((){favorites = value;}));
   }
 
   @override
@@ -84,10 +52,7 @@ class FavouriteListState extends State<FavouriteList> {
   List<Widget> _printFavorites() {
     List<Widget> printedFavorites = new List();
     int i;
-    print("Before for Loop:" + favourites.toString());
-    for (i = 0; i < favourites.length; i++) {
-      Recipe current = favourites[i];
-      bool isSaved = favourites.contains(favourites[i]);
+    for (i = 0; i < favorites.length; i++) {
       printedFavorites.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -95,33 +60,20 @@ class FavouriteListState extends State<FavouriteList> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Image.network(current.thumbnail),
+                leading: Image.network(favorites[i].recipe.thumbnail),
                 trailing: IconButton(
-                  icon: Icon(isSaved ? Icons.favorite : Icons.favorite_border),
-                  color: isSaved ? Colors.red : null,
+                  icon: Icon(Icons.favorite),
+                  color: Colors.red,
                   onPressed: () {
                     setState(() {
-                      if (isSaved) {
-                        print("Before removing favourite:" +
-                            favourites.toString());
-                        print(i);
-                        favourites.remove(current);
-                        print("After removing favourite:" +
-                            favourites.toString());
-                      } else {
-                        print(
-                            "Before adding favourite:" + favourites.toString());
-                        print(i);
-                        favourites.add(current);
-                        print(
-                            "After adding favourite:" + favourites.toString());
-                      }
-                      _saveFavourites();
+                      setState(() {
+                        DatabaseUtil.deleteFavorite(favorites[i].id).then((value) => setState((){favorites.remove(Favorite(id: favorites[i].id, recipe: favorites[i].recipe));}));
+                      });
                     });
                   },
                 ),
-                title: Text(current.title),
-                subtitle: Text("Ingredients: " + current.ingredients),
+                title: Text(favorites[i].recipe.title),
+                subtitle: Text("Ingredients: " + favorites[i].recipe.ingredients),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -129,7 +81,7 @@ class FavouriteListState extends State<FavouriteList> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(current.href);
+                      _launchURL(favorites[i].recipe.href);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -151,16 +103,6 @@ class FavouriteListState extends State<FavouriteList> {
     }
 
     return printedFavorites;
-  }
-
-  _saveFavourites() {
-    String currentfavourites = "";
-    for (Recipe current in favourites) {
-      if (current != null)
-        currentfavourites = currentfavourites + current.toString() + ";";
-    }
-    print("Before saving" + currentfavourites);
-    widget.storage.writeFavourite(currentfavourites);
   }
 
   _launchURL(String url) async {

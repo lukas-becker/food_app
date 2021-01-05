@@ -1,4 +1,7 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:food_app/classes/Favorite.dart';
 import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Ingredient.dart';
@@ -43,6 +46,7 @@ class _RecipesState extends State<Recipes> {
   //Recipe Storage
   var futureRecipes = [];
   List<Recipe> recipes = new List();
+  List<Favorite> favorites = new List();
 
   var favouriteRecipes = [];
 
@@ -106,6 +110,7 @@ class _RecipesState extends State<Recipes> {
     DatabaseUtil.getDatabase();
     DatabaseUtil.getIngredients()
         .then((value) => ingredientsFetchComplete(value));
+    DatabaseUtil.getFavorites().then((value) => favoritesFetchComplete(value));
   }
 
   List<String> favouritesFinished(List<String> fav) {
@@ -138,6 +143,16 @@ class _RecipesState extends State<Recipes> {
     });
   }
 
+  void favoritesFetchComplete(List<Favorite> fav) {
+    fav.forEach((element) {
+      favorites.add(element);
+    });
+
+    setState(() {
+      this.favorites = favorites;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,6 +165,9 @@ class _RecipesState extends State<Recipes> {
   }
 
   List<Widget> _compileRecipes() {
+
+    print(recipes.length.toString() + " Recipes in List");
+
     List<Widget> result = new List();
 
     //Iterate over each recipe
@@ -250,7 +268,11 @@ class _RecipesState extends State<Recipes> {
 
       if (_continue) continue;
 
-      bool isSaved = favouriteRecipes.contains(recipes[i].toString());
+      bool isSaved = false;
+      int favID;
+      int favIndex;
+
+      favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favID = element.id;}} );
 
       result.add(SizedBox(
         width: 8,
@@ -268,27 +290,19 @@ class _RecipesState extends State<Recipes> {
               ListTile(
                   leading: Image.network(recipes[i].thumbnail),
                   trailing: IconButton(
-                    icon:
-                        Icon(isSaved ? Icons.favorite : Icons.favorite_border),
+
                     color: isSaved ? Colors.red : null,
                     onPressed: () {
                       setState(() {
                         if (isSaved) {
-                          print("Before removing favourite:" +
-                              favouriteRecipes.toString());
-                          favouriteRecipes.remove(recipes[i].toString());
-                          print("After removing favourite:" +
-                              favouriteRecipes.toString());
+                          DatabaseUtil.deleteFavorite(favID).then((value) => setState((){favorites.remove(Favorite(id: favID, recipe: recipes[i]));}));
                         } else {
-                          print("Before adding favourite:" +
-                              favouriteRecipes.toString());
-                          favouriteRecipes.add(recipes[i].toString());
-                          print("After adding favourite:" +
-                              favouriteRecipes.toString());
+                          DatabaseUtil.getNextFavoriteID().then((value) => {setState((){favorites.add(Favorite(id: value, recipe: recipes[i]));}), DatabaseUtil.insertFavorite(Favorite(id: value, recipe: recipes[i]))});
                         }
-                        _saveFavourites();
                       });
                     },
+                    icon:
+                    Icon(isSaved ? Icons.favorite : Icons.favorite_border),
                   ),
                   title: Text(recipes[i].title),
                   subtitle: Text("Ingredients: " + recipes[i].ingredients)),
@@ -341,6 +355,8 @@ class _RecipesState extends State<Recipes> {
           },
           child: Text("Take me to the Pantry")));
     }
+
+    print(result.length.toString() + " Recipes to show");
 
     return result;
   }
