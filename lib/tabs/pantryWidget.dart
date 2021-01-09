@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Ingredient.dart';
+import 'package:food_app/globalVariables.dart' as globals;
 
 //First Tab - Pantry
 class PantryWidget extends StatelessWidget {
@@ -28,11 +29,6 @@ class Pantry extends StatefulWidget {
 class _PantryState extends State<Pantry> {
   bool refreshDB = true;
   List<Ingredient> ingredients = new List();
-
-  final List<String> entries = <String>['Salt','Pepper','Olive oil','Vegetable oil','Flour','Chicken stock','Chicken broth','Beef stock',
-    'Beef broth','Tomato sauce','Tomato paste','Tuna','Pasta','Rice','Lentils','Onions','Garlic','Vinegar','Soy sauce','Basil','Cayenne pepper',
-    'Chili powder','Cumin','Cinnamon','Garlic powder','Oregano','Paprika','Eggs','Milk','Butter','Margarine','Ketchup','Mayonnaise','Cheese','Corn',
-    'Spinach','Peas','Chicken breast','Capers','Horseradish','Almond','Cornstarch','Sugar','Honey','Mustard'];
 
   var tController = new TextEditingController();
 
@@ -112,7 +108,7 @@ class _PantryState extends State<Pantry> {
     int amount;
     String dropdownValue;
     dropdownValue == null
-        ? dropdownValue = entries[0]
+        ? dropdownValue = globals.entries[0]
         : dropdownValue = dropdownValue;
     print(dropdownValue);
 
@@ -137,7 +133,7 @@ class _PantryState extends State<Pantry> {
                       color: Colors.deepPurpleAccent,
                     ),
                     items:
-                        entries.map<DropdownMenuItem<String>>((String value) {
+                        globals.entries.map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -206,7 +202,7 @@ class _PantryState extends State<Pantry> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Delete?"),
-            content: Text("Do you want to delete \"${entries[index]}?\""),
+            content: Text("Do you want to delete \"${globals.entries[index]}?\""),
             actions: <Widget>[
               TextButton(
                 onPressed: () => {_deleteItem(index), Navigator.pop(context)},
@@ -223,7 +219,7 @@ class _PantryState extends State<Pantry> {
 
   void _deleteItem(int index) {
     setState(() {
-      entries.removeAt(index);
+      globals.entries.removeAt(index);
     });
   }
 }

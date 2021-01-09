@@ -18,5 +18,3 @@ class SnackHunter extends StatelessWidget {
     );
   }
 }
-
-//Tab Navigation

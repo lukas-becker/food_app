@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/classes/Ingredient.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
 import 'package:food_app/globalVariables.dart' as globals;
+
+import 'classes/CustomDialog.dart';
 
 class TabNavigation extends StatefulWidget {
   @override
@@ -21,6 +24,12 @@ class _TabNavigationState extends State<TabNavigation> {
 
   var tController = new TextEditingController();
 
+  var _recipeList = new RecipeListWidget();
+
+  List<Ingredient> currentPantry = new List();
+
+  Map<String, bool> checkBoxHandling = new Map();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -29,7 +38,7 @@ class _TabNavigationState extends State<TabNavigation> {
         final TabController tabController = DefaultTabController.of(context);
         tabController.addListener(() {
           if (tabController.indexIsChanging) {
-            globals.search = false;
+            //globals.search = false;
             if (tabController.index == 1) {
               setState(() {
                 _secondTabActive = true;
@@ -43,40 +52,43 @@ class _TabNavigationState extends State<TabNavigation> {
         });
         return Scaffold(
           appBar: AppBar(
-              bottom: TabBar(
-                tabs: myTabs,
-              ),
-              title: Text("Snack Hunter"),
-              actions: (_secondTabActive)
-                  ? <Widget>[
-                      IconButton(
-                        icon: Icon(
-                          Icons.filter_list,
-                        ),
-                        onPressed: null,
+            bottom: TabBar(
+              tabs: myTabs,
+            ),
+            title: Text("Snack Hunter"),
+            actions: (_secondTabActive)
+                ? <Widget>[
+                    IconButton(
+                      icon: Icon(
+                        Icons.filter_list,
                       ),
-                      IconButton(
+                      onPressed: () {
+                        _showFilterDialog();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.search_outlined,
+                      ),
+                      onPressed: () {
+                        _searchRecipe();
+                      },
+                    ),
+                    IconButton(
                         icon: Icon(
-                          Icons.search_outlined,
+                          Icons.all_inclusive,
                         ),
                         onPressed: () {
-                          _searchRecipe();
-                        },
-                      ),
-                      IconButton(
-                          icon: Icon(
-                            Icons.all_inclusive,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              globals.exact = globals.exact ^ true;
-                            });
-                          }),
-                    ]
-                  : null),
+                          setState(() {
+                            globals.exact = globals.exact ^ true;
+                          });
+                        }),
+                  ]
+                : null,
+          ),
           body: TabBarView(children: [
             PantryWidget(),
-            RecipeListWidget(),
+            _recipeList,
             Icon(Icons.directions_bike),
             FavouriteListWidget(),
           ]),
@@ -119,7 +131,17 @@ class _TabNavigationState extends State<TabNavigation> {
     setState(() {
       globals.search = true;
       globals.searchString = tController.text;
+      _recipeList.build(context);
     });
     Navigator.pop(context);
+  }
+
+  _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog();
+      },
+    );
   }
 }

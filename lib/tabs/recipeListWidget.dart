@@ -27,6 +27,10 @@ class RecipeListWidget extends StatelessWidget {
           title: 'Get your first recipe', favStorage: FavouriteStorage()),
     );
   }
+
+  static List<Recipe> getRecipes() {
+    return Recipes.getRecipes();
+  }
 }
 
 class Recipes extends StatefulWidget {
@@ -37,12 +41,18 @@ class Recipes extends StatefulWidget {
 
   @override
   _RecipesState createState() => _RecipesState();
+
+  static List<Recipe> getRecipes() {
+    return _RecipesState.getRecipes();
+  }
 }
 
 class _RecipesState extends State<Recipes> {
+  bool trigger = false;
+
   //Recipe Storage
   var futureRecipes = [];
-  List<Recipe> recipes = new List();
+  static List<Recipe> recipes = new List();
 
   var favouriteRecipes = [];
 
@@ -80,7 +90,8 @@ class _RecipesState extends State<Recipes> {
   Future<List<Recipe>> _searchRecipeApi(String recipeName) async {
     print("Downloading: http://www.recipepuppy.com/api/?q=" + recipeName);
     List<Recipe> res = [];
-    final response = await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
+    final response =
+        await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
     if (response.statusCode == 200) {
       print("got Response");
       List list = jsonDecode(response.body)['results'];
@@ -109,7 +120,8 @@ class _RecipesState extends State<Recipes> {
       DatabaseUtil.getIngredients()
           .then((value) => ingredientsFetchComplete(value));
     } else {
-      _searchRecipeApi(globals.searchString).then((value) => setRecipeList(value));
+      _searchRecipeApi(globals.searchString)
+          .then((value) => setRecipeList(value));
     }
   }
 
@@ -139,7 +151,7 @@ class _RecipesState extends State<Recipes> {
       recipes.add(element);
     });
     setState(() {
-      this.recipes = recipes;
+      _RecipesState.recipes = recipes;
     });
   }
 
@@ -149,7 +161,7 @@ class _RecipesState extends State<Recipes> {
       recipes.add(element);
     });
     setState(() {
-      this.recipes = recipes;
+      _RecipesState.recipes = recipes;
     });
   }
 
@@ -281,32 +293,32 @@ class _RecipesState extends State<Recipes> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                  leading: Image.network(recipes[i].thumbnail),
-                  trailing: IconButton(
-                    icon:
-                        Icon(isSaved ? Icons.favorite : Icons.favorite_border),
-                    color: isSaved ? Colors.red : null,
-                    onPressed: () {
-                      setState(() {
-                        if (isSaved) {
-                          print("Before removing favourite:" +
-                              favouriteRecipes.toString());
-                          favouriteRecipes.remove(recipes[i].toString());
-                          print("After removing favourite:" +
-                              favouriteRecipes.toString());
-                        } else {
-                          print("Before adding favourite:" +
-                              favouriteRecipes.toString());
-                          favouriteRecipes.add(recipes[i].toString());
-                          print("After adding favourite:" +
-                              favouriteRecipes.toString());
-                        }
-                        _saveFavourites();
-                      });
-                    },
-                  ),
-                  title: Text(recipes[i].title),
-                  subtitle: Text("Ingredients: " + recipes[i].ingredients)),
+                leading: Image.network(recipes[i].thumbnail),
+                trailing: IconButton(
+                  icon: Icon(isSaved ? Icons.favorite : Icons.favorite_border),
+                  color: isSaved ? Colors.red : null,
+                  onPressed: () {
+                    setState(() {
+                      if (isSaved) {
+                        print("Before removing favourite:" +
+                            favouriteRecipes.toString());
+                        favouriteRecipes.remove(recipes[i].toString());
+                        print("After removing favourite:" +
+                            favouriteRecipes.toString());
+                      } else {
+                        print("Before adding favourite:" +
+                            favouriteRecipes.toString());
+                        favouriteRecipes.add(recipes[i].toString());
+                        print("After adding favourite:" +
+                            favouriteRecipes.toString());
+                      }
+                      _saveFavourites();
+                    });
+                  },
+                ),
+                title: Text(recipes[i].title),
+                subtitle: Text("Ingredients: " + recipes[i].ingredients),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -375,6 +387,10 @@ class _RecipesState extends State<Recipes> {
     }
     print("Before saving" + favourites);
     widget.favStorage.writeFavourite(favourites);
+  }
+
+  static List<Recipe> getRecipes() {
+    return recipes;
   }
 }
 //End of Recipe list
