@@ -166,8 +166,6 @@ class _RecipesState extends State<Recipes> {
 
   List<Widget> _compileRecipes() {
 
-    print(recipes.length.toString() + " Recipes in List");
-
     List<Widget> result = new List();
 
     //Iterate over each recipe
@@ -272,7 +270,7 @@ class _RecipesState extends State<Recipes> {
       int favID;
       int favIndex;
 
-      favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favID = element.id;}} );
+      favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
 
       result.add(SizedBox(
         width: 8,
@@ -290,16 +288,22 @@ class _RecipesState extends State<Recipes> {
               ListTile(
                   leading: Image.network(recipes[i].thumbnail),
                   trailing: IconButton(
-
                     color: isSaved ? Colors.red : null,
                     onPressed: () {
-                      setState(() {
-                        if (isSaved) {
-                          DatabaseUtil.deleteFavorite(favID).then((value) => setState((){favorites.remove(Favorite(id: favID, recipe: recipes[i]));}));
-                        } else {
-                          DatabaseUtil.getNextFavoriteID().then((value) => {setState((){favorites.add(Favorite(id: value, recipe: recipes[i]));}), DatabaseUtil.insertFavorite(Favorite(id: value, recipe: recipes[i]))});
-                        }
-                      });
+                      if (isSaved) {
+                        DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
+                        favorites.removeAt(favIndex);
+                        setState(() {
+                          this.favorites = favorites;
+                        });
+                      } else {
+                        DatabaseUtil.getNextFavoriteID().then((value) => {
+                          setState(() {
+                            favorites.add(Favorite(id: value, recipe: recipes[i]));
+                          }),
+                          DatabaseUtil.insertFavorite(Favorite(id: value, recipe: recipes[i]))
+                        });
+                      }
                     },
                     icon:
                     Icon(isSaved ? Icons.favorite : Icons.favorite_border),
@@ -356,7 +360,6 @@ class _RecipesState extends State<Recipes> {
           child: Text("Take me to the Pantry")));
     }
 
-    print(result.length.toString() + " Recipes to show");
 
     return result;
   }

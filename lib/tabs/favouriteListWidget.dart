@@ -28,12 +28,15 @@ class FavouriteList extends StatefulWidget {
 
 class FavouriteListState extends State<FavouriteList> {
   List<Favorite> favorites = new List();
+  Favorite communityFav;
 
   @override
   void initState() {
     super.initState();
     DatabaseUtil.getDatabase();
     DatabaseUtil.getFavorites().then((value) => setState((){favorites = value;}));
+
+    DatabaseUtil.getTopFavoriteFromFirebase().then((value) => setState(() {this.communityFav = value;}));
   }
 
   @override
@@ -51,8 +54,49 @@ class FavouriteListState extends State<FavouriteList> {
 
   List<Widget> _printFavorites() {
     List<Widget> printedFavorites = new List();
-    int i;
-    for (i = 0; i < favorites.length; i++) {
+
+    if(communityFav != null){
+      printedFavorites.add(SizedBox(height: 5,));
+      printedFavorites.add(Text("Best dish according to other app users"));
+      printedFavorites.add(Card(
+        child: InkWell(
+          splashColor: Colors.blue.withAlpha(30),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Image.network(communityFav.recipe.thumbnail),
+                title: Text(communityFav.recipe.title),
+                subtitle: Text("Ingredients: " + communityFav.recipe.ingredients),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  TextButton(
+                    child: const Text('CHECK IT OUT'),
+                    onPressed: () {
+                      _launchURL(communityFav.recipe.href);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ));
+      printedFavorites.add(
+        SizedBox(
+          height: 20,
+        ),
+      );
+    }
+
+    int favIndex;
+
+    for (int i = 0; i < favorites.length; i++) {
+      favorites.forEach((element) {if(element.recipe == favorites[i].recipe) {favIndex = favorites.indexOf(element);}} );
+
       printedFavorites.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -65,11 +109,12 @@ class FavouriteListState extends State<FavouriteList> {
                   icon: Icon(Icons.favorite),
                   color: Colors.red,
                   onPressed: () {
+                    DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
+                    favorites.removeAt(favIndex);
                     setState(() {
-                      setState(() {
-                        DatabaseUtil.deleteFavorite(favorites[i].id).then((value) => setState((){favorites.remove(Favorite(id: favorites[i].id, recipe: favorites[i].recipe));}));
-                      });
+                      this.favorites = favorites;
                     });
+
                   },
                 ),
                 title: Text(favorites[i].recipe.title),

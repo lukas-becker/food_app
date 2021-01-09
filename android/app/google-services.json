@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1063747346458",
+    "firebase_url": "https://snack-hunter-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "snack-hunter",
+    "storage_bucket": "snack-hunter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063747346458:android:7cf5832b7bfc3f1b4e71a3",
+        "android_client_info": {
+          "package_name": "com.tinf19ai1.snack_hunter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063747346458-s44pnavp0lem70vntn514i707dg7qvst.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO8akkdrP80McsLFtpsrcQamKMSL5xLVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063747346458-s44pnavp0lem70vntn514i707dg7qvst.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

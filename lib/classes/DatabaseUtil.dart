@@ -1,13 +1,17 @@
+import 'dart:collection';
+
+import 'package:flutter/material.dart';
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/tabs/recipeListWidget.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as Path;
+import 'package:firebase_database/firebase_database.dart';
 
 import 'Ingredient.dart';
 import 'Recipe.dart';
 
 class DatabaseUtil {
   static Future<Database> database;
+  static final DatabaseReference firebaseReference = FirebaseDatabase.instance.reference();
 
   static Future<Database> getDatabase() {
     if (database == null) {
@@ -53,7 +57,6 @@ class DatabaseUtil {
   }
 
   static Future<bool> checkDBForIngredient(String key) async {
-    print(key);
     final Database db = await database;
     final List<Map<String, dynamic>> maps =
     await db.query('ingredient', where: 'name = ?', whereArgs: [key]);
@@ -149,9 +152,17 @@ class DatabaseUtil {
       fav.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+
+    if(!(await checkFirebaseForFavorite(fav))){
+      insertIntoFirebase(fav);
+    } else {
+      countUpInFirebase(fav);
+    }
+
   }
 
-  static Future<void> deleteFavorite(int id) async {
+  static Future<void> deleteFavorite(Favorite fav) async {
     // Get a reference to the database.
     final db = await database;
 
@@ -160,8 +171,18 @@ class DatabaseUtil {
       'favorite',
       where: "id = ?",
       // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [id],
+      whereArgs: [fav.id],
     );
+
+    if(await checkFirebaseForFavorite(fav)){
+      if(await getCountInFirebase(fav) == 1) {
+        deleteFromFirebase(fav);
+      } else {
+        countDownInFirebase(fav);
+      }
+
+
+    }
   }
 
 
@@ -172,6 +193,73 @@ class DatabaseUtil {
     final List<Map<String, dynamic>> maps = await db.query(
         "favorite", columns: queryList);
     return maps.first["MAX(id)"] != null ? maps.first["MAX(id)"] + 1 : 1;
+  }
+
+  static Future<List<Favorite>> getFavoritesFromFirebase() async {
+    List<Favorite> res = List();
+    DatabaseReference id = firebaseReference.child("favorites/");
+    var dbEntry = await id.once();
+    Map<dynamic,dynamic> map = dbEntry.value;
+    if(map == null)
+      return List();
+    for(dynamic element in map.values){
+      res.add(Favorite.fromJson(element));
+    }
+    return res;
+  }
+
+  static Future<Favorite> getTopFavoriteFromFirebase() async {
+    List<Favorite> all = await getFavoritesFromFirebase();
+
+    if (all.length == 0)
+      return null;
+
+    all.sort((a,b) => (b.count).compareTo((a.count)));
+    return all.first;
+  }
+
+  static Future<bool> checkFirebaseForFavorite(Favorite fav) async {
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    var dbEntry = await id.once();
+    return dbEntry.value != null;
+  }
+
+  static Future<int> getCountInFirebase(Favorite fav) async {
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    var dbEntry = await id.once();
+    Map<dynamic, dynamic> map = dbEntry.value;
+    Favorite dbFav = Favorite.fromJson(map);
+    return dbFav.count;
+  }
+
+  static void insertIntoFirebase(Favorite fav){
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    id.set(fav.toJson()).whenComplete(() => print("inserted new value into firebase"));
+  }
+
+  static void deleteFromFirebase(Favorite fav){
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    id.remove();
+  }
+
+  static void countUpInFirebase(Favorite fav) async {
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    DataSnapshot dbEntry = await id.once();
+    Map<dynamic, dynamic> map = dbEntry.value;
+    Favorite dbFav = Favorite.fromJson(map);
+    dbFav.count += 1;
+    print(dbFav);
+    id.set(dbFav.toJson());
+  }
+
+  static void countDownInFirebase(Favorite fav) async {
+    DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
+    DataSnapshot dbEntry = await id.once();
+    Map<dynamic, dynamic> map = dbEntry.value;
+    Favorite dbFav = Favorite.fromJson(map);
+    dbFav.count -= 1;
+    print(dbFav);
+    id.set(dbFav.toJson());
   }
 
 }
