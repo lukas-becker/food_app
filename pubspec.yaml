@@ -31,7 +31,7 @@ dependencies:
   powerset: ^1.0.0
   flutter_speed_dial: ^1.2.5
   smart_select: ^4.3.2
-
+  flutter_custom_tabs: "^0.6.0"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

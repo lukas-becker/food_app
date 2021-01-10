@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:food_app/classes/Recipe.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 
 class FilteredRecipesWidget extends StatelessWidget {
   final List<Recipe> filteredRecipes;
@@ -55,7 +55,7 @@ class FilteredRecipesWidget extends StatelessWidget {
                     TextButton(
                       child: const Text('CHECK IT OUT'),
                       onPressed: () {
-                        _launchURL(filteredRecipes[i].href);
+                        _launchURL(context, filteredRecipes[i].href);
                       },
                     ),
                     const SizedBox(width: 8),
@@ -94,11 +94,21 @@ class FilteredRecipesWidget extends StatelessWidget {
     return displayedList;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  _launchURL(BuildContext context, String url) async {
+    try {
+      await custom.launch(
+        url,
+        option: new custom.CustomTabsOption(
+            toolbarColor: Theme.of(context).primaryColor,
+            enableDefaultShare: true,
+            enableUrlBarHiding: true,
+            showPageTitle: true,
+            animation: new custom.CustomTabsAnimation.slideIn()
+            ),
+      );
+    } catch (e) {
+      // An exception is thrown if browser app is not installed on Android device.
+      debugPrint(e.toString());
     }
   }
 }

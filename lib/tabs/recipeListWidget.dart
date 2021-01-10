@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Ingredient.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 
 import '../classes/Recipe.dart';
@@ -59,9 +59,6 @@ class _RecipesState extends State<Recipes> {
   //int count = 0;
 
   List<Ingredient> ingredients;
-
-  //Speed Dial
-  bool _dialVisible = true;
 
   //filtering
   List<String> allIngredients = new List();
@@ -325,7 +322,7 @@ class _RecipesState extends State<Recipes> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(recipes[i].href);
+                      _launchURL(context, recipes[i].href);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -372,11 +369,21 @@ class _RecipesState extends State<Recipes> {
     return result;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  _launchURL(BuildContext context, String url) async {
+    try {
+      await custom.launch(
+        url,
+        option: new custom.CustomTabsOption(
+            toolbarColor: Theme.of(context).primaryColor,
+            enableDefaultShare: true,
+            enableUrlBarHiding: true,
+            showPageTitle: true,
+            animation: new custom.CustomTabsAnimation.slideIn()
+            ),
+      );
+    } catch (e) {
+      // An exception is thrown if browser app is not installed on Android device.
+      debugPrint(e.toString());
     }
   }
 
@@ -393,4 +400,3 @@ class _RecipesState extends State<Recipes> {
     return recipes;
   }
 }
-//End of Recipe list
