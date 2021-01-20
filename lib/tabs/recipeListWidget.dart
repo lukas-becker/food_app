@@ -48,7 +48,7 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
-  bool trigger = false;
+  List<Widget> displayedRecipes = new List();
 
   //Recipe Storage
   var futureRecipes = [];
@@ -173,9 +173,12 @@ class _RecipesState extends State<Recipes> {
     );
   }
 
-  List<Widget> _compileRecipes() {
-    List<Widget> result = new List();
+  List<Widget> result = new List();
 
+  List<Widget> _compileRecipes() {
+    setState(() {
+      result = [];
+    });
     //Iterate over each recipe
     for (int i = 0; i < recipes.length; i++) {
       //Replace with default thumbnail
@@ -349,7 +352,7 @@ class _RecipesState extends State<Recipes> {
           },
           child: Text("Take me there")));
     }
-
+    print(result.length);
     if (result.length == 0) {
       result.add(SizedBox(
         width: 8,
@@ -378,8 +381,7 @@ class _RecipesState extends State<Recipes> {
             enableDefaultShare: true,
             enableUrlBarHiding: true,
             showPageTitle: true,
-            animation: new custom.CustomTabsAnimation.slideIn()
-            ),
+            animation: new custom.CustomTabsAnimation.slideIn()),
       );
     } catch (e) {
       // An exception is thrown if browser app is not installed on Android device.
