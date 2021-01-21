@@ -293,7 +293,6 @@ class _RecipesState extends State<Recipes> {
       if (_continue) continue;
 
       bool isSaved = false;
-      int favID;
       int favIndex;
 
       favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
