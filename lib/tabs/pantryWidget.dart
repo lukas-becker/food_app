@@ -115,90 +115,95 @@ class _PantryState extends State<Pantry> {
     //dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
 
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("New List Item"),
-          content: Row(children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(children: [
-                  DropdownButton(
-                    value: dropdownValue,
-                    icon: Icon(Icons.arrow_downward),
-                    iconSize: 24,
-                    elevation: 16,
-                    style: TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
-                    ),
-                    items:
-                        globals.entries.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String newValue) => {
-                      setState(() {
-                        dropdownValue = newValue;
-                      })
-                    },
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("New List Item"),
+            content: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(children: [
+                      DropdownButton(
+                        value: dropdownValue,
+                        icon: Icon(Icons.arrow_downward),
+                        iconSize: 24,
+                        elevation: 16,
+                        style: TextStyle(color: Colors.deepPurple),
+                        underline: Container(
+                          height: 2,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        items: globals.entries
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String newValue) => {
+                          setState(() {
+                            dropdownValue = newValue;
+                          })
+                        },
+                      ),
+                      TextField(
+                        controller: tController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Amount',
+                        ),
+                      ),
+                    ]),
                   ),
-                  TextField(
-                    controller: tController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Amount',
-                    ),
-                  ),
-                ]),
-              ),
+                ),
+              ],
             ),
-            ],),
             actions: [
               FlatButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text("Close")
-              ),
+                  child: Text("Close")),
               FlatButton(
-              child: Text("Save"),
-              onPressed: (){
-                amount = null;
-                newAmount = tController.text;
-                amount = int.tryParse(newAmount);
-                Navigator.of(context).pop();
-                savePopUp = true;
-              },
+                child: Text("Save"),
+                onPressed: () {
+                  amount = null;
+                  newAmount = tController.text;
+                  amount = int.tryParse(newAmount);
+                  Navigator.of(context).pop();
+                  savePopUp = true;
+                },
               ),
-
             ],
-        );
-        }
-    ).then((value)  => getIdThenInsertFromDropdown(dropdownValue, amount));
+          );
+        }).then((value) => getIdThenInsertFromDropdown(dropdownValue, amount));
+  }
+
+  Future<void> getIdThenInsertFromDropdown(String name, int amount) async {
+    refreshDB = true;
+
+    DatabaseUtil.getNextIngredientID()
+        .then((value) => insertFromDropdown(value, name, amount));
+  }
+
+  Future<void> insertFromDropdown(int id, String name, int amount) async {
+    refreshDB = true;
+    DatabaseUtil.getNextIngredientID().then((value) => id = value);
+
+    if (savePopUp && amount != null) {
+      savePopUp = false;
+      final ing = Ingredient(id: id, name: name, amount: amount);
+      DatabaseUtil.checkDBForIngredient(name).then((value) => {
+            value
+                ? DatabaseUtil.updateAmount(name, amount)
+                    .whenComplete(() => initState())
+                : DatabaseUtil.insertIngredient(ing)
+                    .whenComplete(() => initState())
+          });
     }
-
-    Future<void> getIdThenInsertFromDropdown(String name, int amount) async{
-      refreshDB = true;
-
-      DatabaseUtil.getNextIngredientID().then((value) => insertFromDropdown(value, name, amount));
-    }
-
-    Future<void> insertFromDropdown(int id, String name, int amount) async{
-      refreshDB = true;
-      DatabaseUtil.getNextIngredientID().then((value) => id = value);
-
-      if(savePopUp && amount != null) {
-        savePopUp = false;
-        final ing = Ingredient(id: id, name: name, amount: amount);
-        DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
-
-      }
   }
 
   // Not working --> Discuss if we want to fix it
@@ -208,7 +213,8 @@ class _PantryState extends State<Pantry> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Delete?"),
-            content: Text("Do you want to delete \"${globals.entries[index]}?\""),
+            content:
+                Text("Do you want to delete \"${globals.entries[index]}?\""),
             actions: <Widget>[
               TextButton(
                 onPressed: () => {_deleteItem(index), Navigator.pop(context)},

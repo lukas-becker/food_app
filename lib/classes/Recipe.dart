@@ -1,7 +1,7 @@
 class Recipe {
-  final String title;
-  final String href;
-  final String ingredients;
+  String title;
+  String href;
+  String ingredients;
   String thumbnail;
 
   Recipe({this.title, this.href, this.ingredients, this.thumbnail});
