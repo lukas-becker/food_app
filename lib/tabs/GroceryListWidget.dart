@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/GroceryItem.dart';
 import 'package:food_app/classes/GroceryStorage.dart';
 import 'package:food_app/tabs/EditGrocery.dart';
@@ -11,6 +12,10 @@ class GroceryListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.lime,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
         home: GroceryList(GroceryStorage()));
   }
 }
@@ -30,55 +35,43 @@ class _GroceryState extends State<GroceryList> {
   @override
   void initState() {
     super.initState();
-    widget.storage
-        .readGroceriesFromFile()
-        .then((value) => groceriesFinished(value));
+    DatabaseUtil.getDatabase();
+    DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
   }
 
-  void groceriesFinished(List<GroceryItem> items) {
+  void addNewGroceryItem(GroceryItem item, int index) {
+    DatabaseUtil.insertGrocery(item);
     setState(() {
-      this.items = items;
-    });
-  }
-
-  void addNewGroceryItem(GroceryItem item) {
-    setState(() {
-      items.add(item);
+      items.insert(index, item);
     });
     print("Added new Grocery Item");
   }
 
   void removeGroceryItem(int index) {
+    DatabaseUtil.deleteGrocery(items[index].id);
     setState(() {
       items.removeAt(index);
     });
     print("Removed Grocery Item");
-    _saveGrocery();
   }
 
   void _saveGrocery() {
-    String output = "";
     for (int i = 0; i < items.length; i++) {
       var grocery = items[i];
-      output += jsonEncode(grocery);
-      if (i < items.length - 1) output += ";";
+      DatabaseUtil.insertGrocery(grocery);
     }
-
-    widget.storage.writeGroceries(output);
   }
 
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     GroceryItem result;
     if (index > items.length - 1) {
       result = await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => EditGrocery(null)));
+          context, MaterialPageRoute(builder: (context) => EditGrocery(null, index)));
       if (result != null)
-        setState(() {
-          items.insert(index, result);
-        });
+        addNewGroceryItem(result, index);
     } else {
       result = await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => EditGrocery(items[index])));
+          MaterialPageRoute(builder: (context) => EditGrocery(items[index], index)));
       if (result != null)
         setState(() {
           items[index] = result;
@@ -99,7 +92,7 @@ class _GroceryState extends State<GroceryList> {
             actionExtentRatio: 0.25,
             child: ListTile(
               title: Text(item.name),
-              subtitle: Text("Quantity: ${item.quantity} ${item.unit}"),
+              subtitle: Text("Quantity: ${formatDouble(item.quantity)} ${item.unit}"),
             ),
             actions: <Widget>[
               IconSlideAction(
@@ -125,5 +118,10 @@ class _GroceryState extends State<GroceryList> {
         backgroundColor: Colors.lime,
       ),
     );
+  }
+
+
+  String formatDouble(double n) {
+    return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 2);
   }
 }

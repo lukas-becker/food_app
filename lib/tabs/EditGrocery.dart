@@ -3,23 +3,24 @@ import 'package:food_app/classes/GroceryItem.dart';
 
 class EditGroceryWidget extends StatelessWidget {
   final GroceryItem item;
+  int index;
 
-  EditGroceryWidget(this.item);
+  EditGroceryWidget(this.item, this.index);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false, home: EditGrocery(this.item));
+    return MaterialApp(debugShowCheckedModeBanner: false, home: EditGrocery(this.item, index));
   }
 }
 
 class EditGrocery extends StatefulWidget {
   final GroceryItem item;
+  final int index;
 
-  const EditGrocery(this.item);
+  const EditGrocery(this.item, this.index);
 
   @override
-  createState() => new _EditState(this.item);
+  createState() => new _EditState(this.item, this.index);
 }
 
 class _EditState extends State<EditGrocery> {
@@ -27,22 +28,15 @@ class _EditState extends State<EditGrocery> {
   var quantityController = new TextEditingController();
   String unitDropdown;
   bool once = true;
-
   final GroceryItem item;
   bool quantityError = false;
+  final int index;
 
   FocusScopeNode node;
 
-  List<String> units = [
-    "gram",
-    "kilogram",
-    "ounce",
-    "pound",
-    "liter",
-    "gallon"
-  ];
+  List<String> units = ["piece", "gram", "kilogram", "ounce", "pound", "liter", "gallon"];
 
-  _EditState(this.item) {
+  _EditState(this.item, this.index) {
     if (item != null && once) {
       nameController.text = item.name;
       quantityController.text = "${item.quantity}";
@@ -59,7 +53,8 @@ class _EditState extends State<EditGrocery> {
     super.initState();
   }
 
-  String checkForPlural(int quantity, String unit) {
+  String checkForPlural(double quantity) {
+    String unit = unitDropdown;
     return quantity > 1 ? unit += "s" : unit;
   }
 
@@ -72,6 +67,7 @@ class _EditState extends State<EditGrocery> {
       if (node != null) node.nextFocus();
       quantityError = false;
       return quantity;
+
     } catch (e) {
       print("Quantity Input was not an Integer");
       quantityError = true;
@@ -130,8 +126,7 @@ class _EditState extends State<EditGrocery> {
                   items: units.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Align(
-                          alignment: Alignment.center, child: Text(value)),
+                      child: Align(alignment: Alignment.center, child: Text(value)),
                     );
                   }).toList(),
                 ))
@@ -151,7 +146,7 @@ class _EditState extends State<EditGrocery> {
       Navigator.pop(
           context,
           new GroceryItem(
-              nameController.text, quantity, unitDropdown));
+              index, nameController.text, quantity, checkForPlural(quantity)));
     }
   }
 

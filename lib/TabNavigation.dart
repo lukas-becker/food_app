@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/tabs/GroceryListWidget.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
@@ -78,7 +79,7 @@ class _TabNavigationState extends State<TabNavigation> {
           body: TabBarView(children: [
             PantryWidget(),
             RecipeListWidget(),
-            Icon(Icons.directions_bike),
+            GroceryListWidget(),
             FavouriteListWidget(),
           ]),
         );
