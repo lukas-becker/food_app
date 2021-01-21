@@ -112,7 +112,7 @@ class _PantryState extends State<Pantry> {
     String newAmount;
     int amount;
 
-    dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
+    //dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
 
     showDialog(
       context: context,
@@ -158,6 +158,7 @@ class _PantryState extends State<Pantry> {
                 ]),
               ),
             ),
+            ],),
             actions: [
               FlatButton(
                   onPressed: () {
@@ -177,7 +178,7 @@ class _PantryState extends State<Pantry> {
               ),
 
             ],
-          );
+        );
         }
     ).then((value)  => getIdThenInsertFromDropdown(dropdownValue, amount));
     }

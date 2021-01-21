@@ -55,7 +55,7 @@ class _RecipesState extends State<Recipes> {
 
   //Recipe Storage
   var futureRecipes = [];
-  List<Recipe> recipes = new List();
+  static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
 
   var favouriteRecipes = [];
@@ -404,15 +404,6 @@ class _RecipesState extends State<Recipes> {
       // An exception is thrown if browser app is not installed on Android device.
       debugPrint(e.toString());
     }
-  }
-
-  _saveFavourites() {
-    String favourites = "";
-    for (String current in favouriteRecipes) {
-      if (current != "") favourites = favourites + current + ";";
-    }
-    print("Before saving" + favourites);
-    widget.favStorage.writeFavourite(favourites);
   }
 
   static List<Recipe> getRecipes() {

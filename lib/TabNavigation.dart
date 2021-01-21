@@ -91,7 +91,6 @@ class _TabNavigationState extends State<TabNavigation> {
             PantryWidget(),
             RecipeListWidget(),
             GroceryListWidget(),
-            _recipeList,
             FavouriteListWidget(),
           ]),
         );

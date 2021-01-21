@@ -79,7 +79,7 @@ class FavouriteListState extends State<FavouriteList> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(communityFav.recipe.href);
+                      _launchURL(context, communityFav.recipe.href);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -130,7 +130,7 @@ class FavouriteListState extends State<FavouriteList> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(favorites[i].recipe.href);
+                      _launchURL(context, favorites[i].recipe.href);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -152,16 +152,6 @@ class FavouriteListState extends State<FavouriteList> {
     }
 
     return printedFavorites;
-  }
-
-  _saveFavourites() {
-    String currentfavourites = "";
-    for (Recipe current in favourites) {
-      if (current != null)
-        currentfavourites = currentfavourites + current.toString() + ";";
-    }
-    print("Before saving" + currentfavourites);
-    widget.storage.writeFavourite(currentfavourites);
   }
 
  _launchURL(BuildContext context, String url) async {
