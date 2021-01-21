@@ -1,7 +1,7 @@
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/tabs/recipeListWidget.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:food_app/classes/GroceryItem.dart';
 import 'package:path/path.dart' as Path;
+import 'package:sqflite/sqflite.dart';
 
 import 'Ingredient.dart';
 import 'Recipe.dart';
@@ -18,6 +18,9 @@ class DatabaseUtil {
             onCreate: (db, version) {
               db.execute(
                 "CREATE TABLE favorite(id INTEGER PRIMARY KEY, title TEXT, href TEXT, ingredients TEXT, thumbnail TEXT);",
+              );
+              db.execute(
+                "CREATE TABLE groceries(id INTEGER PRIMARY KEY, name TEXT, quantity DOUBLE, unit TEXT);",
               );
               return db.execute(
                 "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);",
@@ -172,6 +175,44 @@ class DatabaseUtil {
     final List<Map<String, dynamic>> maps = await db.query(
         "favorite", columns: queryList);
     return maps.first["MAX(id)"] != null ? maps.first["MAX(id)"] + 1 : 1;
+  }
+
+
+  static Future<List<GroceryItem>> getGroceries() async {
+    // Get a reference to the database.
+    final Database db = await database;
+
+    // Query the table for all The Dogs.
+    final List<Map<String, dynamic>> maps = await db.query('groceries');
+
+    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    return List.generate(maps.length, (i) {
+      return GroceryItem.fromJson(maps[i]);
+    });
+  }
+
+  static Future<void> insertGrocery(GroceryItem item) async {
+    // Get a reference to the database.
+    final Database db = await database;
+
+    await db.insert(
+      'groceries',
+      item.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<void> deleteGrocery(int id) async {
+    // Get a reference to the database.
+    final db = await database;
+
+    // Remove the Favorite from the Database.
+    await db.delete(
+      'groceries',
+      where: "id = ?",
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
   }
 
 }
