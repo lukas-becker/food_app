@@ -1,6 +1,7 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/Favorite.dart';
 import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
@@ -8,7 +9,6 @@ import 'package:food_app/classes/Ingredient.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 
 import '../classes/Recipe.dart';
@@ -30,6 +30,10 @@ class RecipeListWidget extends StatelessWidget {
           title: 'Get your first recipe', favStorage: FavouriteStorage()),
     );
   }
+
+  static List<Recipe> getRecipes() {
+    return Recipes.getRecipes();
+  }
 }
 
 class Recipes extends StatefulWidget {
@@ -40,9 +44,15 @@ class Recipes extends StatefulWidget {
 
   @override
   _RecipesState createState() => _RecipesState();
+
+  static List<Recipe> getRecipes() {
+    return _RecipesState.getRecipes();
+  }
 }
 
 class _RecipesState extends State<Recipes> {
+  bool trigger = false;
+
   //Recipe Storage
   var futureRecipes = [];
   List<Recipe> recipes = new List();
@@ -53,9 +63,6 @@ class _RecipesState extends State<Recipes> {
   //int count = 0;
 
   List<Ingredient> ingredients;
-
-  //Speed Dial
-  bool _dialVisible = true;
 
   //filtering
   List<String> allIngredients = new List();
@@ -81,7 +88,7 @@ class _RecipesState extends State<Recipes> {
     }
   }
 
-  Future<List<Recipe>> searchRecipe(String recipeName) async {
+  Future<List<Recipe>> _searchRecipeApi(String recipeName) async {
     print("Downloading: http://www.recipepuppy.com/api/?q=" + recipeName);
     List<Recipe> res = [];
     final response =
@@ -94,6 +101,9 @@ class _RecipesState extends State<Recipes> {
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
     }
+    res.forEach((element) {
+      print(element.toString());
+    });
     return res;
   }
 
@@ -105,11 +115,15 @@ class _RecipesState extends State<Recipes> {
     widget.favStorage
         .readFavourites()
         .then((value) => favouritesFinished(value));
-
-    //Ingredients from "Pantry"
-    DatabaseUtil.getDatabase();
-    DatabaseUtil.getIngredients()
-        .then((value) => ingredientsFetchComplete(value));
+    if (!globals.search) {
+      //Ingredients from "Pantry"
+      DatabaseUtil.getDatabase();
+      DatabaseUtil.getIngredients()
+          .then((value) => ingredientsFetchComplete(value));
+    } else {
+      _searchRecipeApi(globals.searchString)
+          .then((value) => setRecipeList(value));
+    }
     DatabaseUtil.getFavorites().then((value) => favoritesFetchComplete(value));
   }
 
@@ -139,7 +153,7 @@ class _RecipesState extends State<Recipes> {
       recipes.add(element);
     });
     setState(() {
-      this.recipes = recipes;
+      _RecipesState.recipes = recipes;
     });
   }
 
@@ -150,6 +164,16 @@ class _RecipesState extends State<Recipes> {
 
     setState(() {
       this.favorites = favorites;
+    });
+  }
+
+  void setRecipeList(List<Recipe> searchedRecipes) {
+    recipes = [];
+    searchedRecipes.forEach((element) {
+      recipes.add(element);
+    });
+    setState(() {
+      _RecipesState.recipes = recipes;
     });
   }
 
@@ -316,7 +340,7 @@ class _RecipesState extends State<Recipes> {
                   TextButton(
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
-                      _launchURL(recipes[i].href);
+                      _launchURL(context, recipes[i].href);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -364,11 +388,21 @@ class _RecipesState extends State<Recipes> {
     return result;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  _launchURL(BuildContext context, String url) async {
+    try {
+      await custom.launch(
+        url,
+        option: new custom.CustomTabsOption(
+            toolbarColor: Theme.of(context).primaryColor,
+            enableDefaultShare: true,
+            enableUrlBarHiding: true,
+            showPageTitle: true,
+            animation: new custom.CustomTabsAnimation.slideIn()
+            ),
+      );
+    } catch (e) {
+      // An exception is thrown if browser app is not installed on Android device.
+      debugPrint(e.toString());
     }
   }
 
@@ -380,5 +414,8 @@ class _RecipesState extends State<Recipes> {
     print("Before saving" + favourites);
     widget.favStorage.writeFavourite(favourites);
   }
+
+  static List<Recipe> getRecipes() {
+    return recipes;
+  }
 }
-//End of Recipe list

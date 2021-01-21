@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Favorite.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:food_app/classes/FavouriteStorage.dart';
 import '../classes/Recipe.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 
 class FavouriteListWidget extends StatelessWidget {
   @override
@@ -16,6 +18,8 @@ class FavouriteListWidget extends StatelessWidget {
       home: FavouriteList(),
     );
   }
+
+
 }
 
 class FavouriteList extends StatefulWidget {
@@ -150,11 +154,31 @@ class FavouriteListState extends State<FavouriteList> {
     return printedFavorites;
   }
 
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  _saveFavourites() {
+    String currentfavourites = "";
+    for (Recipe current in favourites) {
+      if (current != null)
+        currentfavourites = currentfavourites + current.toString() + ";";
+    }
+    print("Before saving" + currentfavourites);
+    widget.storage.writeFavourite(currentfavourites);
+  }
+
+ _launchURL(BuildContext context, String url) async {
+    try {
+      await custom.launch(
+        url,
+        option: new custom.CustomTabsOption(
+            toolbarColor: Theme.of(context).primaryColor,
+            enableDefaultShare: true,
+            enableUrlBarHiding: true,
+            showPageTitle: true,
+            animation: new custom.CustomTabsAnimation.slideIn()
+            ),
+      );
+    } catch (e) {
+      // An exception is thrown if browser app is not installed on Android device.
+      debugPrint(e.toString());
     }
   }
 }
