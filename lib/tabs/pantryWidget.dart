@@ -1,10 +1,12 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Ingredient.dart';
+import 'package:food_app/classes/Item.dart';
 import 'package:food_app/globalVariables.dart' as globals;
+
+import 'EditItem.dart';
 
 //First Tab - Pantry
 class PantryWidget extends StatelessWidget {
@@ -29,204 +31,141 @@ class Pantry extends StatefulWidget {
 }
 
 class _PantryState extends State<Pantry> {
-  bool refreshDB = true;
-  List<Ingredient> ingredients = new List();
-
-  var tController = new TextEditingController();
+  List<Item> ingredients = new List();
 
   @override
   void initState() {
-    if (refreshDB) {
-      DatabaseUtil.getDatabase();
-      DatabaseUtil.getIngredients().then((value) => ingredientsFinished(value));
-      refreshDB = false;
-    }
     super.initState();
-  }
-
-  void ingredientsFinished(List<Ingredient> ingr) {
-    setState(() {
-      ingredients = ingr;
-    });
+    DatabaseUtil.getDatabase();
+    DatabaseUtil.getIngredients().then((value) => setState(() {
+          ingredients = value;
+        }));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ListView.separated(
+        child: ListView.builder(
           padding: const EdgeInsets.all(8),
           itemCount: ingredients.length,
-          separatorBuilder: (BuildContext context, int index) => Divider(),
           itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              tileColor: Colors.amber[100],
-              title: Row(
+            return Slidable(
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.25,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     icon: Icon(Icons.remove),
-                    onPressed: () {
-                      setState(() {
-                        refreshDB = true;
-                        ingredients[index].amount -= 1;
-                        DatabaseUtil.updateIngredient(ingredients[index]);
-                        if (ingredients[index].amount == 0)
-                          DatabaseUtil.deleteIngredient(ingredients[index].id)
-                              .whenComplete(() => initState());
-                      });
-                    },
+                    onPressed: () => _decreaseAmount(index),
                   ),
-                  Text(ingredients[index].name +
-                      " : " +
-                      ingredients[index].amount.toString()),
+                  Text(ingredients[index].name + " : " + globals.prettyFormatDouble(ingredients[index].amount)),
                   IconButton(
                     icon: Icon(Icons.add),
-                    onPressed: () {
-                      setState(() {
-                        refreshDB = true;
-                        ingredients[index].amount += 1;
-                        DatabaseUtil.updateIngredient(ingredients[index]);
-                      });
-                    },
+                    onPressed: () => _increaseAmount(index),
                   ),
                 ],
               ),
-              onLongPress: () => _askForDelete(index),
+              actions: <Widget>[
+                IconSlideAction(
+                  caption: "Edit",
+                  color: Colors.blue,
+                  icon: Icons.edit,
+                  onTap: () => _awaitResultFromEditScreen(context, index),
+                ),
+              ],
+              secondaryActions: <Widget>[
+                IconSlideAction(
+                  caption: "Delete",
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () => _removeItem(index),
+                ),
+              ],
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addItem(),
+        onPressed: () => _awaitResultFromEditScreen(context, ingredients.length),
         child: Icon(Icons.add),
         backgroundColor: Colors.lime,
       ),
     );
   }
 
-  String dropdownValue;
-  bool savePopUp = false;
-
-  void _addItem() {
-    String newAmount;
-    int amount;
-
-    //dropdownValue == null ? dropdownValue = entries[0] : dropdownValue = dropdownValue;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("New List Item"),
-          content: Row(children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(children: [
-                  DropdownButton(
-                    value: dropdownValue,
-                    icon: Icon(Icons.arrow_downward),
-                    iconSize: 24,
-                    elevation: 16,
-                    style: TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
-                    ),
-                    items:
-                        globals.entries.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String newValue) => {
-                      setState(() {
-                        dropdownValue = newValue;
-                      })
-                    },
-                  ),
-                  TextField(
-                    controller: tController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Amount',
-                    ),
-                  ),
-                ]),
-              ),
-            ),
-            ],),
-            actions: [
-              FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Close")
-              ),
-              FlatButton(
-              child: Text("Save"),
-              onPressed: (){
-                amount = null;
-                newAmount = tController.text;
-                amount = int.tryParse(newAmount);
-                Navigator.of(context).pop();
-                savePopUp = true;
-              },
-              ),
-
-            ],
-        );
-        }
-    ).then((value)  => getIdThenInsertFromDropdown(dropdownValue, amount));
-    }
-
-    Future<void> getIdThenInsertFromDropdown(String name, int amount) async{
-      refreshDB = true;
-
-      DatabaseUtil.getNextIngredientID().then((value) => insertFromDropdown(value, name, amount));
-    }
-
-    Future<void> insertFromDropdown(int id, String name, int amount) async{
-      refreshDB = true;
-      DatabaseUtil.getNextIngredientID().then((value) => id = value);
-
-      if(savePopUp && amount != null) {
-        savePopUp = false;
-        final ing = Ingredient(id: id, name: name, amount: amount);
-        DatabaseUtil.checkDBForIngredient(name).then((value) => {value ? DatabaseUtil.updateAmount(name, amount).whenComplete(() => initState()) : DatabaseUtil.insertIngredient(ing).whenComplete(() => initState())});
-
-      }
-  }
-
-  // Not working --> Discuss if we want to fix it
-  void _askForDelete(int index) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Delete?"),
-            content: Text("Do you want to delete \"${globals.entries[index]}?\""),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => {_deleteItem(index), Navigator.pop(context)},
-                child: Text("Yes"),
-              ),
-              TextButton(
-                onPressed: () => {Navigator.pop(context)},
-                child: Text("Cancel"),
-              )
-            ],
-          );
-        });
-  }
-
-  void _deleteItem(int index) {
+  void _increaseAmount(int index) {
+    Item oldItem = ingredients[index];
+    Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount + 1, unit: oldItem.unit);
     setState(() {
-      globals.entries.removeAt(index);
+      ingredients[index] = newItem;
     });
+  }
+
+  void _decreaseAmount(int index) {
+    Item oldItem = ingredients[index];
+    if (oldItem.amount - 1 <= 0) {
+      _removeItem(index);
+      return;
+    }
+    Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount - 1, unit: oldItem.unit);
+    setState(() {
+      ingredients[index] = newItem;
+    });
+  }
+
+  void _awaitResultFromEditScreen(BuildContext context, int index) async {
+    Item result;
+    if (index > ingredients.length - 1) {
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, false)));
+      if (result != null) {
+        if (_checkForSameName(result)) {
+          setState(() {
+            ingredients[index - 1] = Item(id: index - 1, name: result.name, amount: result.amount, unit: result.unit);
+          });
+        } else {
+          _addItem(result, index);
+        }
+      }
+    } else {
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(ingredients[index], index, false)));
+      if (result != null)
+        setState(() {
+          ingredients[index] = result;
+        });
+    }
+    _saveGrocery();
+  }
+
+  void _addItem(Item item, int index) {
+    DatabaseUtil.insertIngredient(item);
+    setState(() {
+      ingredients.insert(index, item);
+    });
+    print("Added new Grocery Item");
+  }
+
+  void _removeItem(int index) {
+    DatabaseUtil.deleteIngredient(ingredients[index].id);
+    setState(() {
+      ingredients.removeAt(index);
+    });
+    print("Removed Grocery Item");
+  }
+
+  void _saveGrocery() {
+    for (int i = 0; i < ingredients.length; i++) {
+      var ingredient = ingredients[i];
+      DatabaseUtil.insertIngredient(ingredient);
+    }
+  }
+
+  bool _checkForSameName(Item toAddItem) {
+    for (Item ingredient in ingredients) {
+      if (toAddItem.name == ingredient.name) return true;
+    }
+    return false;
   }
 }
 

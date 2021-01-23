@@ -4,7 +4,7 @@ import 'package:food_app/tabs/filteredRecipesWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
 
 import 'DatabaseUtil.dart';
-import 'Ingredient.dart';
+import 'Item.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 
 class CustomDialog extends StatefulWidget {
@@ -15,7 +15,7 @@ class CustomDialog extends StatefulWidget {
 class _CustomDialogState extends State<CustomDialog> {
   Map<String, bool> checkBoxHandling = new Map();
 
-  List<Ingredient> currentPantry = new List();
+  List<Item> currentPantry = new List();
 
   List<String> notInPantry = globals.entries;
 
@@ -137,7 +137,7 @@ class _CustomDialogState extends State<CustomDialog> {
     );
   }
 
-  _loadIngredientsFinished(List<Ingredient> ingr) {
+  _loadIngredientsFinished(List<Item> ingr) {
     setState(() {
       currentPantry = ingr;
     });

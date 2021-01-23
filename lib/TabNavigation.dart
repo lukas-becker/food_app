@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/Ingredient.dart';
-import 'package:food_app/tabs/GroceryListWidget.dart';
+import 'package:food_app/classes/Item.dart';
+import 'package:food_app/tabs/ShoppingListWidget.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 
 import 'classes/CustomDialog.dart';
+import 'tabs/ShoppingListWidget.dart';
 
 class TabNavigation extends StatefulWidget {
   final List<Tab> myTabs = <Tab>[
@@ -20,7 +21,7 @@ class TabNavigation extends StatefulWidget {
 
   final _recipeList = new RecipeListWidget();
 
-  final List<Ingredient> currentPantry = new List();
+  final List<Item> currentPantry = new List();
 
   final Map<String, bool> checkBoxHandling = new Map();
 
@@ -103,7 +104,7 @@ class _TabNavigationState extends State<TabNavigation>
               children: [
                 PantryWidget(),
                 widget._recipeList,
-                Icon(Icons.directions_bike),
+                ShoppingListWidget(),
                 FavouriteListWidget(),
               ],
             ),

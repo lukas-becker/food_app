@@ -5,7 +5,7 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/Favorite.dart';
 import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Ingredient.dart';
+import 'package:food_app/classes/Item.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
@@ -62,7 +62,7 @@ class _RecipesState extends State<Recipes> {
 
   //int count = 0;
 
-  List<Ingredient> ingredients;
+  List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
@@ -136,7 +136,7 @@ class _RecipesState extends State<Recipes> {
     return fav;
   }
 
-  void ingredientsFetchComplete(List<Ingredient> ingr) {
+  void ingredientsFetchComplete(List<Item> ingr) {
     ingr.forEach((element) {
       allIngredients.add(element.name.toUpperCase());
     });
