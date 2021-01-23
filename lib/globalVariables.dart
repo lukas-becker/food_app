@@ -12,6 +12,5 @@ final List<String> units = <String>["piece", "gram", "kilogram", "ounce", "pound
 
 
 String prettyFormatDouble(double value){
-  print(value.truncateToDouble());
-return value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 2);
+  return value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 2);
 }

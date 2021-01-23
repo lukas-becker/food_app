@@ -18,6 +18,9 @@ class _EditState extends State<EditItem> {
   final int index;
   final bool isCalledFromShoppingList;
 
+  final double editWidth = 200;
+  final double fontSize = 18;
+
   var nameController = new TextEditingController();
   var quantityController = new TextEditingController();
   String unitDropdown;
@@ -67,17 +70,18 @@ class _EditState extends State<EditItem> {
 
     if (this.isCalledFromShoppingList) {
       nameWidget = Container(
-        width: 200,
+        width: editWidth,
         margin: EdgeInsets.all(16),
         child: TextField(
           controller: nameController,
+          style: TextStyle(color: Colors.black, fontSize: fontSize),
           decoration: InputDecoration(labelText: "Enter name"),
           onEditingComplete: () => node.nextFocus(),
         ),
       );
     } else {
       nameWidget = Container(
-          width: 200,
+          width: editWidth,
           margin: EdgeInsets.all(16),
           child: DropdownButton(
             value: nameDropdown,
@@ -85,10 +89,10 @@ class _EditState extends State<EditItem> {
             icon: Icon(Icons.arrow_downward),
             iconSize: 20,
             elevation: 16,
-            style: TextStyle(color: Colors.deepPurple),
+            style: TextStyle(color: Colors.black, fontSize: fontSize),
             underline: Container(
-              height: 2,
-              color: Colors.deepPurpleAccent,
+              height: 1,
+              color: Colors.grey,
             ),
             onChanged: (String newValue) => {
               setState(() {
@@ -98,7 +102,7 @@ class _EditState extends State<EditItem> {
             items: globals.entries.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Align(alignment: Alignment.center, child: Text(value)),
+                child: Align(alignment: Alignment.centerLeft, child: Text(value)),
               );
             }).toList(),
           ));
@@ -107,17 +111,18 @@ class _EditState extends State<EditItem> {
     return [
       nameWidget,
       Container(
-        width: 200,
+        width: editWidth,
         margin: EdgeInsets.all(16),
         child: TextField(
           controller: quantityController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: "Enter quantity"),
+          style: TextStyle(color: Colors.black, fontSize: fontSize),
           onEditingComplete: () => _validateAmount(),
         ),
       ),
       Container(
-          width: 200,
+          width: editWidth,
           margin: EdgeInsets.all(16),
           child: DropdownButton<String>(
             value: unitDropdown,
@@ -125,7 +130,7 @@ class _EditState extends State<EditItem> {
             icon: Icon(Icons.arrow_downward),
             iconSize: 20,
             elevation: 16,
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black, fontSize: fontSize),
             underline: Container(
               height: 1,
               color: Colors.grey,
@@ -138,7 +143,7 @@ class _EditState extends State<EditItem> {
             items: globals.units.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Align(alignment: Alignment.center, child: Text(value)),
+                child: Align(alignment: Alignment.centerLeft, child: Text(value)),
               );
             }).toList(),
           ))
