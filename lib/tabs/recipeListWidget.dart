@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Item.dart';
 import 'package:http/http.dart' as http;
@@ -28,8 +27,7 @@ class RecipeListWidget extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Recipes(
-          title: 'Get your first recipe', favStorage: FavouriteStorage()),
-    );
+          title: 'Get your first recipe'));
   }
 
   static List<Recipe> getRecipes() {
@@ -38,8 +36,7 @@ class RecipeListWidget extends StatelessWidget {
 }
 
 class Recipes extends StatefulWidget {
-  final FavouriteStorage favStorage;
-  Recipes({Key key, this.title, @required this.favStorage}) : super(key: key);
+  Recipes({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -124,9 +121,6 @@ class _RecipesState extends State<Recipes> {
     super.initState();
     //Favourites
     print("Before init:" + favouriteRecipes.toString());
-    widget.favStorage
-        .readFavourites()
-        .then((value) => favouritesFinished(value));
     if (!globals.search) {
       //Ingredients from "Pantry"
       DatabaseUtil.getDatabase();
