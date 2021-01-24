@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
 import 'package:food_app/globalVariables.dart' as globals;
+import 'package:carousel_slider/carousel_slider.dart';
 
 import '../classes/Recipe.dart';
 import 'dart:async';
@@ -84,6 +85,17 @@ class _RecipesState extends State<Recipes> {
           list.length,
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
+
+
+      //To prevent results appearing multiple times
+      for(Recipe r in res){
+        for (Recipe ri in recipes){
+          if (r == ri){
+            res.remove(r);
+          }
+        }
+      }
+
       return res;
     }
   }
@@ -192,12 +204,90 @@ class _RecipesState extends State<Recipes> {
 
     List<Widget> result = new List();
 
+    result.add(SizedBox(
+      width: 8,
+      height: 15,
+    ));
+
+    /*result.add(
+        CarouselSlider(
+          options: CarouselOptions(scrollDirection: Axis.horizontal),
+          items: recipes.map((rec) {
+            bool isSaved = false;
+            int favID;
+            int favIndex;
+
+            favorites.forEach((element) {if(element.recipe == rec) {isSaved = true; favIndex = favorites.indexOf(element);}} );
+
+            return Builder(
+              builder: (BuildContext context) {
+                return Card(
+                  child: InkWell(
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card tapped.');
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        ListTile(
+                            leading: Image.network(rec.thumbnail),
+                            trailing: IconButton(
+                              color: isSaved ? Colors.red : null,
+                              onPressed: () {
+                                if (isSaved) {
+                                  DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
+                                  favorites.removeAt(favIndex);
+                                  setState(() {
+                                    this.favorites = favorites;
+                                  });
+                                } else {
+                                  DatabaseUtil.getNextFavoriteID().then((value) => {
+                                    setState(() {
+                                      favorites.add(Favorite(id: value, recipe: rec));
+                                    }),
+                                    DatabaseUtil.insertFavorite(Favorite(id: value, recipe: rec))
+                                  });
+                                }
+                              },
+                              icon:
+                              Icon(isSaved ? Icons.favorite : Icons.favorite_border),
+                            ),
+                            title: Text(rec.title),
+                            subtitle: Text("Ingredients: " + rec.ingredients)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            TextButton(
+                              child: const Text('CHECK IT OUT'),
+                              onPressed: () {
+                                _launchURL(context, rec.href);
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }).toList(),
+        )
+    );*/
+
     //Iterate over each recipe
+    //100 to prevent loop from running
     for (int i = 0; i < recipes.length; i++) {
       //Replace with default thumbnail
       if (recipes[i].thumbnail == null)
         recipes[i].thumbnail =
             "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+
+
+
 
       bool _continue = false;
       //If only "makeable" recipes should be shown
@@ -290,11 +380,13 @@ class _RecipesState extends State<Recipes> {
 
       if (_continue) continue;
 
-      bool isSaved = false;
+      bool isSaved = false;#
       int favID;
       int favIndex;
 
       favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
+
+
 
       result.add(SizedBox(
         width: 8,
