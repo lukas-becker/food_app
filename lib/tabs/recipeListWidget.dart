@@ -5,7 +5,7 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/Favorite.dart';
 import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Ingredient.dart';
+import 'package:food_app/classes/Item.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
@@ -52,7 +52,7 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
-  bool trigger = false;
+  List<Widget> displayedRecipes = new List();
 
   //Recipe Storage
   var futureRecipes = [];
@@ -63,7 +63,7 @@ class _RecipesState extends State<Recipes> {
 
   //int count = 0;
 
-  List<Ingredient> ingredients;
+  List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
@@ -148,7 +148,7 @@ class _RecipesState extends State<Recipes> {
     return fav;
   }
 
-  void ingredientsFetchComplete(List<Ingredient> ingr) {
+  void ingredientsFetchComplete(List<Item> ingr) {
     ingr.forEach((element) {
       allIngredients.add(element.name.toUpperCase());
     });
@@ -200,84 +200,16 @@ class _RecipesState extends State<Recipes> {
     );
   }
 
+  List<Widget> result = new List();
+
   List<Widget> _compileRecipes() {
-
-    List<Widget> result = new List();
-
+    setState(() {
+      result = [];
+    });
     result.add(SizedBox(
       width: 8,
       height: 15,
     ));
-
-    /*result.add(
-        CarouselSlider(
-          options: CarouselOptions(scrollDirection: Axis.horizontal),
-          items: recipes.map((rec) {
-            bool isSaved = false;
-            int favID;
-            int favIndex;
-
-            favorites.forEach((element) {if(element.recipe == rec) {isSaved = true; favIndex = favorites.indexOf(element);}} );
-
-            return Builder(
-              builder: (BuildContext context) {
-                return Card(
-                  child: InkWell(
-                    splashColor: Colors.blue.withAlpha(30),
-                    onTap: () {
-                      print('Card tapped.');
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        ListTile(
-                            leading: Image.network(rec.thumbnail),
-                            trailing: IconButton(
-                              color: isSaved ? Colors.red : null,
-                              onPressed: () {
-                                if (isSaved) {
-                                  DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
-                                  favorites.removeAt(favIndex);
-                                  setState(() {
-                                    this.favorites = favorites;
-                                  });
-                                } else {
-                                  DatabaseUtil.getNextFavoriteID().then((value) => {
-                                    setState(() {
-                                      favorites.add(Favorite(id: value, recipe: rec));
-                                    }),
-                                    DatabaseUtil.insertFavorite(Favorite(id: value, recipe: rec))
-                                  });
-                                }
-                              },
-                              icon:
-                              Icon(isSaved ? Icons.favorite : Icons.favorite_border),
-                            ),
-                            title: Text(rec.title),
-                            subtitle: Text("Ingredients: " + rec.ingredients)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            TextButton(
-                              child: const Text('CHECK IT OUT'),
-                              onPressed: () {
-                                _launchURL(context, rec.href);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          }).toList(),
-        )
-    );*/
-
     //Iterate over each recipe
     //100 to prevent loop from running
     for (int i = 0; i < recipes.length; i++) {
@@ -380,7 +312,7 @@ class _RecipesState extends State<Recipes> {
 
       if (_continue) continue;
 
-      bool isSaved = false;#
+      bool isSaved = false;
       int favID;
       int favIndex;
 
@@ -459,7 +391,7 @@ class _RecipesState extends State<Recipes> {
           },
           child: Text("Take me there")));
     }
-
+    print(result.length);
     if (result.length == 0) {
       result.add(SizedBox(
         width: 8,
@@ -489,8 +421,7 @@ class _RecipesState extends State<Recipes> {
             enableDefaultShare: true,
             enableUrlBarHiding: true,
             showPageTitle: true,
-            animation: new custom.CustomTabsAnimation.slideIn()
-            ),
+            animation: new custom.CustomTabsAnimation.slideIn()),
       );
     } catch (e) {
       // An exception is thrown if browser app is not installed on Android device.

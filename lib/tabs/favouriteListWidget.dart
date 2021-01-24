@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Favorite.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:food_app/classes/FavouriteStorage.dart';
-import '../classes/Recipe.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 
 class FavouriteListWidget extends StatelessWidget {

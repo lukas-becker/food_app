@@ -1,13 +1,10 @@
-import 'dart:collection';
-
-import 'package:flutter/material.dart';
 import 'package:food_app/classes/Favorite.dart';
 import 'package:food_app/classes/GroceryItem.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-import 'Ingredient.dart';
+import 'Item.dart';
 import 'Recipe.dart';
 
 class DatabaseUtil {
@@ -25,10 +22,10 @@ class DatabaseUtil {
                 "CREATE TABLE favorite(id INTEGER PRIMARY KEY, title TEXT, href TEXT, ingredients TEXT, thumbnail TEXT);",
               );
               db.execute(
-                "CREATE TABLE groceries(id INTEGER PRIMARY KEY, name TEXT, quantity DOUBLE, unit TEXT);",
+                "CREATE TABLE groceries(id INTEGER PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
               );
               return db.execute(
-                "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);",
+                "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
               );
             },
             version: 1,
@@ -42,7 +39,7 @@ class DatabaseUtil {
     }
   }
 
-  static Future<List<Ingredient>> getIngredients() async {
+  static Future<List<Item>> getIngredients() async {
     // Get a reference to the database.
     final Database db = await database;
 
@@ -52,7 +49,7 @@ class DatabaseUtil {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return Ingredient(
+      return Item(
         id: maps[i]['id'],
         name: maps[i]['name'],
         amount: maps[i]['amount'],
@@ -67,7 +64,7 @@ class DatabaseUtil {
     return maps == null || maps.length > 0 ;
   }
 
-  static Future<void> insertIngredient(Ingredient ingredient) async {
+  static Future<void> insertIngredient(Item ingredient) async {
     // Get a reference to the database.
     final Database db = await database;
 
@@ -78,7 +75,7 @@ class DatabaseUtil {
     );
   }
 
-  static Future<void> updateIngredient(Ingredient ingredient) async {
+  static Future<void> updateIngredient(Item ingredient) async {
     // Get a reference to the database.
     final db = await database;
 
@@ -267,7 +264,7 @@ class DatabaseUtil {
   }
 
 
-  static Future<List<GroceryItem>> getGroceries() async {
+  static Future<List<Item>> getGroceries() async {
     // Get a reference to the database.
     final Database db = await database;
 
@@ -276,17 +273,17 @@ class DatabaseUtil {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return GroceryItem.fromJson(maps[i]);
+      return Item.fromMap(maps[i]);
     });
   }
 
-  static Future<void> insertGrocery(GroceryItem item) async {
+  static Future<void> insertGrocery(Item item) async {
     // Get a reference to the database.
     final Database db = await database;
 
     await db.insert(
       'groceries',
-      item.toJson(),
+      item.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
