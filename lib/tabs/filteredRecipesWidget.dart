@@ -37,9 +37,6 @@ class FilteredRecipesWidget extends StatelessWidget {
         Card(
           child: InkWell(
             splashColor: Colors.blue.withAlpha(30),
-            onTap: () {
-              print('Card tapped.');
-            },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -56,6 +53,7 @@ class FilteredRecipesWidget extends StatelessWidget {
                       child: const Text('CHECK IT OUT'),
                       onPressed: () {
                         _launchURL(context, filteredRecipes[i].href);
+                        print("[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${filteredRecipes[i].title}");
                       },
                     ),
                     const SizedBox(width: 8),

@@ -47,7 +47,6 @@ class _TabNavigationState extends State<TabNavigation>
           tabController.addListener(
             () {
               if (tabController.indexIsChanging) {
-                //globals.search = false;
                 if (tabController.index == 1) {
                   setState(() {
                     _secondTabActive = true;
@@ -165,11 +164,13 @@ class _TabNavigationState extends State<TabNavigation>
               onPressed: () {
                 _search();
                 tabController.animateTo(1);
+                print("[${DateTime.now().toIso8601String()}] INFO: Searched for ${widget.tController.text}");
               },
               child: Text("Search"),
             ),
             TextButton(
               onPressed: () => {
+                print("[${DateTime.now().toIso8601String()}] INFO: Search cancelled"),
                 Navigator.pop(context),
               },
               child: Text("Cancel"),

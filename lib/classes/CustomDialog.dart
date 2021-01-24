@@ -39,21 +39,21 @@ class _CustomDialogState extends State<CustomDialog> {
 
   @override
   Widget build(BuildContext context) {
-    print("called");
     List<Widget> checkboxes = new List();
     checkboxes.add(
       Text("Those ingredients are currently in your pantry:"),
     );
     for (int i = 0; i < currentPantry.length; i++) {
-      print(checkBoxHandling.toString());
       checkboxes.add(
         CheckboxListTile(
           title: Text(currentPantry[i].toString()),
           value: checkBoxHandling[currentPantry[i].toString()],
           onChanged: (bool value) {
             setState(() {
-              print(currentPantry[i].toString() + " $value");
               checkBoxHandling[currentPantry[i].toString()] = value;
+              print(value
+                  ? "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].toString()} was checked"
+                  : "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].toString()} was unchecked");
             });
           },
         ),
@@ -62,18 +62,17 @@ class _CustomDialogState extends State<CustomDialog> {
     checkboxes.add(
       Text("Other ingredients to filter:"),
     );
-    print("Ingredients");
     for (int i = 0; i < notInPantry.length; i++) {
-      print("$i" + notInPantry[i]);
-      print("$i" + checkBoxHandling[notInPantry[i]].toString());
       checkboxes.add(
         CheckboxListTile(
           title: Text(notInPantry[i]),
           value: checkBoxHandling[notInPantry[i]],
           onChanged: (bool value) {
             setState(() {
-              print(notInPantry[i] + " $value");
               checkBoxHandling[notInPantry[i]] = value;
+              print(value
+                  ? "[${DateTime.now().toIso8601String()}] INFO: ${notInPantry[i]} was checked"
+                  : "[${DateTime.now().toIso8601String()}] INFO: ${notInPantry[i]} was unchecked");
             });
           },
         ),
@@ -91,19 +90,21 @@ class _CustomDialogState extends State<CustomDialog> {
           child: Text("Filter"),
           onPressed: () {
             _filter(context);
+            print("[${DateTime.now().toIso8601String()}] INFO: Filter used");
           },
         ),
         TextButton(
           child: Text("Cancel"),
           onPressed: () {
             Navigator.pop(context);
+            print("[${DateTime.now().toIso8601String()}] INFO: Filter cancelled");
           },
         ),
       ],
     );
   }
 
-  _filter(BuildContext context) {
+  void _filter(BuildContext context) {
     Navigator.pop(context);
     List<Recipe> representedRecipes = new List();
     representedRecipes.addAll(
@@ -118,9 +119,7 @@ class _CustomDialogState extends State<CustomDialog> {
         selectedIngredients.add(ingredient);
         for (Recipe current in representedRecipes) {
           List<String> currentIngredients = current.ingredients.split(',');
-          String help = current.title;
           if (currentIngredients.contains(ingredient.toLowerCase())) {
-            print("$help enthält $current");
             filteredRecipes.add(current);
           }
         }
@@ -137,7 +136,7 @@ class _CustomDialogState extends State<CustomDialog> {
     );
   }
 
-  _loadIngredientsFinished(List<Item> ingr) {
+  void _loadIngredientsFinished(List<Item> ingr) {
     setState(() {
       currentPantry = ingr;
     });

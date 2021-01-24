@@ -77,6 +77,7 @@ class FavouriteListState extends State<FavouriteList> {
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
+                      print("[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${communityFav.recipe.title}");
                     },
                   ),
                   const SizedBox(width: 8),
@@ -110,12 +111,11 @@ class FavouriteListState extends State<FavouriteList> {
                   icon: Icon(Icons.favorite),
                   color: Colors.red,
                   onPressed: () {
-                    DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
-                    favorites.removeAt(favIndex);
+                    DatabaseUtil.deleteFavorite(favorites[favIndex]);
                     setState(() {
                       this.favorites = favorites;
                     });
-
+                    print("[${DateTime.now().toIso8601String()}] INFO: Removed ${favorites[i].recipe.title} from favorites");
                   },
                 ),
                 title: Text(favorites[i].recipe.title),
@@ -128,6 +128,7 @@ class FavouriteListState extends State<FavouriteList> {
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, favorites[i].recipe.href);
+                      print("[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${favorites[i].recipe.title}");
                     },
                   ),
                   const SizedBox(width: 8),

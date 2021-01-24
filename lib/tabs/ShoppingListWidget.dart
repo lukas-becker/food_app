@@ -83,7 +83,6 @@ class _ShoppingState extends State<ShoppingList> {
     setState(() {
       items.insert(index, item);
     });
-    print("Added new Grocery Item");
   }
 
   void removeGroceryItem(int index) {
@@ -91,7 +90,6 @@ class _ShoppingState extends State<ShoppingList> {
     setState(() {
       items.removeAt(index);
     });
-    print("Removed Grocery Item");
   }
 
   void _saveGrocery() {
