@@ -22,17 +22,17 @@ class _EditState extends State<EditItem> {
   final double fontSize = 18;
 
   var nameController = new TextEditingController();
-  var quantityController = new TextEditingController();
+  var amountController = new TextEditingController();
   String unitDropdown;
   String nameDropdown;
   bool once = true;
-  bool quantityError = false;
+  bool amountError = false;
   FocusScopeNode node;
 
   _EditState(this.item, this.index, this.isCalledFromShoppingList) {
     if (item != null && once) {
       nameController.text = item.name;
-      quantityController.text = "${item.amount}";
+      amountController.text = "${item.amount}";
       unitDropdown = item.unit.contains("s") ? item.unit.replaceAll("s", "") : item.unit;
       once = false;
     } else {
@@ -114,9 +114,9 @@ class _EditState extends State<EditItem> {
         width: editWidth,
         margin: EdgeInsets.all(16),
         child: TextField(
-          controller: quantityController,
+          controller: amountController,
           keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: "Enter quantity"),
+          decoration: InputDecoration(labelText: "Enter amount"),
           style: TextStyle(color: Colors.black, fontSize: fontSize),
           onEditingComplete: () => _validateAmount(),
         ),
@@ -151,37 +151,37 @@ class _EditState extends State<EditItem> {
   }
 
   void _sendBackToCaller() {
-    double quantity = _validateAmount();
-    if (!quantityError) {
+    double amount = _validateAmount();
+    if (!amountError) {
       if (this.isCalledFromShoppingList) {
-        Navigator.pop(context, new Item(id: index, name: nameController.text, amount: quantity, unit: _checkUnitForPlural(quantity)));
+        Navigator.pop(context, new Item(id: index, name: nameController.text, amount: amount, unit: _checkUnitForPlural(amount)));
       } else {
-        Navigator.pop(context, new Item(id: index, name: nameDropdown, amount: quantity, unit: _checkUnitForPlural(quantity)));
+        Navigator.pop(context, new Item(id: index, name: nameDropdown, amount: amount, unit: _checkUnitForPlural(amount)));
       }
     }
   }
 
   void _showError() {
-    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the quantity!")));
+    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the amouont!")));
   }
 
   String _checkUnitForPlural(double amount) {
     String unit = unitDropdown;
-    return amount > 1 ? unit += "s" : unit;
+    return (amount > 1) ? unit += "s" : unit;
   }
 
   double _validateAmount() {
     try {
-      if (quantityController.text.contains(",")) {
-        quantityController.text = quantityController.text.replaceAll(",", ".");
+      if (amountController.text.contains(",")) {
+        amountController.text = amountController.text.replaceAll(",", ".");
       }
-      double amount = double.parse(quantityController.text);
+      double amount = double.parse(amountController.text);
       if (node != null) node.nextFocus();
-      quantityError = false;
+      amountError = false;
       return amount;
     } catch (e) {
       print("Amount Input was not an Integer");
-      quantityError = true;
+      amountError = true;
       _showError();
       return null;
     }
