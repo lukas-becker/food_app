@@ -28,15 +28,17 @@ class ShoppingList extends StatefulWidget {
 class _ShoppingState extends State<ShoppingList> {
   List<Item> items = [];
 
+
   @override
   void initState() {
     super.initState();
     DatabaseUtil.getDatabase();
-    DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
+    if (!mounted) DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: ListView.builder(
         itemCount: items.length,

@@ -154,9 +154,13 @@ class _EditState extends State<EditItem> {
     double amount = _validateAmount();
     if (!amountError) {
       if (this.isCalledFromShoppingList) {
-        Navigator.pop(context, new Item(id: index, name: nameController.text, amount: amount, unit: _checkUnitForPlural(amount)));
+        Item sendItem = new Item(id: index, name: nameController.text, amount: amount, unit: _checkUnitForPlural(amount));
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list.");
+        Navigator.pop(context, sendItem);
       } else {
-        Navigator.pop(context, new Item(id: index, name: nameDropdown, amount: amount, unit: _checkUnitForPlural(amount)));
+        Item sendItem = new Item(id: index, name: nameDropdown, amount: amount, unit: _checkUnitForPlural(amount));
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry.");
+        Navigator.pop(context, sendItem);
       }
     }
   }
