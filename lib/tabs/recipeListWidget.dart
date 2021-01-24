@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/FavouriteStorage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Ingredient.dart';
+import 'package:food_app/classes/Item.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
 import 'package:food_app/globalVariables.dart' as globals;
+import 'package:carousel_slider/carousel_slider.dart';
 
 import '../classes/Recipe.dart';
 import 'dart:async';
@@ -27,8 +27,7 @@ class RecipeListWidget extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Recipes(
-          title: 'Get your first recipe', favStorage: FavouriteStorage()),
-    );
+          title: 'Get your first recipe'));
   }
 
   static List<Recipe> getRecipes() {
@@ -37,8 +36,7 @@ class RecipeListWidget extends StatelessWidget {
 }
 
 class Recipes extends StatefulWidget {
-  final FavouriteStorage favStorage;
-  Recipes({Key key, this.title, @required this.favStorage}) : super(key: key);
+  Recipes({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -62,7 +60,7 @@ class _RecipesState extends State<Recipes> {
 
   //int count = 0;
 
-  List<Ingredient> ingredients;
+  List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
@@ -84,6 +82,17 @@ class _RecipesState extends State<Recipes> {
           list.length,
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
+
+
+      //To prevent results appearing multiple times
+      for(Recipe r in res){
+        for (Recipe ri in recipes){
+          if (r == ri){
+            res.remove(r);
+          }
+        }
+      }
+
       return res;
     }
   }
@@ -112,9 +121,6 @@ class _RecipesState extends State<Recipes> {
     super.initState();
     //Favourites
     print("Before init:" + favouriteRecipes.toString());
-    widget.favStorage
-        .readFavourites()
-        .then((value) => favouritesFinished(value));
     if (!globals.search) {
       //Ingredients from "Pantry"
       DatabaseUtil.getDatabase();
@@ -136,7 +142,7 @@ class _RecipesState extends State<Recipes> {
     return fav;
   }
 
-  void ingredientsFetchComplete(List<Ingredient> ingr) {
+  void ingredientsFetchComplete(List<Item> ingr) {
     ingr.forEach((element) {
       allIngredients.add(element.name.toUpperCase());
     });
@@ -194,12 +200,20 @@ class _RecipesState extends State<Recipes> {
     setState(() {
       result = [];
     });
+    result.add(SizedBox(
+      width: 8,
+      height: 15,
+    ));
     //Iterate over each recipe
+    //100 to prevent loop from running
     for (int i = 0; i < recipes.length; i++) {
       //Replace with default thumbnail
       if (recipes[i].thumbnail == null)
         recipes[i].thumbnail =
             "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+
+
+
 
       bool _continue = false;
       //If only "makeable" recipes should be shown
@@ -293,9 +307,12 @@ class _RecipesState extends State<Recipes> {
       if (_continue) continue;
 
       bool isSaved = false;
+      int favID;
       int favIndex;
 
       favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
+
+
 
       result.add(SizedBox(
         width: 8,
