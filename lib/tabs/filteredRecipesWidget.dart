@@ -4,6 +4,7 @@ import 'package:food_app/classes/Recipe.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 
 class FilteredRecipesWidget extends StatelessWidget {
+  // List of recipes which are displayed
   final List<Recipe> filteredRecipes;
 
   FilteredRecipesWidget({Key key, @required this.filteredRecipes})
@@ -23,16 +24,19 @@ class FilteredRecipesWidget extends StatelessWidget {
     );
   }
 
+  // Builds widget
   List<Widget> _showRecipes(BuildContext context) {
     List<Widget> displayedList = new List();
     for (int i = 0; i < filteredRecipes.length; i++) {
+      // Between every recipe is a spacer
       displayedList.add(
         SizedBox(
           width: 8,
           height: 15,
         ),
       );
-
+      // Every recipe is displayed with an image (if available) and its ingredients
+      // Also a button which enables visitting the primary website
       displayedList.add(
         Card(
           child: InkWell(
@@ -65,6 +69,7 @@ class FilteredRecipesWidget extends StatelessWidget {
         ),
       );
     }
+    // If no recipe fits to the filter a short dialog is displayed
     if (displayedList.length == 0) {
       displayedList.add(
         SizedBox(
@@ -79,6 +84,7 @@ class FilteredRecipesWidget extends StatelessWidget {
         Text("Try to change your settings!"),
       );
       displayedList.add(
+        // Option for going back
         RaisedButton(
           color: Colors.green,
           onPressed: () {
@@ -92,8 +98,10 @@ class FilteredRecipesWidget extends StatelessWidget {
     return displayedList;
   }
 
+  // Launches the website which offers the recipe 
   _launchURL(BuildContext context, String url) async {
     try {
+      // Use of Chrome CustomTab
       await custom.launch(
         url,
         option: new custom.CustomTabsOption(

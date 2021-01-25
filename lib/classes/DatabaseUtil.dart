@@ -262,11 +262,8 @@ class DatabaseUtil {
     DatabaseReference id = firebaseReference
         .child("favorites/")
         .child(fav.recipe.hashCode.toString());
-    id
-        .set(fav.toJson())
-        .whenComplete(() => print("inserted new value into firebase"));
-    print(
-        "[${DateTime.now().toIso8601String()}] INFO: Inerted ${fav.recipe.title} into Firebase (table: favorites)");
+    id.set(fav.toJson()).whenComplete(() => print(
+        "[${DateTime.now().toIso8601String()}] INFO: Inserted ${fav.recipe.title} into Firebase (table: favorites)"));
   }
 
   static void deleteFromFirebase(Favorite fav) {
