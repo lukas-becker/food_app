@@ -60,6 +60,7 @@ class _RecipesState extends State<Recipes> {
   static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
   var favouriteRecipes = [];
+
   List<Item> ingredients;
 
   //filtering
@@ -92,11 +93,6 @@ class _RecipesState extends State<Recipes> {
       for (Recipe r in res) {
         for (Recipe ri in recipes) {
           if (r == ri) {
-
-      //To prevent results appearing multiple times
-      for(Recipe r in res){
-        for (Recipe ri in recipes){
-          if (r == ri){
             res.remove(r);
           }
         }
@@ -161,7 +157,6 @@ class _RecipesState extends State<Recipes> {
   ///Add Api Results to List
   void addToRecipeList(List<Recipe> newRecipes) {
     newRecipes.forEach((element) {
-      element = _reformatElement(element);
       recipes.add(element);
     });
     setState(() {
@@ -169,6 +164,7 @@ class _RecipesState extends State<Recipes> {
     });
   }
 
+  ///Removes unnecessary whitespace
   Recipe _reformatElement(Recipe element) {
     element.href = element.href.trim();
     element.ingredients = element.ingredients.trim();
@@ -211,6 +207,18 @@ class _RecipesState extends State<Recipes> {
     );
   }
 
+  void _formatRecipes(){
+    List<Recipe> recipes = new List();
+    _RecipesState.recipes.forEach((element) {
+      print(element);
+      element = _reformatElement(element);
+      recipes.add(element);
+    });
+    setState(() {
+      _RecipesState.recipes = recipes;
+    });
+  }
+
   List<Widget> result = new List();
 
   ///Compile list of Recipes to be printed
@@ -218,6 +226,9 @@ class _RecipesState extends State<Recipes> {
     setState(() {
       result = [];
     });
+
+    _formatRecipes();
+
     //Margin
     result.add(SizedBox(
       width: 8,

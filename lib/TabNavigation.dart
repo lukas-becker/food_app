@@ -46,6 +46,7 @@ class _TabNavigationState extends State<TabNavigation>
                   setState(
                     () {
                       _secondTabActive = false;
+                      globals.search = false;
                     },
                   );
                 }

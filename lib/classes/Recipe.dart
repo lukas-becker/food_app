@@ -1,9 +1,9 @@
 ///Class to store recipe information as object
 class Recipe {
   //Information API provides
-  final String title;
-  final String href;
-  final String ingredients;
+  String title;
+  String href;
+  String ingredients;
   String thumbnail;
 
   //Constructor
