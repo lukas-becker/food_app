@@ -28,15 +28,18 @@ class FavouriteList extends StatefulWidget {
 }
 
 class FavouriteListState extends State<FavouriteList> {
+  //Storage variables
   List<Favorite> favorites = new List();
   Favorite communityFav;
 
   @override
   void initState() {
     super.initState();
+    //Init db
     DatabaseUtil.getDatabase();
+    //Get local Favorites
     DatabaseUtil.getFavorites().then((value) => setState((){favorites = value;}));
-
+    //Get global Favorite
     DatabaseUtil.getTopFavoriteFromFirebase().then((value) => setState(() {this.communityFav = value;}));
   }
 
@@ -56,6 +59,7 @@ class FavouriteListState extends State<FavouriteList> {
   List<Widget> _printFavorites() {
     List<Widget> printedFavorites = new List();
 
+    //Print global Favorite if existing
     if(communityFav != null){
       printedFavorites.add(SizedBox(height: 5,));
       printedFavorites.add(Text("Best dish according to other app users"));
@@ -86,6 +90,7 @@ class FavouriteListState extends State<FavouriteList> {
           ),
         ),
       ));
+      //Margin
       printedFavorites.add(
         SizedBox(
           height: 20,
@@ -95,6 +100,7 @@ class FavouriteListState extends State<FavouriteList> {
 
     int favIndex;
 
+    //Loop over favorites
     for (int i = 0; i < favorites.length; i++) {
       favorites.forEach((element) {if(element.recipe == favorites[i].recipe) {favIndex = favorites.indexOf(element);}} );
 
@@ -110,6 +116,7 @@ class FavouriteListState extends State<FavouriteList> {
                   icon: Icon(Icons.favorite),
                   color: Colors.red,
                   onPressed: () {
+                    //Remove from list
                     DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
                     favorites.removeAt(favIndex);
                     setState(() {
@@ -137,6 +144,7 @@ class FavouriteListState extends State<FavouriteList> {
           ),
         ),
       ));
+      //Margin
       printedFavorites.add(
         SizedBox(
           height: 10,
@@ -151,6 +159,7 @@ class FavouriteListState extends State<FavouriteList> {
     return printedFavorites;
   }
 
+  ///Open URL in chrome custom Tab
  _launchURL(BuildContext context, String url) async {
     try {
       await custom.launch(
