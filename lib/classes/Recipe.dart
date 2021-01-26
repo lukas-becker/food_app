@@ -1,11 +1,15 @@
+///Class to store recipe information as object
 class Recipe {
-  String title;
-  String href;
-  String ingredients;
+  //Information API provides
+  final String title;
+  final String href;
+  final String ingredients;
   String thumbnail;
 
+  //Constructor
   Recipe({this.title, this.href, this.ingredients, this.thumbnail});
 
+  //For DB usage
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
       title: json['title'],
@@ -26,6 +30,7 @@ class Recipe {
         thumbnail;
   }
 
+  //For comparison if objects are equeal
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -36,6 +41,7 @@ class Recipe {
           ingredients == other.ingredients &&
           thumbnail == other.thumbnail;
 
+  //Used as Unique key
   @override
   int get hashCode =>
       title.hashCode ^

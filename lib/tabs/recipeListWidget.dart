@@ -31,6 +31,7 @@ class RecipeListWidget extends StatelessWidget {
     );
   }
 
+  //Getter for filtering
   static List<Recipe> getRecipes() {
     return Recipes.getRecipes();
   }
@@ -44,21 +45,21 @@ class Recipes extends StatefulWidget {
   @override
   _RecipesState createState() => _RecipesState();
 
+  //Getter for filtering
   static List<Recipe> getRecipes() {
     return _RecipesState.getRecipes();
   }
 }
 
 class _RecipesState extends State<Recipes> {
+  //Variable to hold Recipes
   List<Widget> displayedRecipes = new List();
 
   //Recipe Storage
   var futureRecipes = [];
   static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
-
   var favouriteRecipes = [];
-
   List<Item> ingredients;
 
   //filtering
@@ -69,7 +70,9 @@ class _RecipesState extends State<Recipes> {
 
   //Load json from Api, ingredient as parameter
   Future<List<Recipe>> fetchJson(String ingr) async {
+    //Remove [ and ] from String
     ingr = ingr.substring(1, ingr.length - 1);
+    //trim
     ingr = ingr.replaceAll(" ", "");
     print(
         "[${DateTime.now().toIso8601String()}] INFO: Requested API http://www.recipepuppy.com/api/?i=" +
@@ -79,6 +82,7 @@ class _RecipesState extends State<Recipes> {
     if (response.statusCode == 200) {
       print("[${DateTime.now().toIso8601String()}] INFO: Got response from http://www.recipepuppy.com/api/?i=" + ingr);
       List list = jsonDecode(response.body)['results'];
+      //Parse result to Recipes
       List<Recipe> res = List.generate(
           list.length,
           (index) =>
@@ -88,6 +92,11 @@ class _RecipesState extends State<Recipes> {
       for (Recipe r in res) {
         for (Recipe ri in recipes) {
           if (r == ri) {
+
+      //To prevent results appearing multiple times
+      for(Recipe r in res){
+        for (Recipe ri in recipes){
+          if (r == ri){
             res.remove(r);
           }
         }
@@ -97,6 +106,7 @@ class _RecipesState extends State<Recipes> {
     }
   }
 
+  ///Full text search
   Future<List<Recipe>> _searchRecipeApi(String recipeName) async {
     print("[${DateTime.now().toIso8601String()}] INFO: Requested API http://www.recipepuppy.com/api/?q=" + recipeName);
     List<Recipe> res = [];
@@ -105,6 +115,7 @@ class _RecipesState extends State<Recipes> {
     if (response.statusCode == 200) {
       print("[${DateTime.now().toIso8601String()}] INFO: Got response from http://www.recipepuppy.com/api/?q=" + recipeName);
       List list = jsonDecode(response.body)['results'];
+      //Parse result to Recipes
       res = List.generate(
           list.length,
           (index) =>
@@ -116,23 +127,26 @@ class _RecipesState extends State<Recipes> {
   @override
   void initState() {
     super.initState();
-    //Favourites
     if (!globals.search) {
       //Ingredients from "Pantry"
       DatabaseUtil.getDatabase();
       DatabaseUtil.getIngredients()
           .then((value) => ingredientsFetchComplete(value));
     } else {
+      //Full text search
       _searchRecipeApi(globals.searchString)
           .then((value) => setRecipeList(value));
     }
+    //Favorites
     DatabaseUtil.getFavorites().then((value) => favoritesFetchComplete(value));
   }
 
+  ///After Ingredients were fetched from local dB
   void ingredientsFetchComplete(List<Item> ingr) {
     ingr.forEach((element) {
       allIngredients.add(element.name.toUpperCase());
     });
+    //Check Api for Ingredient and add result to list
     powerset(ingr).forEach((element) {
       if (element.toString() != "[]") {
         fetchJson(element.toString()).then(
@@ -144,6 +158,7 @@ class _RecipesState extends State<Recipes> {
     });
   }
 
+  ///Add Api Results to List
   void addToRecipeList(List<Recipe> newRecipes) {
     newRecipes.forEach((element) {
       element = _reformatElement(element);
@@ -162,7 +177,9 @@ class _RecipesState extends State<Recipes> {
     return element;
   }
 
+  ///After Favorites returned from local DB
   void favoritesFetchComplete(List<Favorite> fav) {
+    //Add to list
     fav.forEach((element) {
       favorites.add(element);
     });
@@ -172,6 +189,7 @@ class _RecipesState extends State<Recipes> {
     });
   }
 
+  ///Set list after filter
   void setRecipeList(List<Recipe> searchedRecipes) {
     recipes = [];
     searchedRecipes.forEach((element) {
@@ -195,10 +213,12 @@ class _RecipesState extends State<Recipes> {
 
   List<Widget> result = new List();
 
+  ///Compile list of Recipes to be printed
   List<Widget> _compileRecipes() {
     setState(() {
       result = [];
     });
+    //Margin
     result.add(SizedBox(
       width: 8,
       height: 15,
@@ -211,6 +231,7 @@ class _RecipesState extends State<Recipes> {
         recipes[i].thumbnail =
             "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
 
+      //Exact results filter
       bool _continue = false;
       //If only "makeable" recipes should be shown
       if (globals.exact) {
@@ -227,6 +248,7 @@ class _RecipesState extends State<Recipes> {
           nextIndex = _ingredients.indexOf(",", index);
 
           if (nextIndex == -1) {
+            //print("Checking range from " + index.toString());
             _ingredient = _ingredients.substring(index).toUpperCase();
           } else {
             _ingredient =
@@ -241,6 +263,7 @@ class _RecipesState extends State<Recipes> {
             int nextSpaceIndex;
             int loopCondition = _ingredient.split(" ").length;
 
+            //Only for ingredients with a space
             bool multiWordContinueTemp = false;
             for (int k = 0; k < loopCondition; k++) {
               String toCheck;
@@ -256,10 +279,13 @@ class _RecipesState extends State<Recipes> {
               if (toCheck.startsWith(" "))
                 toCheck = toCheck.replaceFirst(" ", "");
 
+              //Compare
               if (!(allIngredients.contains(toCheck))) {
                 multiWordContinueTemp = true;
+                //print(toCheck + " is not in the List");
               } else {
                 multiWordContinueTemp = false;
+                //print(toCheck + " is in the List");
                 break;
               }
 
@@ -268,6 +294,7 @@ class _RecipesState extends State<Recipes> {
 
             if (multiWordContinueTemp) _continue = true;
           } else {
+            //Compare
             if (!(allIngredients.contains(_ingredient.toUpperCase()))) {
               _continue = true;
             }
@@ -281,18 +308,16 @@ class _RecipesState extends State<Recipes> {
 
       bool isSaved = false;
       int favIndex;
+      //Check if current recipe is favorite
+      favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
 
-      favorites.forEach((element) {
-        if (element.recipe == recipes[i]) {
-          isSaved = true;
-          favIndex = favorites.indexOf(element);
-        }
-      });
 
+      //Margin
       result.add(SizedBox(
         width: 8,
         height: 15,
       ));
+      //Display Card
       result.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -304,6 +329,7 @@ class _RecipesState extends State<Recipes> {
                   trailing: IconButton(
                     color: isSaved ? Colors.red : null,
                     onPressed: () {
+                      //Add or remove Favorite
                       if (isSaved) {
                         DatabaseUtil.deleteFavorite(favorites[favIndex]);
                         favorites.removeAt(favIndex);
@@ -332,6 +358,7 @@ class _RecipesState extends State<Recipes> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
+                    //Show recipe in custom tab
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, recipes[i].href);
@@ -347,6 +374,7 @@ class _RecipesState extends State<Recipes> {
       ));
     }
 
+    //Display message if no recipes match criteria
     if (recipes.length == 0) {
       result.add(SizedBox(
         width: 8,
@@ -362,6 +390,7 @@ class _RecipesState extends State<Recipes> {
           },
           child: Text("Take me there")));
     }
+    //Display message if no results  match criteria
     if (result.length == 0) {
       result.add(SizedBox(
         width: 8,
@@ -380,7 +409,7 @@ class _RecipesState extends State<Recipes> {
 
     return result;
   }
-
+  ///Launch url in Chrome Custom Tab
   _launchURL(BuildContext context, String url) async {
     try {
       await custom.launch(
@@ -397,7 +426,7 @@ class _RecipesState extends State<Recipes> {
       debugPrint(e.toString());
     }
   }
-
+  ///Getter
   static List<Recipe> getRecipes() {
     return recipes;
   }
