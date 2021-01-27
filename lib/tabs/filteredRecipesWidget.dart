@@ -35,6 +35,7 @@ class FilteredRecipesWidget extends StatelessWidget {
           height: 15,
         ),
       );
+
       // Every recipe is displayed with an image (if available) and its ingredients
       // Also a button which enables visitting the primary website
       displayedList.add(

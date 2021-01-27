@@ -9,10 +9,7 @@ bool search = false;
 String searchString = '';
 
 // List of all possible ingredients 
-final List<String> entries = <String>['Salt','Pepper','Olive oil','Vegetable oil','Flour','Chicken stock','Chicken broth','Beef stock',
-  'Beef broth','Tomato sauce','Tomato paste','Tuna','Pasta','Rice','Lentils','Onions','Garlic','Vinegar','Soy sauce','Basil','Cayenne pepper',
-  'Chili powder','Cumin','Cinnamon','Garlic powder','Oregano','Paprika','Eggs','Milk','Butter','Margarine','Ketchup','Mayonnaise','Cheese','Corn',
-  'Spinach','Peas','Chicken breast','Capers','Horseradish','Almond','Cornstarch','Sugar','Honey','Mustard'];
+final List<String> entries = <String>['Almond', 'Basil', 'Beef broth', 'Beef stock', 'Butter', 'Capers', 'Cayenne pepper', 'Cheese', 'Chicken breast', 'Chicken broth', 'Chicken stock', 'Chili powder', 'Cinnamon', 'Corn', 'Cornstarch', 'Cumin', 'Eggs', 'Flour', 'Garlic', 'Garlic powder', 'Honey', 'Horseradish', 'Ketchup', 'Lentils', 'Margarine', 'Mayonnaise', 'Milk', 'Mustard', 'Olive oil', 'Onions', 'Oregano', 'Paprika', 'Pasta', 'Peas', 'Pepper', 'Rice', 'Salt', 'Soy sauce', 'Spinach', 'Sugar', 'Tomato paste', 'Tomato sauce', 'Tuna', 'Vegetable oil', 'Vinegar'];
 
 // List of all possible units
 final List<String> units = <String>["piece", "gram", "kilogram", "ounce", "pound", "liter", "gallon"];
