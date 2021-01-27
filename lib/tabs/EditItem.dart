@@ -33,7 +33,8 @@ class _EditState extends State<EditItem> {
     if (item != null && once) {
       nameController.text = item.name;
       amountController.text = "${item.amount}";
-      unitDropdown = item.unit.contains("s") ? item.unit.replaceAll("s", "") : item.unit;
+      unitDropdown =
+          item.unit.contains("s") ? item.unit.replaceAll("s", "") : item.unit;
       once = false;
     } else {
       unitDropdown = globals.units[0];
@@ -52,7 +53,10 @@ class _EditState extends State<EditItem> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: Center(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, children: _buildEditFields()),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _buildEditFields()),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_sendBackToCaller()},
@@ -97,12 +101,14 @@ class _EditState extends State<EditItem> {
             onChanged: (String newValue) => {
               setState(() {
                 nameDropdown = newValue;
-              })
+              }),
             },
-            items: globals.entries.map<DropdownMenuItem<String>>((String value) {
+            items:
+                globals.entries.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                child:
+                    Align(alignment: Alignment.centerLeft, child: Text(value)),
               );
             }).toList(),
           ));
@@ -143,7 +149,8 @@ class _EditState extends State<EditItem> {
             items: globals.units.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                child:
+                    Align(alignment: Alignment.centerLeft, child: Text(value)),
               );
             }).toList(),
           ))
@@ -154,19 +161,30 @@ class _EditState extends State<EditItem> {
     double amount = _validateAmount();
     if (!amountError) {
       if (this.isCalledFromShoppingList) {
-        Item sendItem = new Item(id: index, name: nameController.text, amount: amount, unit: _checkUnitForPlural(amount));
-        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list.");
+        Item sendItem = new Item(
+            id: index,
+            name: nameController.text,
+            amount: amount,
+            unit: _checkUnitForPlural(amount));
+        print(
+            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list.");
         Navigator.pop(context, sendItem);
       } else {
-        Item sendItem = new Item(id: index, name: nameDropdown, amount: amount, unit: _checkUnitForPlural(amount));
-        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry.");
+        Item sendItem = new Item(
+            id: index,
+            name: nameDropdown,
+            amount: amount,
+            unit: _checkUnitForPlural(amount));
+        print(
+            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry.");
         Navigator.pop(context, sendItem);
       }
     }
   }
 
   void _showError() {
-    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the amouont!")));
+    Scaffold.of(context).showSnackBar(
+        new SnackBar(content: Text("Please enter a number as the amouont!")));
   }
 
   String _checkUnitForPlural(double amount) {

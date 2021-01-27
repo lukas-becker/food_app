@@ -15,12 +15,9 @@ class FavouriteListWidget extends StatelessWidget {
       home: FavouriteList(),
     );
   }
-
-
 }
 
 class FavouriteList extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return FavouriteListState();
@@ -38,9 +35,17 @@ class FavouriteListState extends State<FavouriteList> {
     //Init db
     DatabaseUtil.getDatabase();
     //Get local Favorites
-    DatabaseUtil.getFavorites().then((value) => setState((){favorites = value;}));
+    DatabaseUtil.getFavorites().then((value) => {
+          setState(() {
+            favorites = value;
+          })
+        });
     //Get global Favorite
-    DatabaseUtil.getTopFavoriteFromFirebase().then((value) => setState(() {this.communityFav = value;}));
+    DatabaseUtil.getTopFavoriteFromFirebase().then((value) => {
+          setState(() {
+            this.communityFav = value;
+          })
+        });
   }
 
   @override
@@ -60,8 +65,10 @@ class FavouriteListState extends State<FavouriteList> {
     List<Widget> printedFavorites = new List();
 
     //Print global Favorite if existing
-    if(communityFav != null){
-      printedFavorites.add(SizedBox(height: 5,));
+    if (communityFav != null) {
+      printedFavorites.add(SizedBox(
+        height: 5,
+      ));
       printedFavorites.add(Text("Best dish according to other app users"));
       printedFavorites.add(Card(
         child: InkWell(
@@ -72,7 +79,8 @@ class FavouriteListState extends State<FavouriteList> {
               ListTile(
                 leading: Image.network(communityFav.recipe.thumbnail),
                 title: Text(communityFav.recipe.title),
-                subtitle: Text("Ingredients: " + communityFav.recipe.ingredients),
+                subtitle:
+                    Text("Ingredients: " + communityFav.recipe.ingredients),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -81,7 +89,8 @@ class FavouriteListState extends State<FavouriteList> {
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
-                      print("[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${communityFav.recipe.title}");
+                      print(
+                          "[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${communityFav.recipe.title}");
                     },
                   ),
                   const SizedBox(width: 8),
@@ -103,7 +112,11 @@ class FavouriteListState extends State<FavouriteList> {
 
     //Loop over favorites
     for (int i = 0; i < favorites.length; i++) {
-      favorites.forEach((element) {if(element.recipe == favorites[i].recipe) {favIndex = favorites.indexOf(element);}} );
+      favorites.forEach((element) {
+        if (element.recipe == favorites[i].recipe) {
+          favIndex = favorites.indexOf(element);
+        }
+      });
 
       printedFavorites.add(Card(
         child: InkWell(
@@ -123,11 +136,13 @@ class FavouriteListState extends State<FavouriteList> {
                     setState(() {
                       this.favorites = favorites;
                     });
-                    print("[${DateTime.now().toIso8601String()}] INFO: Removed ${favorites[i].recipe.title} from favorites");
+                    print(
+                        "[${DateTime.now().toIso8601String()}] INFO: Removed ${favorites[i].recipe.title} from favorites");
                   },
                 ),
                 title: Text(favorites[i].recipe.title),
-                subtitle: Text("Ingredients: " + favorites[i].recipe.ingredients),
+                subtitle:
+                    Text("Ingredients: " + favorites[i].recipe.ingredients),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -136,7 +151,8 @@ class FavouriteListState extends State<FavouriteList> {
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, favorites[i].recipe.href);
-                      print("[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${favorites[i].recipe.title}");
+                      print(
+                          "[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${favorites[i].recipe.title}");
                     },
                   ),
                   const SizedBox(width: 8),
@@ -162,7 +178,7 @@ class FavouriteListState extends State<FavouriteList> {
   }
 
   ///Open URL in chrome custom Tab
- _launchURL(BuildContext context, String url) async {
+  _launchURL(BuildContext context, String url) async {
     try {
       await custom.launch(
         url,
@@ -171,8 +187,7 @@ class FavouriteListState extends State<FavouriteList> {
             enableDefaultShare: true,
             enableUrlBarHiding: true,
             showPageTitle: true,
-            animation: new custom.CustomTabsAnimation.slideIn()
-            ),
+            animation: new custom.CustomTabsAnimation.slideIn()),
       );
     } catch (e) {
       // An exception is thrown if browser app is not installed on Android device.

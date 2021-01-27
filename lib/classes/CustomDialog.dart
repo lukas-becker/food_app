@@ -146,14 +146,15 @@ class _CustomDialogState extends State<CustomDialog> {
     // check all ingredients from every displayed recipe
     for (Recipe current in representedRecipes) {
       List<String> currentIngredients = current.ingredients.split(',');
-      for(String currentString in currentIngredients) {
+      for (String currentString in currentIngredients) {
         currentIngredients.add(currentString.toLowerCase().trim());
         currentIngredients.remove(currentString);
       }
       Set currentIngredientsSet = currentIngredients.toSet();
 
       // check if intersected set of selectedIngredientsSet and currentIngredientsSet equals set of selected ingredients
-      if (selectedIngredientsSet.intersection(currentIngredientsSet).length == selectedIngredientsSet.length) {
+      if (selectedIngredientsSet.intersection(currentIngredientsSet).length ==
+          selectedIngredientsSet.length) {
         filteredRecipes.add(current);
       }
     }
