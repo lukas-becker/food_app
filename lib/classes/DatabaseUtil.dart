@@ -1,5 +1,4 @@
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/GroceryItem.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -7,14 +6,15 @@ import 'package:firebase_database/firebase_database.dart';
 import 'Item.dart';
 import 'Recipe.dart';
 
-/**
+/*
  * This Class handles all interactions with the local database and firebase
  * It handles set-up, writes and saves
  */
 class DatabaseUtil {
   //Variables to store Databse references
   static Future<Database> database;
-  static final DatabaseReference firebaseReference = FirebaseDatabase.instance.reference();
+  static final DatabaseReference firebaseReference =
+      FirebaseDatabase.instance.reference();
 
   /// Creates and returns reference to the local database
   static Future<Database> getDatabase() {
@@ -22,7 +22,7 @@ class DatabaseUtil {
     if (database == null) {
       //get (and create if neccesary) Database
       database = getDatabasesPath().then(
-            (String path) {
+        (String path) {
           return openDatabase(
             Path.join(path, 'food_app_database.db'),
             onCreate: (db, version) {
@@ -41,7 +41,8 @@ class DatabaseUtil {
           );
         },
       );
-
+      print(
+          "[${DateTime.now().toIso8601String()}] INFO: Created local database");
       return database;
     } else {
       return database;
@@ -53,10 +54,14 @@ class DatabaseUtil {
     // Get a reference to the database.
     final Database db = await database;
 
-    // Query the table for all the Ingredients.
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Requested ingredients from database");
+    // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps =
-    await db.query('ingredient', where: 'amount > 0');
+        await db.query('ingredient', where: 'amount > 0');
 
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Received ingredients from database");
     // Convert the List<Map<String, dynamic> into a List<Ingredient>.
     return List.generate(maps.length, (i) {
       return Item(
@@ -70,6 +75,8 @@ class DatabaseUtil {
   ///Check wether Ingredient already exists in DB
   static Future<bool> checkDBForIngredient(String key) async {
     final Database db = await database;
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Check if $key is in database (table: ingredient)");
     //Query db and store results in list
     final List<Map<String, dynamic>> maps =
     await db.query('ingredient', where: 'name = ?', whereArgs: [key]);
@@ -89,6 +96,8 @@ class DatabaseUtil {
       ingredient.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Inserted ${ingredient.name} into database (table: ingredient)");
   }
 
   ///Update already stored ingredient
@@ -105,6 +114,8 @@ class DatabaseUtil {
       // Pass the Ingredient's id
       whereArgs: [ingredient.id],
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Updated ${ingredient.name} in database (table: ingredient)");
   }
 
   static Future<void> updateAmount(String name, int amount) async {
@@ -112,8 +123,13 @@ class DatabaseUtil {
     final db = await database;
 
     // Update the given Ingredient.
-    await db.execute("UPDATE ingredient SET amount = " + amount.toString() +
-        " WHERE name = '" + name + "';");
+    await db.execute("UPDATE ingredient SET amount = " +
+        amount.toString() +
+        " WHERE name = '" +
+        name +
+        "';");
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Updated amount of $name to $amount (table: ingredient)");
   }
 
   static Future<void> deleteIngredient(int id) async {
@@ -128,6 +144,8 @@ class DatabaseUtil {
       // Pass the Ingredient's id as a whereArg
       whereArgs: [id],
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Deleted ingredient with ID = $id in database (table: ingredient)");
   }
 
   ///Get next unused ID
@@ -152,20 +170,23 @@ class DatabaseUtil {
     // Get a reference to the database.
     final Database db = await database;
 
-    // Query the table for all the Recipes.
-    final List<Map<String, dynamic>> maps =
-    await db.query('favorite');
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Requested favorites from database");
+    // Query the table for all The Recipes.
+    final List<Map<String, dynamic>> maps = await db.query('favorite');
 
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Received favorites from database");
     // Convert the List<Map<String, dynamic> into a List<Favorite>.
     return List.generate(maps.length, (i) {
       return Favorite(
-        id: maps[i]['id'],
-        recipe : Recipe(
-        title: maps[i]['title'],
-        href: maps[i]['href'],
-        ingredients: maps[i]['ingredients'],
-        thumbnail: maps[i]['thumbnail'],)
-      );
+          id: maps[i]['id'],
+          recipe: Recipe(
+            title: maps[i]['title'],
+            href: maps[i]['href'],
+            ingredients: maps[i]['ingredients'],
+            thumbnail: maps[i]['thumbnail'],
+          ));
     });
   }
 
@@ -181,6 +202,8 @@ class DatabaseUtil {
       fav.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Inserted ${fav.recipe.title} into database (table: favorite)");
 
 
 
@@ -190,7 +213,6 @@ class DatabaseUtil {
     } else {
       countUpInFirebase(fav);
     }
-
   }
 
   ///Delete existing Favorite
@@ -205,6 +227,8 @@ class DatabaseUtil {
       // Pass the Favorites's id as a whereArg
       whereArgs: [fav.id],
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Deleted ${fav.recipe.title} from database (table: favorite)");
 
 
     //Delete or update Firebase afterwards
@@ -214,8 +238,6 @@ class DatabaseUtil {
       } else {
         countDownInFirebase(fav);
       }
-
-
     }
   }
 
@@ -245,12 +267,13 @@ class DatabaseUtil {
 
     //Get result and return
     var dbEntry = await id.once();
-    Map<dynamic,dynamic> map = dbEntry.value;
-    if(map == null)
-      return List();
-    for(dynamic element in map.values){
+    Map<dynamic, dynamic> map = dbEntry.value;
+    if (map == null) return List();
+    for (dynamic element in map.values) {
       res.add(Favorite.fromJson(element));
     }
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Loaded favorites from Firebase");
     return res;
   }
 
@@ -259,11 +282,12 @@ class DatabaseUtil {
     //Get all Favorites from Firebase
     List<Favorite> all = await getFavoritesFromFirebase();
 
-    if (all.length == 0)
-      return null;
+    if (all.length == 0) return null;
 
     //Sort by times favorited
     all.sort((a,b) => (b.count).compareTo((a.count)));
+        print(
+        "[${DateTime.now().toIso8601String()}] INFO: Selected user favorite from Firebase");
     return all.first;
   }
 
@@ -297,7 +321,8 @@ class DatabaseUtil {
     //Get location
     DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
     //Write to location
-    id.set(fav.toJson()).whenComplete(() => print("inserted new value into firebase"));
+    id.set(fav.toJson()).whenComplete(() => print(
+        "[${DateTime.now().toIso8601String()}] INFO: Inserted ${fav.recipe.title} into Firebase (table: favorites)"));
   }
 
   ///Delete favorite from Firebase
@@ -306,6 +331,8 @@ class DatabaseUtil {
     DatabaseReference id = firebaseReference.child("favorites/").child(fav.recipe.hashCode.toString());
     //Remove
     id.remove();
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Deleted ${fav.recipe.title} from Firebase (table: favorites");
   }
 
   ///Increment times favorited in Firebase
@@ -342,10 +369,12 @@ class DatabaseUtil {
   static Future<List<Item>> getGroceries() async {
     // Get a reference to the database.
     final Database db = await database;
-
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Requested groceries from database");
     // Query the table for all The Groceries.
     final List<Map<String, dynamic>> maps = await db.query('groceries');
-
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Received groceries from database");
     // Convert the List<Map<String, dynamic> into a List<Item>.
     return List.generate(maps.length, (i) {
       return Item.fromMap(maps[i]);
@@ -363,6 +392,8 @@ class DatabaseUtil {
       item.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Inserted ${item.name} into database (table: groceries)");
   }
 
   ///Delete Groceries from local DB
@@ -378,6 +409,4 @@ class DatabaseUtil {
       whereArgs: [id],
     );
   }
-
 }
-

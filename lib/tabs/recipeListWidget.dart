@@ -26,7 +26,9 @@ class RecipeListWidget extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Recipes(
-          title: ''));
+        title: 'Get your first recipe',
+      ),
+    );
   }
 
   //Getter for filtering
@@ -58,7 +60,8 @@ class _RecipesState extends State<Recipes> {
   static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
   var favouriteRecipes = [];
-    List<Item> ingredients;
+
+  List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
@@ -72,18 +75,21 @@ class _RecipesState extends State<Recipes> {
     ingr = ingr.substring(1, ingr.length - 1);
     //trim
     ingr = ingr.replaceAll(" ", "");
-    print('Downloading: http://www.recipepuppy.com/api/?i=' + ingr);
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Requested API http://www.recipepuppy.com/api/?i=" +
+            ingr);
     final response =
         await http.get('http://www.recipepuppy.com/api/?i=' + ingr);
     if (response.statusCode == 200) {
-      print("Got response");
+      print(
+          "[${DateTime.now().toIso8601String()}] INFO: Got response from http://www.recipepuppy.com/api/?i=" +
+              ingr);
       List list = jsonDecode(response.body)['results'];
       //Parse result to Recipes
       List<Recipe> res = List.generate(
           list.length,
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
-
 
       //To prevent results appearing multiple times
       List<Recipe> toRemove = new List(); //temporary List instead of directly removing, because flutter throws exceptions if you remove elements while iterating over list
@@ -104,12 +110,16 @@ class _RecipesState extends State<Recipes> {
 
   ///Full text search
   Future<List<Recipe>> _searchRecipeApi(String recipeName) async {
-    print("Downloading: http://www.recipepuppy.com/api/?q=" + recipeName);
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Requested API http://www.recipepuppy.com/api/?q=" +
+            recipeName);
     List<Recipe> res = [];
     final response =
         await http.get("http://www.recipepuppy.com/api/?q=" + recipeName);
     if (response.statusCode == 200) {
-      print("got Response");
+      print(
+          "[${DateTime.now().toIso8601String()}] INFO: Got response from http://www.recipepuppy.com/api/?q=" +
+              recipeName);
       List list = jsonDecode(response.body)['results'];
       //Parse result to Recipes
       res = List.generate(
@@ -117,15 +127,15 @@ class _RecipesState extends State<Recipes> {
           (index) =>
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
     }
-    res.forEach((element) {
-      print(element.toString());
-    });
     return res;
   }
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      recipes = [];
+    });
     if (!globals.search) {
       //Ingredients from "Pantry"
       DatabaseUtil.getDatabase();
@@ -136,6 +146,7 @@ class _RecipesState extends State<Recipes> {
       _searchRecipeApi(globals.searchString)
           .then((value) => setRecipeList(value));
     }
+
     //Favorites
     DatabaseUtil.getFavorites().then((value) => favoritesFetchComplete(value));
   }
@@ -148,8 +159,11 @@ class _RecipesState extends State<Recipes> {
     //Check Api for Ingredient and add result to list
     powerset(ingr).forEach((element) {
       if (element.toString() != "[]") {
-        print("Checking api for: " + element.toString());
-        fetchJson(element.toString()).then((value) => addToRecipeList(value));
+        fetchJson(element.toString()).then(
+          (value) => {
+            addToRecipeList(value),
+          },
+        );
       }
     });
   }
@@ -162,6 +176,15 @@ class _RecipesState extends State<Recipes> {
     setState(() {
       _RecipesState.recipes = recipes;
     });
+  }
+
+  ///Removes unnecessary whitespace
+  Recipe _reformatElement(Recipe element) {
+    element.href = element.href.trim();
+    element.ingredients = element.ingredients.trim();
+    element.thumbnail = element.thumbnail.trim();
+    element.title = element.title.trim();
+    return element;
   }
 
   ///After Favorites returned from local DB
@@ -198,6 +221,17 @@ class _RecipesState extends State<Recipes> {
     );
   }
 
+  void _formatRecipes() {
+    List<Recipe> recipes = new List();
+    _RecipesState.recipes.forEach((element) {
+      element = _reformatElement(element);
+      recipes.add(element);
+    });
+    setState(() {
+      _RecipesState.recipes = recipes;
+    });
+  }
+
   List<Widget> result = new List();
 
   ///Compile list of Recipes to be printed
@@ -205,12 +239,16 @@ class _RecipesState extends State<Recipes> {
     setState(() {
       result = [];
     });
+
+    _formatRecipes();
+
     //Margin
     result.add(SizedBox(
       width: 8,
       height: 15,
     ));
     //Iterate over each recipe
+    //100 to prevent loop from running
     for (int i = 0; i < recipes.length; i++) {
       //Replace with default thumbnail
       if (recipes[i].thumbnail == null)
@@ -227,10 +265,6 @@ class _RecipesState extends State<Recipes> {
         String _ingredient;
         //count how many ingredients there are
         int countIngredients = _ingredients.split(",").length;
-        /*print("Ingredients for recipe (" +
-            countIngredients.toString() +
-            "): " +
-            _ingredients);*/
         //Loop variables
         int index = 0;
         int nextIndex;
@@ -238,13 +272,8 @@ class _RecipesState extends State<Recipes> {
           nextIndex = _ingredients.indexOf(",", index);
 
           if (nextIndex == -1) {
-            //print("Checking range from " + index.toString());
             _ingredient = _ingredients.substring(index).toUpperCase();
           } else {
-            /*print("Checking range between " +
-                index.toString() +
-                " and " +
-                nextIndex.toString());*/
             _ingredient =
                 _ingredients.substring(index, nextIndex).toUpperCase();
           }
@@ -252,7 +281,6 @@ class _RecipesState extends State<Recipes> {
           if (_ingredient.startsWith(" "))
             _ingredient = _ingredient.replaceFirst(" ", "");
 
-          //print("checking: " + _ingredient);
           if (_ingredient.contains(" ")) {
             int spaceIndex = 0;
             int nextSpaceIndex;
@@ -265,8 +293,6 @@ class _RecipesState extends State<Recipes> {
 
               nextSpaceIndex = _ingredient.indexOf(" ", spaceIndex);
 
-              //print("spaceIndex: " + spaceIndex.toString());
-
               if (nextSpaceIndex == -1)
                 toCheck = _ingredient.substring(spaceIndex);
               else
@@ -276,20 +302,11 @@ class _RecipesState extends State<Recipes> {
               if (toCheck.startsWith(" "))
                 toCheck = toCheck.replaceFirst(" ", "");
 
-              /*print("Checking: " +
-                  toCheck +
-                  " (" +
-                  (k + 1).toString() +
-                  "/" +
-                  (loopCondition).toString() +
-                  ")");*/
               //Compare
               if (!(allIngredients.contains(toCheck))) {
                 multiWordContinueTemp = true;
-                //print(toCheck + " is not in the List");
               } else {
                 multiWordContinueTemp = false;
-                //print(toCheck + " is in the List");
                 break;
               }
 
@@ -300,7 +317,6 @@ class _RecipesState extends State<Recipes> {
           } else {
             //Compare
             if (!(allIngredients.contains(_ingredient.toUpperCase()))) {
-              //print(_ingredient + " is not in the List");
               _continue = true;
             }
           }
@@ -314,8 +330,12 @@ class _RecipesState extends State<Recipes> {
       bool isSaved = false;
       int favIndex;
       //Check if current recipe is favorite
-      favorites.forEach((element) {if(element.recipe == recipes[i]) {isSaved = true; favIndex = favorites.indexOf(element);}} );
-
+      favorites.forEach((element) {
+        if (element.recipe == recipes[i]) {
+          isSaved = true;
+          favIndex = favorites.indexOf(element);
+        }
+      });
 
       //Margin
       result.add(SizedBox(
@@ -326,9 +346,6 @@ class _RecipesState extends State<Recipes> {
       result.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
-          onTap: () {
-            //print('Card tapped.');
-          },
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -339,22 +356,28 @@ class _RecipesState extends State<Recipes> {
                     onPressed: () {
                       //Add or remove Favorite
                       if (isSaved) {
-                        DatabaseUtil.deleteFavorite(favorites[favIndex]); //.then((value) => setState((){favorites.remove(favIndex);}));
+                        DatabaseUtil.deleteFavorite(favorites[favIndex]);
                         favorites.removeAt(favIndex);
                         setState(() {
                           this.favorites = favorites;
                         });
+                        print(
+                            "[${DateTime.now().toIso8601String()}] INFO: Removed ${recipes[i].title} from favorites");
                       } else {
                         DatabaseUtil.getNextFavoriteID().then((value) => {
-                          setState(() {
-                            favorites.add(Favorite(id: value, recipe: recipes[i]));
-                          }),
-                          DatabaseUtil.insertFavorite(Favorite(id: value, recipe: recipes[i]))
-                        });
+                              setState(() {
+                                favorites.add(
+                                    Favorite(id: value, recipe: recipes[i]));
+                              }),
+                              DatabaseUtil.insertFavorite(
+                                  Favorite(id: value, recipe: recipes[i]))
+                            });
+                        print(
+                            "[${DateTime.now().toIso8601String()}] INFO: Marked ${recipes[i].title} as favorite");
                       }
                     },
                     icon:
-                    Icon(isSaved ? Icons.favorite : Icons.favorite_border),
+                        Icon(isSaved ? Icons.favorite : Icons.favorite_border),
                   ),
                   title: Text(recipes[i].title),
                   subtitle: Text("Ingredients: " + recipes[i].ingredients)),
@@ -366,6 +389,8 @@ class _RecipesState extends State<Recipes> {
                     child: const Text('CHECK IT OUT'),
                     onPressed: () {
                       _launchURL(context, recipes[i].href);
+                      print(
+                          "[${DateTime.now().toIso8601String()}] INFO: Launched URL from recipe ${recipes[i].title}");
                     },
                   ),
                   const SizedBox(width: 8),
@@ -410,9 +435,9 @@ class _RecipesState extends State<Recipes> {
           child: Text("Take me to the Pantry")));
     }
 
-
     return result;
   }
+
   ///Launch url in Chrome Custom Tab
   _launchURL(BuildContext context, String url) async {
     try {
@@ -430,6 +455,7 @@ class _RecipesState extends State<Recipes> {
       debugPrint(e.toString());
     }
   }
+
   ///Getter
   static List<Recipe> getRecipes() {
     return recipes;
