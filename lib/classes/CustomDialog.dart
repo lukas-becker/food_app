@@ -29,20 +29,21 @@ class _CustomDialogState extends State<CustomDialog> {
   @override
   void initState() {
     super.initState();
+
+    for (int i = 0; i < notInPantry.length; i++)
+    {
+      checkBoxHandling.addAll({notInPantry[i].toString(): false});
+    }
+
     // Look in database which ingredients are listed in pantry
     DatabaseUtil.getDatabase();
     DatabaseUtil.getIngredients().then((value) => {
           // create map-entries for every ingredient with value false and divide ingredients
-          _loadIngredientsFinished(value),
           for (int i = 0; i < currentPantry.length; i++)
             {
-              checkBoxHandling.addAll({currentPantry[i].toString(): false}),
               notInPantry.remove(currentPantry[i].toString()),
             },
-          for (int i = 0; i < notInPantry.length; i++)
-            {
-              checkBoxHandling.addAll({notInPantry[i]: false}),
-            }
+          _loadIngredientsFinished(value)
         });
   }
 
@@ -58,14 +59,15 @@ class _CustomDialogState extends State<CustomDialog> {
     for (int i = 0; i < currentPantry.length; i++) {
       checkboxes.add(
         CheckboxListTile(
+          tristate: false,
           title: Text(currentPantry[i].toString()),
-          value: checkBoxHandling[currentPantry[i].toString()],
+          value: checkBoxHandling[currentPantry[i].name],
           onChanged: (bool value) {
             setState(() {
-              checkBoxHandling[currentPantry[i].toString()] = value;
+              checkBoxHandling[currentPantry[i].name] = value;
               print(value
-                  ? "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].toString()} was checked"
-                  : "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].toString()} was unchecked");
+                  ? "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].name} was checked"
+                  : "[${DateTime.now().toIso8601String()}] INFO: ${currentPantry[i].name} was unchecked");
             });
           },
         ),
@@ -78,8 +80,9 @@ class _CustomDialogState extends State<CustomDialog> {
     for (int i = 0; i < notInPantry.length; i++) {
       checkboxes.add(
         CheckboxListTile(
+          tristate: false,
           title: Text(notInPantry[i]),
-          value: checkBoxHandling[notInPantry[i]],
+          value: checkBoxHandling[this.notInPantry[i]],
           onChanged: (bool value) {
             setState(() {
               checkBoxHandling[notInPantry[i]] = value;
