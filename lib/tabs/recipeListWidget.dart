@@ -86,12 +86,16 @@ class _RecipesState extends State<Recipes> {
 
 
       //To prevent results appearing multiple times
+      List<Recipe> toRemove = new List(); //temporary List instead of directly removing, because flutter throws exceptions if you remove elements while iterating over list
       for(Recipe r in res){
         for (Recipe ri in recipes){
           if (r == ri){
-            res.remove(r);
+            toRemove.add(r);
           }
         }
+      }
+      for(Recipe r in toRemove){
+        res.remove(r);
       }
 
       return res;
@@ -272,13 +276,13 @@ class _RecipesState extends State<Recipes> {
               if (toCheck.startsWith(" "))
                 toCheck = toCheck.replaceFirst(" ", "");
 
-              print("Checking: " +
+              /*print("Checking: " +
                   toCheck +
                   " (" +
                   (k + 1).toString() +
                   "/" +
                   (loopCondition).toString() +
-                  ")");
+                  ")");*/
               //Compare
               if (!(allIngredients.contains(toCheck))) {
                 multiWordContinueTemp = true;
