@@ -92,18 +92,18 @@ class _RecipesState extends State<Recipes> {
               Recipe.fromJson(jsonDecode(response.body)['results'][index]));
 
       //To prevent results appearing multiple times
-      List<Recipe> toRemove = new List(); //temporary List instead of directly removing, because flutter throws exceptions if you remove elements while iterating over list
-      for(Recipe r in res){
-        for (Recipe ri in recipes){
-          if (r == ri){
+      List<Recipe> toRemove =
+          new List(); //temporary List instead of directly removing, because flutter throws exceptions if you remove elements while iterating over list
+      for (Recipe r in res) {
+        for (Recipe ri in recipes) {
+          if (r == ri) {
             toRemove.add(r);
           }
         }
       }
-      for(Recipe r in toRemove){
+      for (Recipe r in toRemove) {
         res.remove(r);
       }
-
       return res;
     }
   }
@@ -173,9 +173,11 @@ class _RecipesState extends State<Recipes> {
     newRecipes.forEach((element) {
       recipes.add(element);
     });
-    setState(() {
-      _RecipesState.recipes = recipes;
-    });
+    if (this.mounted) {
+      setState(() {
+        _RecipesState.recipes = recipes;
+      });
+    }
   }
 
   ///Removes unnecessary whitespace
@@ -193,10 +195,11 @@ class _RecipesState extends State<Recipes> {
     fav.forEach((element) {
       favorites.add(element);
     });
-
-    setState(() {
-      this.favorites = favorites;
-    });
+    if (this.mounted) {
+      setState(() {
+        this.favorites = favorites;
+      });
+    }
   }
 
   ///Set list after filter

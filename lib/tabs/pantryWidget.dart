@@ -37,9 +37,11 @@ class _PantryState extends State<Pantry> {
   void initState() {
     super.initState();
     DatabaseUtil.getDatabase();
-    DatabaseUtil.getIngredients().then((value) => setState(() {
-          ingredients = value;
-        }));
+    DatabaseUtil.getIngredients().then((value) => {
+          setState(() {
+            ingredients = value;
+          })
+        });
   }
 
   @override
@@ -60,7 +62,9 @@ class _PantryState extends State<Pantry> {
                     icon: Icon(Icons.remove),
                     onPressed: () => _decreaseAmount(index),
                   ),
-                  Text(ingredients[index].name + " : " + globals.prettyFormatDouble(ingredients[index].amount)),
+                  Text(ingredients[index].name +
+                      " : " +
+                      globals.prettyFormatDouble(ingredients[index].amount)),
                   IconButton(
                     icon: Icon(Icons.add),
                     onPressed: () => _increaseAmount(index),
@@ -88,7 +92,8 @@ class _PantryState extends State<Pantry> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _awaitResultFromEditScreen(context, ingredients.length),
+        onPressed: () =>
+            _awaitResultFromEditScreen(context, ingredients.length),
         child: Icon(Icons.add),
         backgroundColor: Colors.lime,
       ),
@@ -97,7 +102,11 @@ class _PantryState extends State<Pantry> {
 
   void _increaseAmount(int index) {
     Item oldItem = ingredients[index];
-    Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount + 1, unit: oldItem.unit);
+    Item newItem = Item(
+        id: oldItem.id,
+        name: oldItem.name,
+        amount: oldItem.amount + 1,
+        unit: oldItem.unit);
     setState(() {
       ingredients[index] = newItem;
     });
@@ -109,7 +118,11 @@ class _PantryState extends State<Pantry> {
       _removeItem(index);
       return;
     }
-    Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount - 1, unit: oldItem.unit);
+    Item newItem = Item(
+        id: oldItem.id,
+        name: oldItem.name,
+        amount: oldItem.amount - 1,
+        unit: oldItem.unit);
     setState(() {
       ingredients[index] = newItem;
     });
@@ -118,23 +131,35 @@ class _PantryState extends State<Pantry> {
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     Item result;
     if (index > ingredients.length - 1) {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, false)));
+      result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditItem(null, index, false)));
       if (result != null) {
         if (_checkForSameName(result)) {
           setState(() {
-            ingredients[index - 1] = Item(id: index - 1, name: result.name, amount: result.amount, unit: result.unit);
+            ingredients[index - 1] = Item(
+                id: index - 1,
+                name: result.name,
+                amount: result.amount,
+                unit: result.unit);
           });
         } else {
           _addItem(result, index);
         }
       }
     } else {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(ingredients[index], index, false)));
+      result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  EditItem(ingredients[index], index, false)));
       if (result != null)
         setState(() {
           ingredients[index] = result;
         });
     }
+
     _saveGrocery();
   }
 
