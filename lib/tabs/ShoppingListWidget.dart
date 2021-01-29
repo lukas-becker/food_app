@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Item.dart';
-import 'package:food_app/tabs/EditItem.dart';
 import 'package:food_app/globalVariables.dart' as globals;
+import 'package:food_app/tabs/EditItem.dart';
 
 
 class ShoppingListWidget extends StatelessWidget {
@@ -27,18 +27,18 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingState extends State<ShoppingList> {
   List<Item> items = [];
+  final double fontSize = 16;
 
 
   @override
   void initState() {
-    super.initState();
-    DatabaseUtil.getDatabase();
-    if (!mounted) DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
+      super.initState();
+      DatabaseUtil.getDatabase();
+      DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: ListView.builder(
         itemCount: items.length,
@@ -48,8 +48,8 @@ class _ShoppingState extends State<ShoppingList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             child: ListTile(
-              title: Text(item.name),
-              subtitle: Text("Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}"),
+              title: Text(item.name, style: TextStyle(fontSize: fontSize)),
+              subtitle: Text("Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}", style: TextStyle(fontSize: fontSize-2),),
             ),
             actions: <Widget>[
               IconSlideAction(
@@ -77,35 +77,41 @@ class _ShoppingState extends State<ShoppingList> {
       ),
     );
   }
-
+  /// insert new Item to the list items
   void addNewGroceryItem(Item item, int index) {
-    DatabaseUtil.insertGrocery(item);
-    setState(() {
-      items.insert(index, item);
-    });
-    print("Added new Grocery Item");
+    int indexWithSameName;
+    for (int i = 0; i < items.length; i++) {
+      if (item.name == items[i].name) {
+        indexWithSameName = i;
+      }
+    }
+
+    if (indexWithSameName != null) {
+      //there already is an item with the same name
+      setState(() {
+        items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: item.name, amount: item.amount, unit: item.unit);
+      });
+    } else {
+      setState(() {
+        items.insert(index, item);
+      });
+    }
   }
 
+  /// remove the Item at index from database and the list items
   void removeGroceryItem(int index) {
     DatabaseUtil.deleteGrocery(items[index].id);
     setState(() {
       items.removeAt(index);
     });
-    print("Removed Grocery Item");
   }
 
-  void _saveGrocery() {
+  /// insert all items in the database. insert function can overwrite elements in the db
+  void _saveGroceries() {
     for (int i = 0; i < items.length; i++) {
       var grocery = items[i];
       DatabaseUtil.insertGrocery(grocery);
     }
-  }
-
-  bool _checkForSameName(Item toAddItem) {
-    for (Item item in items) {
-      if (toAddItem.name == item.name) return true;
-    }
-    return false;
   }
 
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
@@ -113,13 +119,7 @@ class _ShoppingState extends State<ShoppingList> {
     if (index > items.length - 1) {
       result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, true)));
       if (result != null) {
-        if (_checkForSameName(result)) {
-          setState(() {
-            items[index - 1] = Item(id: index - 1, name: result.name, amount: result.amount, unit: result.unit);
-          });
-        } else {
-          addNewGroceryItem(result, index);
-        }
+        addNewGroceryItem(result, index);
       }
     } else {
       result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], index, true)));
@@ -128,7 +128,7 @@ class _ShoppingState extends State<ShoppingList> {
           items[index] = result;
         });
     }
-    _saveGrocery();
+    _saveGroceries();
   }
 
 }

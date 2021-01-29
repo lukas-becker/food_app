@@ -32,6 +32,7 @@ class Pantry extends StatefulWidget {
 
 class _PantryState extends State<Pantry> {
   List<Item> ingredients = new List();
+  final double fontSize = 16;
 
   @override
   void initState() {
@@ -45,8 +46,7 @@ class _PantryState extends State<Pantry> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ListView.builder(
+        body: ListView.builder(
           padding: const EdgeInsets.all(8),
           itemCount: ingredients.length,
           itemBuilder: (BuildContext context, int index) {
@@ -60,9 +60,12 @@ class _PantryState extends State<Pantry> {
                     icon: Icon(Icons.remove),
                     onPressed: () => _decreaseAmount(index),
                   ),
-                  Text(ingredients[index].name + " : " + globals.prettyFormatDouble(ingredients[index].amount)),
-                  IconButton(
-                    icon: Icon(Icons.add),
+                Text(
+                  "${ingredients[index].name} : ${globals.prettyFormatDouble(ingredients[index].amount)} ${ingredients[index].unit}",
+                  style: TextStyle(fontSize: fontSize),
+                ),
+                IconButton(
+                    icon: Icon(Icons.add,),
                     onPressed: () => _increaseAmount(index),
                   ),
                 ],
@@ -86,7 +89,6 @@ class _PantryState extends State<Pantry> {
             );
           },
         ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _awaitResultFromEditScreen(context, ingredients.length),
         child: Icon(Icons.add),
@@ -98,21 +100,17 @@ class _PantryState extends State<Pantry> {
   void _increaseAmount(int index) {
     Item oldItem = ingredients[index];
     Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount + 1, unit: oldItem.unit);
-    setState(() {
-      ingredients[index] = newItem;
-    });
+    _addItem(newItem, index);
   }
 
   void _decreaseAmount(int index) {
     Item oldItem = ingredients[index];
     if (oldItem.amount - 1 <= 0) {
       _removeItem(index);
-      return;
+    } else {
+      Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount - 1, unit: oldItem.unit);
+      _addItem(newItem, index);
     }
-    Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount - 1, unit: oldItem.unit);
-    setState(() {
-      ingredients[index] = newItem;
-    });
   }
 
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
@@ -120,13 +118,7 @@ class _PantryState extends State<Pantry> {
     if (index > ingredients.length - 1) {
       result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, false)));
       if (result != null) {
-        if (_checkForSameName(result)) {
-          setState(() {
-            ingredients[index - 1] = Item(id: index - 1, name: result.name, amount: result.amount, unit: result.unit);
-          });
-        } else {
-          _addItem(result, index);
-        }
+        _addItem(result, index);
       }
     } else {
       result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(ingredients[index], index, false)));
@@ -139,11 +131,23 @@ class _PantryState extends State<Pantry> {
   }
 
   void _addItem(Item item, int index) {
-    DatabaseUtil.insertIngredient(item);
-    setState(() {
-      ingredients.insert(index, item);
-    });
-    print("Added new Grocery Item");
+    int indexWithSameName;
+    for (int i = 0; i < ingredients.length; i++) {
+      if (item.name == ingredients[i].name) {
+        indexWithSameName = i;
+      }
+    }
+
+    if (indexWithSameName != null) {
+      //there already is an ingredient with the same name
+      setState(() {
+        ingredients[indexWithSameName] = Item(id: ingredients[indexWithSameName].id, name: item.name, amount: item.amount, unit: item.unit);
+      });
+    } else {
+      setState(() {
+        ingredients.insert(index, item);
+      });
+    }
   }
 
   void _removeItem(int index) {
@@ -160,13 +164,4 @@ class _PantryState extends State<Pantry> {
       DatabaseUtil.insertIngredient(ingredient);
     }
   }
-
-  bool _checkForSameName(Item toAddItem) {
-    for (Item ingredient in ingredients) {
-      if (toAddItem.name == ingredient.name) return true;
-    }
-    return false;
-  }
 }
-
-//End of Pantry

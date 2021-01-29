@@ -1,5 +1,4 @@
 import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/GroceryItem.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -22,10 +21,10 @@ class DatabaseUtil {
                 "CREATE TABLE favorite(id INTEGER PRIMARY KEY, title TEXT, href TEXT, ingredients TEXT, thumbnail TEXT);",
               );
               db.execute(
-                "CREATE TABLE groceries(id INTEGER PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
+                "CREATE TABLE groceries(id TEXT PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
               );
               return db.execute(
-                "CREATE TABLE ingredient(id INTEGER PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
+                "CREATE TABLE ingredient(id TEXT PRIMARY KEY, name TEXT, amount DOUBLE, unit TEXT);",
               );
             },
             version: 1,
@@ -53,6 +52,7 @@ class DatabaseUtil {
         id: maps[i]['id'],
         name: maps[i]['name'],
         amount: maps[i]['amount'],
+        unit: maps[i]['unit'],
       );
     });
   }
@@ -99,7 +99,7 @@ class DatabaseUtil {
         " WHERE name = '" + name + "';");
   }
 
-  static Future<void> deleteIngredient(int id) async {
+  static Future<void> deleteIngredient(String id) async {
     // Get a reference to the database.
     final db = await database;
 
@@ -288,7 +288,7 @@ class DatabaseUtil {
     );
   }
 
-  static Future<void> deleteGrocery(int id) async {
+  static Future<void> deleteGrocery(String id) async {
     // Get a reference to the database.
     final db = await database;
 

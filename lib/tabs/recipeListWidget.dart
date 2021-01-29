@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
 import 'package:food_app/globalVariables.dart' as globals;
-import 'package:carousel_slider/carousel_slider.dart';
 
 import '../classes/Recipe.dart';
 import 'dart:async';
