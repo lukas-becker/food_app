@@ -5,18 +5,16 @@ import 'package:uuid/uuid.dart';
 
 class EditItem extends StatefulWidget {
   final Item item;
-  final int index;
   final bool isSoppingList;
 
-  const EditItem(this.item, this.index, this.isSoppingList);
+  const EditItem(this.item, this.isSoppingList);
 
   @override
-  createState() => new _EditState(this.item, this.index, this.isSoppingList);
+  createState() => new _EditState(this.item, this.isSoppingList);
 }
 
 class _EditState extends State<EditItem> {
   final Item item;
-  final int index;
   final bool calledFromShoppingList;
 
   final double editContainerWidth = 200;
@@ -30,7 +28,7 @@ class _EditState extends State<EditItem> {
   bool amountError = false;
   FocusScopeNode node;
 
-  _EditState(this.item, this.index, this.calledFromShoppingList) {
+  _EditState(this.item, this.calledFromShoppingList) {
     if (item != null && once) {
       nameController.text = item.name;
       amountController.text = "${item.amount}";
@@ -156,16 +154,18 @@ class _EditState extends State<EditItem> {
   ///  Close the Edit Window and send the item to the sender.
   void _sendBackToCaller() {
     double amount = _validateAmount();
-    if (!amountError) {
+    if (amount != null) {
+
       String unit = _checkUnitForPlural(amount);
-      String UUID = Uuid().v1();
-      print(UUID);
+      String UUIDString = Uuid().v1();
+
+      print(UUIDString);
       if (this.calledFromShoppingList) {
-        Item sendItem = new Item(id: UUID, name: nameController.text.trim(), amount: amount, unit: unit);
+        Item sendItem = new Item(id: UUIDString, name: nameController.text.trim(), amount: amount, unit: unit);
         print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list."); //LOGGING
         Navigator.pop(context, sendItem);
       } else {
-        Item sendItem = new Item(id: UUID, name: nameDropdown.trim(), amount: amount, unit: unit);
+        Item sendItem = new Item(id: UUIDString, name: nameDropdown.trim(), amount: amount, unit: unit);
         print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry."); //LOGGING
         Navigator.pop(context, sendItem);
       }
@@ -184,7 +184,7 @@ class _EditState extends State<EditItem> {
     return (amount > 1) ? unit += "s" : unit;
   }
 
-  /// parse the Input amount, show error when parsing failed
+  /// Parse the Input amount, show error when parsing failed
   double _validateAmount() {
     try {
       if (amountController.text.contains(",")) {

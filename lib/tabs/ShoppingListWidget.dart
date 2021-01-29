@@ -33,7 +33,9 @@ class _ShoppingState extends State<ShoppingList> {
   @override
   void initState() {
       super.initState();
+      //init db access
       DatabaseUtil.getDatabase();
+      //get all groceries saved in local db
       DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
   }
 
@@ -64,7 +66,7 @@ class _ShoppingState extends State<ShoppingList> {
                 caption: "Delete",
                 color: Colors.red,
                 icon: Icons.delete,
-                onTap: () => removeGroceryItem(index),
+                onTap: () => _removeGroceryItem(index),
               ),
             ],
           );
@@ -77,29 +79,30 @@ class _ShoppingState extends State<ShoppingList> {
       ),
     );
   }
-  /// insert new Item to the list items
-  void addNewGroceryItem(Item item, int index) {
+  /// check if there is an item with the same name in the list items
+  /// if so overwrite the item
+  /// else insert new Item to the list items
+  void _addOrUpdateGroceryItem(Item newItem, int index) {
     int indexWithSameName;
     for (int i = 0; i < items.length; i++) {
-      if (item.name == items[i].name) {
+      if (newItem.name == items[i].name) {
         indexWithSameName = i;
       }
     }
-
     if (indexWithSameName != null) {
       //there already is an item with the same name
       setState(() {
-        items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: item.name, amount: item.amount, unit: item.unit);
+        items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: newItem.name, amount: newItem.amount, unit: newItem.unit);
       });
     } else {
       setState(() {
-        items.insert(index, item);
+        items.insert(index, newItem);
       });
     }
   }
 
   /// remove the Item at index from database and the list items
-  void removeGroceryItem(int index) {
+  void _removeGroceryItem(int index) {
     DatabaseUtil.deleteGrocery(items[index].id);
     setState(() {
       items.removeAt(index);
@@ -108,25 +111,40 @@ class _ShoppingState extends State<ShoppingList> {
 
   /// insert all items in the database. insert function can overwrite elements in the db
   void _saveGroceries() {
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Start saving items..."); //LOGGING
     for (int i = 0; i < items.length; i++) {
       var grocery = items[i];
       DatabaseUtil.insertGrocery(grocery);
     }
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Items saved."); //LOGGING
   }
 
+  /// this function can be called from two positions:
+  ///   1. FloatingActionButton
+  ///   2. Edit Button from the ListTile
+  ///
+  /// if called from:
+  ///   1 - index is equal to items.length, no item has to be sent to the EditItem widget
+  ///   2 - index is equivalent to the items index at the list, this item will be sent to the EditItem widget
+  ///
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     Item result;
     if (index > items.length - 1) {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, true)));
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with no item."); //LOGGING
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, true))); // open EditWidget and wait until it's closed
       if (result != null) {
-        addNewGroceryItem(result, index);
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
+        _addOrUpdateGroceryItem(result, index);
       }
     } else {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], index, true)));
-      if (result != null)
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with item: ${items[index].toMap().toString()}."); //LOGGING
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], true))); // open EditWidget and wait until it's closed
+      if (result != null) {
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
         setState(() {
           items[index] = result;
         });
+      }
     }
     _saveGroceries();
   }

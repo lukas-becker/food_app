@@ -48,12 +48,7 @@ class DatabaseUtil {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return Item(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        amount: maps[i]['amount'],
-        unit: maps[i]['unit'],
-      );
+      return Item.fromMap(maps[i]);
     });
   }
 

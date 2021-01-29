@@ -83,7 +83,7 @@ class _PantryState extends State<Pantry> {
                   caption: "Delete",
                   color: Colors.red,
                   icon: Icons.delete,
-                  onTap: () => _removeItem(index),
+                  onTap: () => _removeIngredient(index),
                 ),
               ],
             );
@@ -97,47 +97,36 @@ class _PantryState extends State<Pantry> {
     );
   }
 
+  /// increase the items amount and save it
   void _increaseAmount(int index) {
     Item oldItem = ingredients[index];
     Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount + 1, unit: oldItem.unit);
-    _addItem(newItem, index);
+    _addOrUpdateIngredient(newItem, index);
   }
 
+  /// decrease the items amount and save it
+  /// when the decreased amount is less or equal to 0 the item gets removed
   void _decreaseAmount(int index) {
     Item oldItem = ingredients[index];
     if (oldItem.amount - 1 <= 0) {
-      _removeItem(index);
+      _removeIngredient(index);
     } else {
       Item newItem = Item(id: oldItem.id, name: oldItem.name, amount: oldItem.amount - 1, unit: oldItem.unit);
-      _addItem(newItem, index);
+      _addOrUpdateIngredient(newItem, index);
     }
   }
 
-  void _awaitResultFromEditScreen(BuildContext context, int index) async {
-    Item result;
-    if (index > ingredients.length - 1) {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, false)));
-      if (result != null) {
-        _addItem(result, index);
-      }
-    } else {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(ingredients[index], index, false)));
-      if (result != null)
-        setState(() {
-          ingredients[index] = result;
-        });
-    }
-    _saveGrocery();
-  }
 
-  void _addItem(Item item, int index) {
+  /// check if there is an item with the same name in the list items
+  /// if so overwrite the item
+  /// else insert new Item to the list items
+  void _addOrUpdateIngredient(Item item, int index) {
     int indexWithSameName;
     for (int i = 0; i < ingredients.length; i++) {
       if (item.name == ingredients[i].name) {
         indexWithSameName = i;
       }
     }
-
     if (indexWithSameName != null) {
       //there already is an ingredient with the same name
       setState(() {
@@ -150,18 +139,51 @@ class _PantryState extends State<Pantry> {
     }
   }
 
-  void _removeItem(int index) {
+  /// remove the Item at index from database and the list items
+  void _removeIngredient(int index) {
     DatabaseUtil.deleteIngredient(ingredients[index].id);
     setState(() {
       ingredients.removeAt(index);
     });
-    print("Removed Grocery Item");
   }
 
-  void _saveGrocery() {
+  /// insert all items in the database. insert function can overwrite elements in the db
+  void _saveIngredients() {
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Start saving ingredients..."); //LOGGING
     for (int i = 0; i < ingredients.length; i++) {
       var ingredient = ingredients[i];
       DatabaseUtil.insertIngredient(ingredient);
     }
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Ingredients saved."); //LOGGING
+  }
+
+  /// this function can be called from two positions:
+  ///   1. FloatingActionButton
+  ///   2. Edit Button from the ListTile
+  ///
+  /// if called from:
+  ///   1 - index is equal to ingredients.length, no item has to be sent to the EditItem widget
+  ///   2 - index is equivalent to the items index at the list, this item will be sent to the EditItem widget
+  ///
+  void _awaitResultFromEditScreen(BuildContext context, int index) async {
+    Item result;
+    if (index > ingredients.length - 1) {
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with no item."); //LOGGING
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, false))); // open EditWidget and wait until it's closed
+      if (result != null) {
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
+        _addOrUpdateIngredient(result, index);
+      }
+    } else {
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with item: ${ingredients[index].toMap().toString()}."); //LOGGING
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(ingredients[index], false))); // open EditWidget and wait until it's closed
+      if (result != null) {
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
+        setState(() {
+          ingredients[index] = result;
+        });
+      }
+    }
+    _saveIngredients();
   }
 }
