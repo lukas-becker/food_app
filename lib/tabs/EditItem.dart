@@ -52,49 +52,46 @@ class _EditState extends State<EditItem> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: Center(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _getNameInputWidget(),
-              Container(
-                width: editContainerWidth,
-                margin: EdgeInsets.all(16),
-                child: TextField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: "Enter amount"),
-                  style: TextStyle(color: Colors.black, fontSize: fontSize),
-                  onEditingComplete: () => _validateAmount(),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, children: [
+          _getNameInputWidget(),
+          Container(
+            width: editContainerWidth,
+            margin: EdgeInsets.all(16),
+            child: TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Enter amount"),
+              style: TextStyle(color: Colors.black, fontSize: fontSize),
+              onEditingComplete: () => _validateAmount(),
+            ),
+          ),
+          Container(
+              width: editContainerWidth,
+              margin: EdgeInsets.all(16),
+              child: DropdownButton<String>(
+                value: unitDropdown,
+                isExpanded: true,
+                icon: Icon(Icons.arrow_downward),
+                iconSize: 20,
+                elevation: 16,
+                style: TextStyle(color: Colors.black, fontSize: fontSize),
+                underline: Container(
+                  height: 1,
+                  color: Colors.grey,
                 ),
-              ),
-              Container(
-                  width: editContainerWidth,
-                  margin: EdgeInsets.all(16),
-                  child: DropdownButton<String>(
-                    value: unitDropdown,
-                    isExpanded: true,
-                    icon: Icon(Icons.arrow_downward),
-                    iconSize: 20,
-                    elevation: 16,
-                    style: TextStyle(color: Colors.black, fontSize: fontSize),
-                    underline: Container(
-                      height: 1,
-                      color: Colors.grey,
-                    ),
-                    onChanged: (String newValue) {
-                      setState(() {
-                        unitDropdown = newValue;
-                      });
-                    },
-                    items: globals.units.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Align(alignment: Alignment.centerLeft, child: Text(value)),
-                      );
-                    }).toList(),
-                  ))
-            ]),
+                onChanged: (String newValue) {
+                  setState(() {
+                    unitDropdown = newValue;
+                  });
+                },
+                items: globals.units.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                  );
+                }).toList(),
+              ))
+        ]),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_sendBackToCaller()},
@@ -155,7 +152,6 @@ class _EditState extends State<EditItem> {
   void _sendBackToCaller() {
     double amount = _validateAmount();
     if (amount != null) {
-
       String unit = _checkUnitForPlural(amount);
       String UUIDString = Uuid().v1();
 

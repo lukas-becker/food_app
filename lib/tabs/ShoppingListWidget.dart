@@ -5,7 +5,6 @@ import 'package:food_app/classes/Item.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 import 'package:food_app/tabs/EditItem.dart';
 
-
 class ShoppingListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,6 @@ class ShoppingListWidget extends StatelessWidget {
 }
 
 class ShoppingList extends StatefulWidget {
-
   @override
   createState() => new _ShoppingState();
 }
@@ -29,14 +27,13 @@ class _ShoppingState extends State<ShoppingList> {
   List<Item> items = [];
   final double fontSize = 16;
 
-
   @override
   void initState() {
-      super.initState();
-      //init db access
-      DatabaseUtil.getDatabase();
-      //get all groceries saved in local db
-      DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
+    super.initState();
+    //init db access
+    DatabaseUtil.getDatabase();
+    //get all groceries saved in local db
+    DatabaseUtil.getGroceries().then((value) => setState(() { items = value; }));
   }
 
   @override
@@ -51,15 +48,13 @@ class _ShoppingState extends State<ShoppingList> {
             actionExtentRatio: 0.25,
             child: ListTile(
               title: Text(item.name, style: TextStyle(fontSize: fontSize)),
-              subtitle: Text("Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}", style: TextStyle(fontSize: fontSize-2),),
+              subtitle: Text(
+                "Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}",
+                style: TextStyle(fontSize: fontSize - 2),
+              ),
             ),
             actions: <Widget>[
-              IconSlideAction(
-                  caption: "Edit",
-                  color: Colors.blue,
-                  icon: Icons.edit,
-                  onTap: () => _awaitResultFromEditScreen(context, index)
-              ),
+              IconSlideAction(caption: "Edit", color: Colors.blue, icon: Icons.edit, onTap: () => _awaitResultFromEditScreen(context, index)),
             ],
             secondaryActions: <Widget>[
               IconSlideAction(
@@ -79,6 +74,7 @@ class _ShoppingState extends State<ShoppingList> {
       ),
     );
   }
+
   /// check if there is an item with the same name in the list items
   /// if so overwrite the item
   /// else insert new Item to the list items
@@ -94,10 +90,12 @@ class _ShoppingState extends State<ShoppingList> {
       setState(() {
         items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: newItem.name, amount: newItem.amount, unit: newItem.unit);
       });
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Overwrite item at position $indexWithSameName in the list with: ${newItem.toMap().toString()}."); //LOGGING
     } else {
       setState(() {
         items.insert(index, newItem);
       });
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Added new item: ${newItem.toMap().toString()} to the list."); //LOGGING
     }
   }
 
@@ -138,7 +136,8 @@ class _ShoppingState extends State<ShoppingList> {
       }
     } else {
       print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with item: ${items[index].toMap().toString()}."); //LOGGING
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], true))); // open EditWidget and wait until it's closed
+      result =
+          await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], true))); // open EditWidget and wait until it's closed
       if (result != null) {
         print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
         setState(() {
@@ -148,5 +147,4 @@ class _ShoppingState extends State<ShoppingList> {
     }
     _saveGroceries();
   }
-
 }
