@@ -254,9 +254,10 @@ class _RecipesState extends State<Recipes> {
     //100 to prevent loop from running
     for (int i = 0; i < recipes.length; i++) {
       //Replace with default thumbnail
-      if (recipes[i].thumbnail == null)
+      if (recipes[i].thumbnail == null || recipes[i].thumbnail == '') {
         recipes[i].thumbnail =
-            "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+        "https://upload.wikimedia.org/wikipedia/commons/e/ea/No_image_preview.png";
+      }
 
       //Exact results filter
       bool _continue = false;

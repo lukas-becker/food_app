@@ -1,7 +1,7 @@
 ///Class to store general Items (Ingredients and Grocery items)
 class Item {
   //characteristics
-  final int id;
+  final String id;
   final String name;
   final double amount;
   final String unit;
