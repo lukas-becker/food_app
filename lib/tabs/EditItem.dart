@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/classes/Item.dart';
 import 'package:food_app/globalVariables.dart' as globals;
+import 'package:uuid/uuid.dart';
 
 class EditItem extends StatefulWidget {
   final Item item;
-  final int index;
   final bool isSoppingList;
 
-  const EditItem(this.item, this.index, this.isSoppingList);
+  const EditItem(this.item, this.isSoppingList);
 
   @override
-  createState() => new _EditState(this.item, this.index, this.isSoppingList);
+  createState() => new _EditState(this.item, this.isSoppingList);
 }
 
 class _EditState extends State<EditItem> {
   final Item item;
-  final int index;
-  final bool isCalledFromShoppingList;
+  final bool calledFromShoppingList;
 
-  final double editWidth = 200;
+  final double editContainerWidth = 200;
   final double fontSize = 18;
 
   var nameController = new TextEditingController();
@@ -29,12 +28,12 @@ class _EditState extends State<EditItem> {
   bool amountError = false;
   FocusScopeNode node;
 
-  _EditState(this.item, this.index, this.isCalledFromShoppingList) {
+  _EditState(this.item, this.calledFromShoppingList) {
     if (item != null && once) {
       nameController.text = item.name;
       amountController.text = "${item.amount}";
-      unitDropdown =
-          item.unit.contains("s") ? item.unit.replaceAll("s", "") : item.unit;
+      unitDropdown = item.unit.contains("s") ? item.unit.replaceAll("s", "") : item.unit;
+      nameDropdown = item.name;
       once = false;
     } else {
       unitDropdown = globals.units[0];
@@ -53,10 +52,46 @@ class _EditState extends State<EditItem> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: Center(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _buildEditFields()),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, children: [
+          _getNameInputWidget(),
+          Container(
+            width: editContainerWidth,
+            margin: EdgeInsets.all(16),
+            child: TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Enter amount"),
+              style: TextStyle(color: Colors.black, fontSize: fontSize),
+              onEditingComplete: () => _validateAmount(),
+            ),
+          ),
+          Container(
+              width: editContainerWidth,
+              margin: EdgeInsets.all(16),
+              child: DropdownButton<String>(
+                value: unitDropdown,
+                isExpanded: true,
+                icon: Icon(Icons.arrow_downward),
+                iconSize: 20,
+                elevation: 16,
+                style: TextStyle(color: Colors.black, fontSize: fontSize),
+                underline: Container(
+                  height: 1,
+                  color: Colors.grey,
+                ),
+                onChanged: (String newValue) {
+                  setState(() {
+                    unitDropdown = newValue;
+                  });
+                },
+                items: globals.units.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                  );
+                }).toList(),
+              ))
+        ]),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {_sendBackToCaller()},
@@ -65,16 +100,15 @@ class _EditState extends State<EditItem> {
     );
   }
 
-  /// build all needed Edit Fields.
-  /// 1. Widget for name is dependent on where the EditTab is called from (pantry has only a selected number of items, shopping list is not restricted)
-  /// 2. Amount
-  /// 3. Unit of measurement
-  List<Widget> _buildEditFields() {
+  /// get the needed Widget for
+  /// Widget for name is dependent on where the EditTab is called from
+  /// pantry has only a selected number of items, the name must be chosen from predefined list
+  /// shopping list items are not restricted, so it can be a normal TextField
+  Widget _getNameInputWidget() {
     Widget nameWidget;
-
-    if (this.isCalledFromShoppingList) {
+    if (this.calledFromShoppingList) {
       nameWidget = Container(
-        width: editWidth,
+        width: editContainerWidth,
         margin: EdgeInsets.all(16),
         child: TextField(
           controller: nameController,
@@ -85,7 +119,7 @@ class _EditState extends State<EditItem> {
       );
     } else {
       nameWidget = Container(
-          width: editWidth,
+          width: editContainerWidth,
           margin: EdgeInsets.all(16),
           child: DropdownButton(
             value: nameDropdown,
@@ -113,85 +147,42 @@ class _EditState extends State<EditItem> {
             }).toList(),
           ));
     }
-
-    return [
-      nameWidget,
-      Container(
-        width: editWidth,
-        margin: EdgeInsets.all(16),
-        child: TextField(
-          controller: amountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: "Enter amount"),
-          style: TextStyle(color: Colors.black, fontSize: fontSize),
-          onEditingComplete: () => _validateAmount(),
-        ),
-      ),
-      Container(
-          width: editWidth,
-          margin: EdgeInsets.all(16),
-          child: DropdownButton<String>(
-            value: unitDropdown,
-            isExpanded: true,
-            icon: Icon(Icons.arrow_downward),
-            iconSize: 20,
-            elevation: 16,
-            style: TextStyle(color: Colors.black, fontSize: fontSize),
-            underline: Container(
-              height: 1,
-              color: Colors.grey,
-            ),
-            onChanged: (String newValue) {
-              setState(() {
-                unitDropdown = newValue;
-              });
-            },
-            items: globals.units.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child:
-                    Align(alignment: Alignment.centerLeft, child: Text(value)),
-              );
-            }).toList(),
-          ))
-    ];
+    return nameWidget;
   }
 
+  ///  Close the Edit Window and send the item to the sender.
   void _sendBackToCaller() {
     double amount = _validateAmount();
-    if (!amountError) {
-      if (this.isCalledFromShoppingList) {
-        Item sendItem = new Item(
-            id: index,
-            name: nameController.text,
-            amount: amount,
-            unit: _checkUnitForPlural(amount));
-        print(
-            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list.");
+    if (amount != null) {
+      String unit = _checkUnitForPlural(amount);
+      String UUIDString = Uuid().v1();
+
+      print(UUIDString);
+      if (this.calledFromShoppingList) {
+        Item sendItem = new Item(id: UUIDString, name: nameController.text.trim(), amount: amount, unit: unit);
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to shopping list."); //LOGGING
         Navigator.pop(context, sendItem);
       } else {
-        Item sendItem = new Item(
-            id: index,
-            name: nameDropdown,
-            amount: amount,
-            unit: _checkUnitForPlural(amount));
-        print(
-            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry.");
+        Item sendItem = new Item(id: UUIDString, name: nameDropdown.trim(), amount: amount, unit: unit);
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Send Item ${sendItem.toMap().toString()} back to pantry."); //LOGGING
         Navigator.pop(context, sendItem);
       }
     }
   }
 
+  /// Display the user, that there input was faulty
   void _showError() {
-    Scaffold.of(context).showSnackBar(
-        new SnackBar(content: Text("Please enter a number as the amouont!")));
+    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the amount!")));
+    print("[${DateTime.now().toIso8601String()}] INFO: User got notified after the parsing has failed."); //LOGGING
   }
 
+  /// Add an s to the unit if the amount is bigger then 1
   String _checkUnitForPlural(double amount) {
     String unit = unitDropdown;
     return (amount > 1) ? unit += "s" : unit;
   }
 
+  /// Parse the Input amount, show error when parsing failed
   double _validateAmount() {
     try {
       if (amountController.text.contains(",")) {
@@ -202,7 +193,7 @@ class _EditState extends State<EditItem> {
       amountError = false;
       return amount;
     } catch (e) {
-      print("Amount Input was not an Integer");
+      print("[${DateTime.now().toIso8601String()}] INFO: Parsing ${amountController.text} has failed."); //LOGGING
       amountError = true;
       _showError();
       return null;
