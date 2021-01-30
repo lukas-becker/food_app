@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_app/AboutPage.dart';
 import 'package:food_app/tabs/ShoppingListWidget.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
@@ -60,38 +61,7 @@ class _TabNavigationState extends State<TabNavigation>
                 tabs: widget.myTabs,
               ),
               title: Text("Snack Hunter"),
-              actions:
-                  // If bool is true a different AppBar is displayed
-                  (_secondTabActive)
-                      ? <Widget>[
-                          IconButton(
-                            icon: Icon(
-                              Icons.filter_list,
-                            ),
-                            onPressed: () {
-                              _showFilterDialog();
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.search_outlined,
-                            ),
-                            onPressed: () => {
-                              _searchRecipe(tabController),
-                              tabController.animateTo(0),
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.all_inclusive,
-                            ),
-                            onPressed: () {
-                              tabController.animateTo(0);
-                              _exactRecipes(tabController);
-                            },
-                          ),
-                        ]
-                      : null,
+              actions: _compileAppBarOptions(tabController, _secondTabActive)
             ),
             body: TabBarView(
               controller: tabController,
@@ -107,6 +77,56 @@ class _TabNavigationState extends State<TabNavigation>
       ),
     );
   }
+
+  List<Widget> _compileAppBarOptions(TabController tabController, bool _secondTabActive){
+    List<Widget> result;
+    // If bool is true a different AppBar is displayed
+    if(_secondTabActive) {
+      result = [
+        IconButton(
+          icon: Icon(Icons.filter_list),
+          onPressed: () {
+            _showFilterDialog();
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.search_outlined),
+          onPressed: () => {
+            _searchRecipe(tabController),
+          tabController.animateTo(0),
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.all_inclusive),
+          onPressed: () {
+            tabController.animateTo(0);
+            _exactRecipes(tabController);
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            _showInfo();
+          },
+        ),
+      ];
+    } else {
+      result = [
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            _showInfo();
+          },
+        ),
+      ];
+    }
+
+
+    return result;
+
+  }
+
+
 
   // Creates Dialog which asks user if he wants to display just recipes which he can cook with his ingredients in the pantry
   _exactRecipes(TabController tabController) {
@@ -199,6 +219,13 @@ class _TabNavigationState extends State<TabNavigation>
       builder: (BuildContext context) {
         return CustomDialog();
       },
+    );
+  }
+
+  _showInfo(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AboutPage()),
     );
   }
 }
