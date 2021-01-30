@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/AboutPage.dart';
+import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/tabs/ShoppingListWidget.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
 import 'package:food_app/globalVariables.dart' as globals;
+import 'package:share/share.dart';
 
 import 'classes/CustomDialog.dart';
+import 'classes/Item.dart';
 import 'tabs/ShoppingListWidget.dart';
 
 class TabNavigation extends StatefulWidget {
@@ -81,44 +84,69 @@ class _TabNavigationState extends State<TabNavigation>
   List<Widget> _compileAppBarOptions(TabController tabController, bool _secondTabActive){
     List<Widget> result;
     // If bool is true a different AppBar is displayed
+    switch (tabController.index){
+      case 1:
+        result = [
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: () {
+              _showFilterDialog();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.search_outlined),
+            onPressed: () => {
+              _searchRecipe(tabController),
+              tabController.animateTo(0),
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.all_inclusive),
+            onPressed: () {
+              tabController.animateTo(0);
+              _exactRecipes(tabController);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              _showInfo();
+            },
+          ),
+        ];
+        break;
+      case 2:
+        result = [
+          IconButton(
+            icon: Icon(Icons.share_outlined),
+            onPressed: () {
+              _shareShoppingList();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              _showInfo();
+            },
+          ),
+        ];
+        break;
+      default:
+        result = [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              _showInfo();
+            },
+          ),
+        ];
+        break;
+
+    }
     if(_secondTabActive) {
-      result = [
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () {
-            _showFilterDialog();
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.search_outlined),
-          onPressed: () => {
-            _searchRecipe(tabController),
-          tabController.animateTo(0),
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.all_inclusive),
-          onPressed: () {
-            tabController.animateTo(0);
-            _exactRecipes(tabController);
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.info_outline),
-          onPressed: () {
-            _showInfo();
-          },
-        ),
-      ];
+
     } else {
-      result = [
-        IconButton(
-          icon: Icon(Icons.info_outline),
-          onPressed: () {
-            _showInfo();
-          },
-        ),
-      ];
+
     }
 
 
@@ -227,5 +255,25 @@ class _TabNavigationState extends State<TabNavigation>
       context,
       MaterialPageRoute(builder: (context) => AboutPage()),
     );
+  }
+
+  _shareShoppingList() async{
+    print(
+        "[${DateTime.now().toIso8601String()}] INFO: Providing Grocery List to plattform share method");
+
+    //Get grocery list
+    List<Item> entries = await DatabaseUtil.getGroceries();
+    StringBuffer result = new StringBuffer();
+    result.write("Shopping List: \n");
+
+    //Iterate over results and add them to the String
+    for(Item i in entries){
+      result.write(i.name + " : " + i.amount.toString() + " " + i.unit + "\n");
+    }
+
+    //Share
+    Share.share(result.toString());
+    
+    
   }
 }
