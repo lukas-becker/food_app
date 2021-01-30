@@ -52,22 +52,15 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
-  //Variable to hold Recipes
-  List<Widget> displayedRecipes = new List();
 
   //Recipe Storage
-  var futureRecipes = [];
   static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
-  var favouriteRecipes = [];
 
   List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
-
-  //for Textboxes
-  final tController = new TextEditingController();
 
   //Load json from Api, ingredient as parameter
   Future<List<Recipe>> fetchJson(String ingr) async {

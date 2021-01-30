@@ -208,6 +208,15 @@ class _TabNavigationState extends State<TabNavigation>
           ),
           actions: <Widget>[
             TextButton(
+              onPressed: () => {
+                print(
+                    "[${DateTime.now().toIso8601String()}] INFO: Search cancelled"),
+                tabController.animateTo(1),
+                Navigator.pop(context),
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
               onPressed: () {
                 _search();
                 tabController.animateTo(1);
@@ -216,15 +225,6 @@ class _TabNavigationState extends State<TabNavigation>
               },
               child: Text("Search"),
             ),
-            TextButton(
-              onPressed: () => {
-                print(
-                    "[${DateTime.now().toIso8601String()}] INFO: Search cancelled"),
-                tabController.animateTo(1),
-                Navigator.pop(context),
-              },
-              child: Text("Cancel"),
-            )
           ],
         );
       },
@@ -241,11 +241,11 @@ class _TabNavigationState extends State<TabNavigation>
   }
 
   // Shows new FilterDialog
-  _showFilterDialog() {
+  _showFilterDialog(TabController tabController) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CustomDialog();
+        return CustomDialog(tabController: tabController,);
       },
     );
   }

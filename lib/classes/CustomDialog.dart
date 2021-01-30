@@ -13,6 +13,10 @@ import 'package:food_app/globalVariables.dart' as globals;
 */
 
 class CustomDialog extends StatefulWidget {
+  final TabController tabController;
+
+  CustomDialog({Key key, this.tabController}) : super(key: key);
+
   @override
   _CustomDialogState createState() => _CustomDialogState();
 }
@@ -30,8 +34,7 @@ class _CustomDialogState extends State<CustomDialog> {
   void initState() {
     super.initState();
 
-    for (int i = 0; i < notInPantry.length; i++)
-    {
+    for (int i = 0; i < notInPantry.length; i++) {
       checkBoxHandling.addAll({notInPantry[i].toString(): false});
     }
 
@@ -106,18 +109,19 @@ class _CustomDialogState extends State<CustomDialog> {
           // Use filter or quit filtering
           <Widget>[
         TextButton(
-          child: Text("Filter"),
-          onPressed: () {
-            _filter(context);
-            print("[${DateTime.now().toIso8601String()}] INFO: Filter used");
-          },
-        ),
-        TextButton(
           child: Text("Cancel"),
           onPressed: () {
             Navigator.pop(context);
             print(
                 "[${DateTime.now().toIso8601String()}] INFO: Filter cancelled");
+          },
+        ),
+        TextButton(
+          child: Text("Filter"),
+          onPressed: () {
+            widget.tabController.animateTo(0);
+            _filter(context);
+            print("[${DateTime.now().toIso8601String()}] INFO: Filter used");
           },
         ),
       ],
