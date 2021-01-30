@@ -5,7 +5,6 @@ import 'package:food_app/classes/Item.dart';
 import 'package:food_app/tabs/EditItem.dart';
 import 'package:food_app/globalVariables.dart' as globals;
 
-
 class ShoppingListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,6 @@ class ShoppingListWidget extends StatelessWidget {
 }
 
 class ShoppingList extends StatefulWidget {
-
   @override
   createState() => new _ShoppingState();
 }
@@ -28,17 +26,22 @@ class ShoppingList extends StatefulWidget {
 class _ShoppingState extends State<ShoppingList> {
   List<Item> items = [];
 
-
   @override
   void initState() {
     super.initState();
     DatabaseUtil.getDatabase();
-    DatabaseUtil.getGroceries().then((value) => setState((){items = value;}));
+    DatabaseUtil.getGroceries().then((value) => {
+          if (this.mounted)
+            {
+              setState(() {
+                items = value;
+              })
+            }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: ListView.builder(
         itemCount: items.length,
@@ -49,15 +52,15 @@ class _ShoppingState extends State<ShoppingList> {
             actionExtentRatio: 0.25,
             child: ListTile(
               title: Text(item.name),
-              subtitle: Text("Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}"),
+              subtitle: Text(
+                  "Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}"),
             ),
             actions: <Widget>[
               IconSlideAction(
                   caption: "Edit",
                   color: Colors.blue,
                   icon: Icons.edit,
-                  onTap: () => _awaitResultFromEditScreen(context, index)
-              ),
+                  onTap: () => _awaitResultFromEditScreen(context, index)),
             ],
             secondaryActions: <Widget>[
               IconSlideAction(
@@ -109,18 +112,26 @@ class _ShoppingState extends State<ShoppingList> {
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     Item result;
     if (index > items.length - 1) {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, index, true)));
+      result = await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => EditItem(null, index, true)));
       if (result != null) {
         if (_checkForSameName(result)) {
           setState(() {
-            items[index - 1] = Item(id: index - 1, name: result.name, amount: result.amount, unit: result.unit);
+            items[index - 1] = Item(
+                id: index - 1,
+                name: result.name,
+                amount: result.amount,
+                unit: result.unit);
           });
         } else {
           addNewGroceryItem(result, index);
         }
       }
     } else {
-      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], index, true)));
+      result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditItem(items[index], index, true)));
       if (result != null)
         setState(() {
           items[index] = result;
@@ -128,5 +139,4 @@ class _ShoppingState extends State<ShoppingList> {
     }
     _saveGrocery();
   }
-
 }
