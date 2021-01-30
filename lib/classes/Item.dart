@@ -1,11 +1,15 @@
+///Class to store general Items (Ingredients and Grocery items)
 class Item {
-  final int id;
+  //characteristics
+  final String id;
   final String name;
   final double amount;
   final String unit;
 
+  //Constructor
   Item({this.id, this.name, this.amount, this.unit});
 
+  //For local DB usage
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -15,6 +19,7 @@ class Item {
     };
   }
 
+  //For local DB usage
   Item.fromMap(Map<String, dynamic> map)
       : id = map['id'],
         name = map['name'],
