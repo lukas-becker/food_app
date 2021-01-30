@@ -90,7 +90,7 @@ class _TabNavigationState extends State<TabNavigation>
           IconButton(
             icon: Icon(Icons.filter_list),
             onPressed: () {
-              _showFilterDialog();
+              _showFilterDialog(tabController);
             },
           ),
           IconButton(
@@ -143,12 +143,6 @@ class _TabNavigationState extends State<TabNavigation>
         break;
 
     }
-    if(_secondTabActive) {
-
-    } else {
-
-    }
-
 
     return result;
 
