@@ -100,6 +100,11 @@ class AboutPage extends StatelessWidget {
                 child: new Text('🔗 uuid Libary', style: TextStyle(fontSize: 16),),
                 onTap: () => _launchURL(context, 'https://github.com/Daegalus/dart-uuid/blob/master/LICENSE')
             ),
+            SizedBox(width: MediaQuery.of(context).size.width,height: 5),
+            InkWell(
+                child: new Text('🔗 share Libary', style: TextStyle(fontSize: 16),),
+                onTap: () => _launchURL(context, 'https://github.com/flutter/plugins/blob/master/packages/share/LICENSE')
+            ),
             SizedBox(width: MediaQuery.of(context).size.width,height: 40),
           ],
         ),

@@ -51,18 +51,22 @@ class FavouriteListState extends State<FavouriteList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: _printFavorites(),
           ),
         ),
-      ),
     );
   }
 
   List<Widget> _printFavorites() {
     List<Widget> printedFavorites = new List();
+
+    printedFavorites.add(SizedBox(
+      width: 8,
+      height: 15,
+    ));
 
     //Print global Favorite if existing
     if (communityFav != null) {
@@ -86,7 +90,7 @@ class FavouriteListState extends State<FavouriteList> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT'),
+                    child: const Text('CHECK IT OUT', style: TextStyle(color: Colors.red),),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
                       print(
@@ -107,6 +111,11 @@ class FavouriteListState extends State<FavouriteList> {
         ),
       );
     }
+
+    printedFavorites.add(SizedBox(
+      height: 5,
+    ));
+    printedFavorites.add(Text("Your Favorites"));
 
     int favIndex;
 

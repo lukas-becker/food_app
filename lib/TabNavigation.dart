@@ -17,8 +17,8 @@ class TabNavigation extends StatefulWidget {
   final List<Tab> myTabs = <Tab>[
     Tab(icon: Icon(Icons.kitchen)),
     Tab(icon: Icon(Icons.fastfood_outlined)),
-    Tab(icon: Icon(Icons.food_bank_outlined)),
-    Tab(icon: Icon(Icons.star)),
+    Tab(icon: Icon(Icons.shopping_bag_outlined)),
+    Tab(icon: Icon(Icons.favorite)),
   ];
 
   final tController = new TextEditingController();
