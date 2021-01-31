@@ -29,8 +29,8 @@ class TabNavigation extends StatefulWidget {
 
 class _TabNavigationState extends State<TabNavigation>
     with SingleTickerProviderStateMixin {
-  // Boolean used for showing Icons in AppBar
-  bool _secondTabActive = false;
+
+  int previousTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,20 +41,20 @@ class _TabNavigationState extends State<TabNavigation>
           final TabController tabController = DefaultTabController.of(context);
           tabController.addListener(
             () {
-              if (tabController.indexIsChanging) {
+              if (tabController.index != previousTabIndex) {
                 if (tabController.index == 1) {
                   setState(() {
-                    _secondTabActive = true;
                   });
                 } else {
                   setState(
                     () {
-                      _secondTabActive = false;
                       globals.search = false;
                       globals.searchString = '';
                     },
                   );
                 }
+
+                previousTabIndex = tabController.index;
               }
             },
           );
@@ -64,7 +64,7 @@ class _TabNavigationState extends State<TabNavigation>
                 tabs: widget.myTabs,
               ),
               title: Text("Snack Hunter"),
-              actions: _compileAppBarOptions(tabController, _secondTabActive)
+              actions: _compileAppBarOptions(tabController)
             ),
             body: TabBarView(
               controller: tabController,
@@ -81,7 +81,7 @@ class _TabNavigationState extends State<TabNavigation>
     );
   }
 
-  List<Widget> _compileAppBarOptions(TabController tabController, bool _secondTabActive){
+  List<Widget> _compileAppBarOptions(TabController tabController){
     List<Widget> result;
     // If bool is true a different AppBar is displayed
     switch (tabController.index){

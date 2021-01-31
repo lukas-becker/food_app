@@ -17,10 +17,10 @@ class AboutPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(width: MediaQuery.of(context).size.width,height: 40),
-            Image.asset('images/logo.png', width: 100,),
-            SizedBox(width: MediaQuery.of(context).size.width,height: 40),
+            Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.white, boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.5),spreadRadius: 5,blurRadius: 7,offset: Offset(0, 3))]), child: Padding(padding: EdgeInsets.all(10), child: Image.asset('images/logo.png', width: 100,),),),
+            SizedBox(width: MediaQuery.of(context).size.width,height: 30),
             Text("Snack Hunter", style: TextStyle(fontSize: 30),),
-            SizedBox(width: MediaQuery.of(context).size.width,height: 40),
+            SizedBox(width: MediaQuery.of(context).size.width,height: 30),
             Text("A Project by:", style: TextStyle(fontSize: 24),),
             SizedBox(width: MediaQuery.of(context).size.width,height: 5),
             Text("Lukas Becker", style: TextStyle(fontSize: 20),),
@@ -28,7 +28,7 @@ class AboutPage extends StatelessWidget {
             Text("Nico Miller", style: TextStyle(fontSize: 20),),
             SizedBox(width: MediaQuery.of(context).size.width,height: 5),
             Text("Jonas Sperling", style: TextStyle(fontSize: 20),),
-            SizedBox(width: MediaQuery.of(context).size.width,height: 40),
+            SizedBox(width: MediaQuery.of(context).size.width,height: 30),
             Text("Licenses:", style: TextStyle(fontSize: 16),),
             SizedBox(width: MediaQuery.of(context).size.width,height: 5),
             InkWell(
