@@ -383,7 +383,7 @@ class _RecipesState extends State<Recipes> {
                 children: <Widget>[
                   TextButton(
                     //Show recipe in custom tab
-                    child: const Text('CHECK IT OUT', style: globals.mainTextStyle),
+                    child: const Text('CHECK IT OUT', style: globals.smallTextStyle),
                     onPressed: () {
                       _launchURL(context, recipes[i].href);
                       print(

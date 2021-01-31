@@ -4,7 +4,7 @@ import 'package:snack_hunter/classes/DatabaseUtil.dart';
 import 'package:snack_hunter/classes/Favorite.dart';
 import 'package:snack_hunter/classes/Recipe.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 
 class FilteredRecipesWidget extends StatelessWidget {
@@ -142,7 +142,7 @@ class _FilteredRecipesState extends State<FilteredRecipes> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     TextButton(
-                      child: const Text('CHECK IT OUT', style: globals.mainTextStyle),
+                      child: const Text('CHECK IT OUT', style: globals.smallTextStyle),
                       onPressed: () {
                         _launchURL(context, widget.filteredRecipes[i].href);
                         print(

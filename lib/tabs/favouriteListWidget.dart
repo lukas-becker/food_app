@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:snack_hunter/classes/DatabaseUtil.dart';
 import 'package:snack_hunter/classes/Favorite.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 
 class FavouriteListWidget extends StatelessWidget {
@@ -92,7 +92,7 @@ class FavouriteListState extends State<FavouriteList> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT', style: TextStyle(fontSize: globals.mainFontSize, color: Colors.red),),
+                    child: const Text('CHECK IT OUT', style: TextStyle(fontSize: globals.mainFontSize - 2, color: Colors.red),),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
                       print(
@@ -159,7 +159,7 @@ class FavouriteListState extends State<FavouriteList> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT', style: globals.mainTextStyle,),
+                    child: const Text('CHECK IT OUT', style: globals.smallTextStyle,),
                     onPressed: () {
                       _launchURL(context, favorites[i].recipe.href);
                       print(
