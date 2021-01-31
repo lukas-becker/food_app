@@ -78,13 +78,13 @@ class _CustomDialogState extends State<CustomDialog> {
     }
     // Second, list the ingredients left
     checkboxes.add(
-      Text("Other ingredients to filter:"),
+      Text("Other ingredients to filter:", style: globals.mainTextStyle),
     );
     for (int i = 0; i < notInPantry.length; i++) {
       checkboxes.add(
         CheckboxListTile(
           tristate: false,
-          title: Text(notInPantry[i]),
+          title: Text(notInPantry[i], style: globals.mainTextStyle,),
           value: checkBoxHandling[this.notInPantry[i]],
           onChanged: (bool value) {
             setState(() {
@@ -99,7 +99,7 @@ class _CustomDialogState extends State<CustomDialog> {
     }
     // Display an AlertDialog which enables filtering for the user
     return AlertDialog(
-      title: Text("Filter Recipes"),
+      title: Text("Filter Recipes", style: globals.mainTextStyle,),
       content: SingleChildScrollView(
         child: Column(
           children: checkboxes,
@@ -109,7 +109,7 @@ class _CustomDialogState extends State<CustomDialog> {
           // Use filter or quit filtering
           <Widget>[
         TextButton(
-          child: Text("Cancel"),
+          child: Text("Cancel", style: globals.mainTextStyle,),
           onPressed: () {
             Navigator.pop(context);
             print(
@@ -117,7 +117,7 @@ class _CustomDialogState extends State<CustomDialog> {
           },
         ),
         TextButton(
-          child: Text("Filter"),
+          child: Text("Filter", style: globals.mainTextStyle,),
           onPressed: () {
             widget.tabController.animateTo(0);
             _filter(context);

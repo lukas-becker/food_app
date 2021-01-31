@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/AboutPage.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
+import 'package:food_app/globalVariables.dart' as globals;
 import 'package:food_app/tabs/ShoppingListWidget.dart';
 import 'package:food_app/tabs/favouriteListWidget.dart';
 import 'package:food_app/tabs/pantryWidget.dart';
 import 'package:food_app/tabs/recipeListWidget.dart';
-import 'package:food_app/globalVariables.dart' as globals;
 import 'package:share/share.dart';
 
 import 'classes/CustomDialog.dart';
@@ -156,13 +156,18 @@ class _TabNavigationState extends State<TabNavigation>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Fitting your pantry"),
+          title: Text(
+            "Fitting your pantry",
+            style: globals.mainTextStyle,
+          ),
           content: Text(globals.exact
               ? "Do you want to remove this setting?"
-              : "Do you want that all displayed recipes fit to your pantry?"),
+              : "Do you want that all displayed recipes fit to your pantry?",
+            style: globals.mainTextStyle,
+          ),
           actions: <TextButton>[
             TextButton(
-              child: Text("Yes"),
+              child: Text("Yes", style: globals.mainTextStyle),
               onPressed: () {
                 setState(() {
                   // using global variables for changing displayed recipes
@@ -173,7 +178,7 @@ class _TabNavigationState extends State<TabNavigation>
               },
             ),
             TextButton(
-              child: Text("No"),
+              child: Text("No", style: globals.mainTextStyle),
               onPressed: () {
                 tabController.animateTo(1);
                 Navigator.pop(context);
@@ -192,7 +197,7 @@ class _TabNavigationState extends State<TabNavigation>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Search for Recipe"),
+          title: Text("Search for Recipe", style: globals.mainTextStyle),
           content: TextField(
             controller: widget.tController,
             decoration: InputDecoration(
@@ -208,7 +213,7 @@ class _TabNavigationState extends State<TabNavigation>
                 tabController.animateTo(1),
                 Navigator.pop(context),
               },
-              child: Text("Cancel"),
+              child: Text("Cancel", style: globals.mainTextStyle),
             ),
             TextButton(
               onPressed: () {
@@ -217,7 +222,7 @@ class _TabNavigationState extends State<TabNavigation>
                 print(
                     "[${DateTime.now().toIso8601String()}] INFO: Searched for ${widget.tController.text}");
               },
-              child: Text("Search"),
+              child: Text("Search", style: globals.mainTextStyle),
             ),
           ],
         );

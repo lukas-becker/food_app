@@ -57,24 +57,24 @@ class _ShoppingState extends State<ShoppingList> {
   /// determine if the items list is empty
   ///   yes - return widget with hint for user on how to add new items
   ///   no - return the ListView of items
-  Widget _displayWidget(){
-    if (items.isEmpty){
+  Widget _displayWidget() {
+    if (items.isEmpty) {
       return Container(
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("You have no items in your shopping list!",
-                    style: TextStyle(fontSize: fontSize)
-                ),
-                Text("Add new items by pressing the button",
-                    style: TextStyle(fontSize: fontSize)
-                ),
-                Text("in the bottom right corner!",
-                    style: TextStyle(fontSize: fontSize)
-                ),
-              ]
+        alignment: Alignment.center,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text(
+            "You have no items in your shopping list!",
+            style: globals.mainTextStyle,
           ),
+          Text(
+            "Add new items by pressing the button",
+            style: globals.mainTextStyle,
+          ),
+          Text(
+            "in the bottom right corner!",
+            style: globals.mainTextStyle,
+          ),
+        ]),
       );
     } else {
       return ListView.builder(
@@ -85,18 +85,14 @@ class _ShoppingState extends State<ShoppingList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             child: ListTile(
-              title: Text(item.name, style: TextStyle(fontSize: fontSize)),
+              title: Text(item.name, style: globals.mainTextStyle),
               subtitle: Text(
                 "Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}",
-                style: TextStyle(fontSize: fontSize - 2),
+                style: globals.smallTextStyle,
               ),
             ),
             actions: <Widget>[
-              IconSlideAction(
-                  caption: "Edit",
-                  color: Colors.blue,
-                  icon: Icons.edit,
-                  onTap: () => _awaitResultFromEditScreen(context, index)),
+              IconSlideAction(caption: "Edit", color: Colors.blue, icon: Icons.edit, onTap: () => _awaitResultFromEditScreen(context, index)),
             ],
             secondaryActions: <Widget>[
               IconSlideAction(
@@ -125,11 +121,7 @@ class _ShoppingState extends State<ShoppingList> {
     if (indexWithSameName != null) {
       //there already is an item with the same name
       setState(() {
-        items[indexWithSameName] = Item(
-            id: items[indexWithSameName].id,
-            name: newItem.name,
-            amount: newItem.amount,
-            unit: newItem.unit);
+        items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: newItem.name, amount: newItem.amount, unit: newItem.unit);
       });
       print(
           "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Overwrite item at position $indexWithSameName in the list with: ${newItem.toMap().toString()}."); //LOGGING
@@ -137,8 +129,7 @@ class _ShoppingState extends State<ShoppingList> {
       setState(() {
         items.insert(index, newItem);
       });
-      print(
-          "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Added new item: ${newItem.toMap().toString()} to the list."); //LOGGING
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Added new item: ${newItem.toMap().toString()} to the list."); //LOGGING
     }
   }
 
@@ -152,14 +143,12 @@ class _ShoppingState extends State<ShoppingList> {
 
   /// insert all items in the database. insert function can overwrite elements in the db
   void _saveGroceries() {
-    print(
-        "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Start saving items..."); //LOGGING
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Start saving items..."); //LOGGING
     for (int i = 0; i < items.length; i++) {
       var grocery = items[i];
       DatabaseUtil.insertGrocery(grocery);
     }
-    print(
-        "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Items saved."); //LOGGING
+    print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Items saved."); //LOGGING
   }
 
   /// this function can be called from two positions:
@@ -173,29 +162,18 @@ class _ShoppingState extends State<ShoppingList> {
   void _awaitResultFromEditScreen(BuildContext context, int index) async {
     Item result;
     if (index > items.length - 1) {
-      print(
-          "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with no item."); //LOGGING
-      result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EditItem(
-                  null, true))); // open EditWidget and wait until it's closed
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with no item."); //LOGGING
+      result = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(null, true))); // open EditWidget and wait until it's closed
       if (result != null) {
-        print(
-            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
         _addOrUpdateGroceryItem(result, index);
       }
     } else {
-      print(
-          "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with item: ${items[index].toMap().toString()}."); //LOGGING
-      result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EditItem(items[index],
-                  true))); // open EditWidget and wait until it's closed
+      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Open EditItem Widget with item: ${items[index].toMap().toString()}."); //LOGGING
+      result =
+          await Navigator.push(context, MaterialPageRoute(builder: (context) => EditItem(items[index], true))); // open EditWidget and wait until it's closed
       if (result != null) {
-        print(
-            "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
+        print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Received item ${result.toMap().toString()}."); //LOGGING
         setState(() {
           items[index] = result;
         });

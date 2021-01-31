@@ -1,6 +1,9 @@
 // A file which enables using global variables
 library snack_hunter.globals;
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 // Boolean which describes if only recipes with the ingredients in the pantry are displayed 
 bool exact = false;
 
@@ -18,3 +21,8 @@ final List<String> units = <String>["piece", "gram", "kilogram", "ounce", "pound
 String prettyFormatDouble(double value){
   return value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 2);
 }
+
+//TextStyle constants
+const double mainFontSize = 16;
+const TextStyle mainTextStyle = TextStyle(fontSize: mainFontSize, color: Colors.black);
+const TextStyle smallTextStyle = TextStyle(fontSize: mainFontSize - 2, color: Colors.black);

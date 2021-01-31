@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:food_app/classes/DatabaseUtil.dart';
 import 'package:food_app/classes/Favorite.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
+import 'package:food_app/globalVariables.dart' as globals;
+
 
 class FavouriteListWidget extends StatelessWidget {
   @override
@@ -73,7 +75,7 @@ class FavouriteListState extends State<FavouriteList> {
       printedFavorites.add(SizedBox(
         height: 5,
       ));
-      printedFavorites.add(Text("Best dish according to other app users"));
+      printedFavorites.add(Text("Best dish according to other app users", style: globals.mainTextStyle,));
       printedFavorites.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -82,15 +84,15 @@ class FavouriteListState extends State<FavouriteList> {
             children: <Widget>[
               ListTile(
                 leading: Image.network(communityFav.recipe.thumbnail),
-                title: Text(communityFav.recipe.title),
+                title: Text(communityFav.recipe.title, style: globals.mainTextStyle,),
                 subtitle:
-                    Text("Ingredients: " + communityFav.recipe.ingredients),
+                    Text("Ingredients: " + communityFav.recipe.ingredients, style: globals.smallTextStyle,),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT', style: TextStyle(color: Colors.red),),
+                    child: const Text('CHECK IT OUT', style: TextStyle(fontSize: globals.mainFontSize, color: Colors.red),),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
                       print(
@@ -115,7 +117,7 @@ class FavouriteListState extends State<FavouriteList> {
     printedFavorites.add(SizedBox(
       height: 5,
     ));
-    printedFavorites.add(Text("Your Favorites"));
+    printedFavorites.add(Text("Your Favorites", style: globals.mainTextStyle));
 
     int favIndex;
 
@@ -149,15 +151,15 @@ class FavouriteListState extends State<FavouriteList> {
                         "[${DateTime.now().toIso8601String()}] INFO: Removed ${favorites[i].recipe.title} from favorites");
                   },
                 ),
-                title: Text(favorites[i].recipe.title),
+                title: Text(favorites[i].recipe.title, style: globals.mainTextStyle),
                 subtitle:
-                    Text("Ingredients: " + favorites[i].recipe.ingredients),
+                    Text("Ingredients: " + favorites[i].recipe.ingredients, style: globals.smallTextStyle,),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT'),
+                    child: const Text('CHECK IT OUT', style: globals.mainTextStyle,),
                     onPressed: () {
                       _launchURL(context, favorites[i].recipe.href);
                       print(
@@ -180,7 +182,7 @@ class FavouriteListState extends State<FavouriteList> {
     }
 
     if (printedFavorites.length == 0) {
-      printedFavorites.add(Text("No favorites selected"));
+      printedFavorites.add(Text("No favorites selected", style: globals.mainTextStyle,));
     }
 
     return printedFavorites;
