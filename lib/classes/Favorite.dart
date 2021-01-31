@@ -1,15 +1,23 @@
 import 'Recipe.dart';
+
+///Class to store Favorites
 class Favorite {
+  //Unique id
   final int id;
+  //Recipe
   final Recipe recipe;
+  //Times favorited
   int count;
 
+  //Constructor
   Favorite(
       {this.id, this.recipe});
 
+  //Alternate Constructor
   Favorite.withCount(
       {this.id, this.recipe, this.count});
 
+  //Used for local DB Storage
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -32,6 +40,7 @@ class Favorite {
     };
   }
 
+  //Used fpr Firebase
   factory Favorite.fromJson(Map<dynamic, dynamic> json) {
     return Favorite.withCount(
       id: json['id'],

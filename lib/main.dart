@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'TabNavigation.dart';
-
+///Entry point of the app
 void main() {
   runApp(SnackHunter());
 }
@@ -14,6 +14,7 @@ class SnackHunter extends StatelessWidget {
         primarySwatch: Colors.lime,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      //Custom Tab controller
       home: TabNavigation(),
     );
   }

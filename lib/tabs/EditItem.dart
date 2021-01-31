@@ -135,12 +135,14 @@ class _EditState extends State<EditItem> {
             onChanged: (String newValue) => {
               setState(() {
                 nameDropdown = newValue;
-              })
+              }),
             },
-            items: globals.entries.map<DropdownMenuItem<String>>((String value) {
+            items:
+                globals.entries.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                child:
+                    Align(alignment: Alignment.centerLeft, child: Text(value)),
               );
             }).toList(),
           ));

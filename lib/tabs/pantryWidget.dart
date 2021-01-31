@@ -38,9 +38,11 @@ class _PantryState extends State<Pantry> {
   void initState() {
     super.initState();
     DatabaseUtil.getDatabase();
-    DatabaseUtil.getIngredients().then((value) => setState(() {
-          ingredients = value;
-        }));
+    DatabaseUtil.getIngredients().then((value) => {
+          setState(() {
+            ingredients = value;
+          })
+        });
   }
 
   @override
@@ -92,7 +94,8 @@ class _PantryState extends State<Pantry> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _awaitResultFromEditScreen(context, ingredients.length),
+        onPressed: () =>
+            _awaitResultFromEditScreen(context, ingredients.length),
         child: Icon(Icons.add),
         backgroundColor: Colors.lime,
       ),

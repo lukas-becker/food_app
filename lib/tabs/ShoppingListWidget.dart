@@ -33,7 +33,7 @@ class _ShoppingState extends State<ShoppingList> {
     //init db access
     DatabaseUtil.getDatabase();
     //get all groceries saved in local db
-    DatabaseUtil.getGroceries().then((value) => setState(() { items = value; }));
+    DatabaseUtil.getGroceries().then((value) => {if(this.mounted){setState((){items = value;})}});
   }
 
   @override
