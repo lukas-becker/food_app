@@ -48,7 +48,39 @@ class _PantryState extends State<Pantry> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
+      body: _buildWidget(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =>
+            _awaitResultFromEditScreen(context, ingredients.length),
+        child: Icon(Icons.add),
+        backgroundColor: Colors.lime,
+      ),
+    );
+  }
+  /// determine if the ingredients list is empty
+  ///   yes - return widget with hint for user on how to add new ingredients
+  ///   no - return the ListView of ingredients
+  Widget _buildWidget(){
+    if (ingredients.isEmpty){
+      return Container(
+        alignment: Alignment.center,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("You have no ingredients in your pantry!",
+                  style: TextStyle(fontSize: fontSize)
+              ),
+              Text("Add new ingredients by pressing the button",
+                  style: TextStyle(fontSize: fontSize)
+              ),
+              Text("in the bottom right corner!",
+                  style: TextStyle(fontSize: fontSize)
+              ),
+            ]
+        ),
+      );
+    } else {
+      return ListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: ingredients.length,
         itemBuilder: (BuildContext context, int index) {
@@ -92,15 +124,10 @@ class _PantryState extends State<Pantry> {
             ],
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            _awaitResultFromEditScreen(context, ingredients.length),
-        child: Icon(Icons.add),
-        backgroundColor: Colors.lime,
-      ),
-    );
+      );
+    }
   }
+
 
   /// increase the items amount and save it
   void _increaseAmount(int index) {
