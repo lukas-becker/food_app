@@ -39,7 +39,39 @@ class _ShoppingState extends State<ShoppingList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
+      body: _displayWidget(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {_awaitResultFromEditScreen(context, items.length)},
+        child: Icon(Icons.add),
+        backgroundColor: Colors.lime,
+      ),
+    );
+  }
+
+  /// determine if the items list is empty
+  ///   yes - return widget with hint for user on how to add new items
+  ///   no - return the ListView of items
+  Widget _displayWidget(){
+    if (items.isEmpty){
+      return Container(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("You have no items in your shopping list!",
+                    style: TextStyle(fontSize: fontSize)
+                ),
+                Text("Add new items by pressing the button",
+                    style: TextStyle(fontSize: fontSize)
+                ),
+                Text("in the bottom right corner!",
+                    style: TextStyle(fontSize: fontSize)
+                ),
+              ]
+          ),
+      );
+    } else {
+      return ListView.builder(
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
@@ -66,13 +98,8 @@ class _ShoppingState extends State<ShoppingList> {
             ],
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {_awaitResultFromEditScreen(context, items.length)},
-        child: Icon(Icons.add),
-        backgroundColor: Colors.lime,
-      ),
-    );
+      );
+    }
   }
 
   /// check if there is an item with the same name in the list items
