@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Item.dart';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Item.dart';
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 import 'EditItem.dart';
 

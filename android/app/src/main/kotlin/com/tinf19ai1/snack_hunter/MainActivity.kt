@@ -1,4 +1,4 @@
-package com.tinf19ai1.food_app
+package com.tinf19ai1.snack_hunter
 
 import io.flutter.embedding.android.FlutterActivity
 

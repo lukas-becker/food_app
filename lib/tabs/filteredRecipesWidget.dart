@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/Recipe.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Favorite.dart';
+import 'package:snack_hunter/classes/Recipe.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
 
 class FilteredRecipesWidget extends StatelessWidget {

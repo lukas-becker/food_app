@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
-import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Item.dart';
+import 'package:snack_hunter/classes/Favorite.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Item.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 import '../classes/Recipe.dart';
 import 'dart:async';

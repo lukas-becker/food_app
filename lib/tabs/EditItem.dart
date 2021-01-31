@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/Item.dart';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/classes/Item.dart';
+import 'package:snack_hunter/globalVariables.dart' as globals;
 import 'package:uuid/uuid.dart';
 
 class EditItem extends StatefulWidget {

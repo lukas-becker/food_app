@@ -1,4 +1,4 @@
-import 'package:food_app/classes/Favorite.dart';
+import 'package:snack_hunter/classes/Favorite.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -24,7 +24,7 @@ class DatabaseUtil {
       database = getDatabasesPath().then(
         (String path) {
           return openDatabase(
-            Path.join(path, 'food_app_database.db'),
+            Path.join(path, 'snack_hunter_database.db'),
             onCreate: (db, version) {
               //SQL Creation
               db.execute(

@@ -1,5 +1,3 @@
-
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;

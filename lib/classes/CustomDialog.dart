@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/Recipe.dart';
-import 'package:food_app/tabs/filteredRecipesWidget.dart';
-import 'package:food_app/tabs/recipeListWidget.dart';
+import 'package:snack_hunter/classes/Recipe.dart';
+import 'package:snack_hunter/tabs/filteredRecipesWidget.dart';
+import 'package:snack_hunter/tabs/recipeListWidget.dart';
 
 import 'DatabaseUtil.dart';
 import 'Item.dart';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 /*
   This widget is used when the user tries to filter his recipes.

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/AboutPage.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/tabs/ShoppingListWidget.dart';
-import 'package:food_app/tabs/favouriteListWidget.dart';
-import 'package:food_app/tabs/pantryWidget.dart';
-import 'package:food_app/tabs/recipeListWidget.dart';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/AboutPage.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/tabs/ShoppingListWidget.dart';
+import 'package:snack_hunter/tabs/favouriteListWidget.dart';
+import 'package:snack_hunter/tabs/pantryWidget.dart';
+import 'package:snack_hunter/tabs/recipeListWidget.dart';
+import 'package:snack_hunter/globalVariables.dart' as globals;
 import 'package:share/share.dart';
 
 import 'classes/CustomDialog.dart';
