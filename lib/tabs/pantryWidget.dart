@@ -96,7 +96,7 @@ class _PantryState extends State<Pantry> {
                 ),
                 Text(
                   "${ingredients[index].name} : ${globals.prettyFormatDouble(ingredients[index].amount)} ${ingredients[index].unit}",
-                  style: TextStyle(fontSize: fontSize),
+                  style: globals.mainTextStyle,
                 ),
                 IconButton(
                   icon: Icon(

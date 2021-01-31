@@ -4,6 +4,8 @@ import 'package:snack_hunter/classes/DatabaseUtil.dart';
 import 'package:snack_hunter/classes/Favorite.dart';
 import 'package:snack_hunter/classes/Recipe.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
+import 'package:food_app/globalVariables.dart' as globals;
+
 
 class FilteredRecipesWidget extends StatelessWidget {
   // List of recipes which are displayed
@@ -16,7 +18,7 @@ class FilteredRecipesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Snack Hunter"),
+        title: Text("Snack Hunter", style: globals.mainTextStyle),
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
           onPressed: () {
@@ -132,15 +134,15 @@ class _FilteredRecipesState extends State<FilteredRecipes> {
                     icon:
                         Icon(isSaved ? Icons.favorite : Icons.favorite_border),
                   ),
-                  title: Text(widget.filteredRecipes[i].title),
+                  title: Text(widget.filteredRecipes[i].title, style: globals.mainTextStyle),
                   subtitle: Text(
-                      "Ingredients: " + widget.filteredRecipes[i].ingredients),
+                      "Ingredients: " + widget.filteredRecipes[i].ingredients, style: globals.smallTextStyle),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     TextButton(
-                      child: const Text('CHECK IT OUT'),
+                      child: const Text('CHECK IT OUT', style: globals.mainTextStyle),
                       onPressed: () {
                         _launchURL(context, widget.filteredRecipes[i].href);
                         print(
@@ -165,10 +167,10 @@ class _FilteredRecipesState extends State<FilteredRecipes> {
         ),
       );
       displayedList.add(
-        Text("You're filter has no results"),
+        Text("You're filter has no results", style: globals.mainTextStyle),
       );
       displayedList.add(
-        Text("Try to change your settings!"),
+        Text("Try to change your settings!", style: globals.mainTextStyle),
       );
       displayedList.add(
         // Option for going back
@@ -177,7 +179,7 @@ class _FilteredRecipesState extends State<FilteredRecipes> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text("Change it!"),
+          child: Text("Change it!", style: globals.mainTextStyle),
         ),
       );
     }

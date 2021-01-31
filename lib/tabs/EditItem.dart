@@ -61,7 +61,7 @@ class _EditState extends State<EditItem> {
               controller: amountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: "Enter amount"),
-              style: TextStyle(color: Colors.black, fontSize: fontSize),
+              style: globals.mainTextStyle,
               onEditingComplete: () => _validateAmount(),
             ),
           ),
@@ -74,7 +74,7 @@ class _EditState extends State<EditItem> {
                 icon: Icon(Icons.arrow_downward),
                 iconSize: 20,
                 elevation: 16,
-                style: TextStyle(color: Colors.black, fontSize: fontSize),
+                style: globals.mainTextStyle,
                 underline: Container(
                   height: 1,
                   color: Colors.grey,
@@ -87,7 +87,12 @@ class _EditState extends State<EditItem> {
                 items: globals.units.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Align(alignment: Alignment.centerLeft, child: Text(value)),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
+                          style: globals.mainTextStyle,
+                        )),
                   );
                 }).toList(),
               ))
@@ -112,7 +117,7 @@ class _EditState extends State<EditItem> {
         margin: EdgeInsets.all(16),
         child: TextField(
           controller: nameController,
-          style: TextStyle(color: Colors.black, fontSize: fontSize),
+          style: globals.mainTextStyle,
           decoration: InputDecoration(labelText: "Enter name"),
           onEditingComplete: () => node.nextFocus(),
         ),
@@ -137,12 +142,15 @@ class _EditState extends State<EditItem> {
                 nameDropdown = newValue;
               }),
             },
-            items:
-                globals.entries.map<DropdownMenuItem<String>>((String value) {
+            items: globals.entries.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child:
-                    Align(alignment: Alignment.centerLeft, child: Text(value)),
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: globals.mainTextStyle,
+                    )),
               );
             }).toList(),
           ));
@@ -172,7 +180,11 @@ class _EditState extends State<EditItem> {
 
   /// Display the user, that there input was faulty
   void _showError() {
-    Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Please enter a number as the amount!")));
+    Scaffold.of(context).showSnackBar(new SnackBar(
+        content: Text(
+      "Please enter a number as the amount!",
+      style: TextStyle(fontSize: globals.mainFontSize),
+    )));
     print("[${DateTime.now().toIso8601String()}] INFO: User got notified after the parsing has failed."); //LOGGING
   }
 
