@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Favorite.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Favorite.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
+import 'package:snack_hunter/globalVariables.dart' as globals;
+
 
 class FavouriteListWidget extends StatelessWidget {
   @override
@@ -51,25 +53,29 @@ class FavouriteListState extends State<FavouriteList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: _printFavorites(),
           ),
         ),
-      ),
     );
   }
 
   List<Widget> _printFavorites() {
     List<Widget> printedFavorites = new List();
 
+    printedFavorites.add(SizedBox(
+      width: 8,
+      height: 15,
+    ));
+
     //Print global Favorite if existing
     if (communityFav != null) {
       printedFavorites.add(SizedBox(
         height: 5,
       ));
-      printedFavorites.add(Text("Best dish according to other app users"));
+      printedFavorites.add(Text("Best dish according to other app users", style: globals.mainTextStyle,));
       printedFavorites.add(Card(
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
@@ -78,15 +84,15 @@ class FavouriteListState extends State<FavouriteList> {
             children: <Widget>[
               ListTile(
                 leading: Image.network(communityFav.recipe.thumbnail),
-                title: Text(communityFav.recipe.title),
+                title: Text(communityFav.recipe.title, style: globals.mainTextStyle,),
                 subtitle:
-                    Text("Ingredients: " + communityFav.recipe.ingredients),
+                    Text("Ingredients: " + communityFav.recipe.ingredients, style: globals.smallTextStyle,),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT'),
+                    child: const Text('CHECK IT OUT', style: TextStyle(fontSize: globals.mainFontSize - 2, color: Colors.red),),
                     onPressed: () {
                       _launchURL(context, communityFav.recipe.href);
                       print(
@@ -107,6 +113,11 @@ class FavouriteListState extends State<FavouriteList> {
         ),
       );
     }
+
+    printedFavorites.add(SizedBox(
+      height: 5,
+    ));
+    printedFavorites.add(Text("Your Favorites", style: globals.mainTextStyle));
 
     int favIndex;
 
@@ -140,15 +151,15 @@ class FavouriteListState extends State<FavouriteList> {
                         "[${DateTime.now().toIso8601String()}] INFO: Removed ${favorites[i].recipe.title} from favorites");
                   },
                 ),
-                title: Text(favorites[i].recipe.title),
+                title: Text(favorites[i].recipe.title, style: globals.mainTextStyle),
                 subtitle:
-                    Text("Ingredients: " + favorites[i].recipe.ingredients),
+                    Text("Ingredients: " + favorites[i].recipe.ingredients, style: globals.smallTextStyle,),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child: const Text('CHECK IT OUT'),
+                    child: const Text('CHECK IT OUT', style: globals.smallTextStyle,),
                     onPressed: () {
                       _launchURL(context, favorites[i].recipe.href);
                       print(
@@ -171,7 +182,7 @@ class FavouriteListState extends State<FavouriteList> {
     }
 
     if (printedFavorites.length == 0) {
-      printedFavorites.add(Text("No favorites selected"));
+      printedFavorites.add(Text("No favorites selected", style: globals.mainTextStyle,));
     }
 
     return printedFavorites;

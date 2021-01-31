@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Item.dart';
-import 'package:food_app/globalVariables.dart' as globals;
-import 'package:food_app/tabs/EditItem.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Item.dart';
+import 'package:snack_hunter/globalVariables.dart' as globals;
+import 'package:snack_hunter/tabs/EditItem.dart';
 
 class ShoppingListWidget extends StatelessWidget {
   @override
@@ -32,14 +32,52 @@ class _ShoppingState extends State<ShoppingList> {
     super.initState();
     //init db access
     DatabaseUtil.getDatabase();
-    //get all groceries saved in local db
-    DatabaseUtil.getGroceries().then((value) => {if(this.mounted){setState((){items = value;})}});
+    DatabaseUtil.getGroceries().then((value) => {
+          if (this.mounted)
+            {
+              setState(() {
+                items = value;
+              })
+            }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
+      body: _displayWidget(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {_awaitResultFromEditScreen(context, items.length)},
+        child: Icon(Icons.add),
+        backgroundColor: Colors.lime,
+      ),
+    );
+  }
+
+  /// determine if the items list is empty
+  ///   yes - return widget with hint for user on how to add new items
+  ///   no - return the ListView of items
+  Widget _displayWidget() {
+    if (items.isEmpty) {
+      return Container(
+        alignment: Alignment.center,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text(
+            "You have no items in your shopping list!",
+            style: globals.mainTextStyle,
+          ),
+          Text(
+            "Add new items by pressing the button",
+            style: globals.mainTextStyle,
+          ),
+          Text(
+            "in the bottom right corner!",
+            style: globals.mainTextStyle,
+          ),
+        ]),
+      );
+    } else {
+      return ListView.builder(
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
@@ -47,10 +85,10 @@ class _ShoppingState extends State<ShoppingList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             child: ListTile(
-              title: Text(item.name, style: TextStyle(fontSize: fontSize)),
+              title: Text(item.name, style: globals.mainTextStyle),
               subtitle: Text(
                 "Quantity: ${globals.prettyFormatDouble(item.amount)} ${item.unit}",
-                style: TextStyle(fontSize: fontSize - 2),
+                style: globals.smallTextStyle,
               ),
             ),
             actions: <Widget>[
@@ -66,13 +104,8 @@ class _ShoppingState extends State<ShoppingList> {
             ],
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {_awaitResultFromEditScreen(context, items.length)},
-        child: Icon(Icons.add),
-        backgroundColor: Colors.lime,
-      ),
-    );
+      );
+    }
   }
 
   /// check if there is an item with the same name in the list items
@@ -90,7 +123,8 @@ class _ShoppingState extends State<ShoppingList> {
       setState(() {
         items[indexWithSameName] = Item(id: items[indexWithSameName].id, name: newItem.name, amount: newItem.amount, unit: newItem.unit);
       });
-      print("[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Overwrite item at position $indexWithSameName in the list with: ${newItem.toMap().toString()}."); //LOGGING
+      print(
+          "[${DateTime.now().toIso8601String()}] INFO: In Class: ${this} Overwrite item at position $indexWithSameName in the list with: ${newItem.toMap().toString()}."); //LOGGING
     } else {
       setState(() {
         items.insert(index, newItem);

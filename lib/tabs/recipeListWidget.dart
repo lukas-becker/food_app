@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart' as custom;
-import 'package:food_app/classes/Favorite.dart';
-import 'package:food_app/classes/DatabaseUtil.dart';
-import 'package:food_app/classes/Item.dart';
+import 'package:snack_hunter/classes/Favorite.dart';
+import 'package:snack_hunter/classes/DatabaseUtil.dart';
+import 'package:snack_hunter/classes/Item.dart';
 import 'package:http/http.dart' as http;
 import 'package:powerset/powerset.dart';
 import 'dart:convert';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 import '../classes/Recipe.dart';
 import 'dart:async';
@@ -52,22 +52,15 @@ class Recipes extends StatefulWidget {
 }
 
 class _RecipesState extends State<Recipes> {
-  //Variable to hold Recipes
-  List<Widget> displayedRecipes = new List();
 
   //Recipe Storage
-  var futureRecipes = [];
   static List<Recipe> recipes = new List();
   List<Favorite> favorites = new List();
-  var favouriteRecipes = [];
 
   List<Item> ingredients;
 
   //filtering
   List<String> allIngredients = new List();
-
-  //for Textboxes
-  final tController = new TextEditingController();
 
   //Load json from Api, ingredient as parameter
   Future<List<Recipe>> fetchJson(String ingr) async {
@@ -383,14 +376,14 @@ class _RecipesState extends State<Recipes> {
                     icon:
                         Icon(isSaved ? Icons.favorite : Icons.favorite_border),
                   ),
-                  title: Text(recipes[i].title),
-                  subtitle: Text("Ingredients: " + recipes[i].ingredients)),
+                  title: Text(recipes[i].title, style: globals.mainTextStyle),
+                  subtitle: Text("Ingredients: " + recipes[i].ingredients, style: globals.mainTextStyle)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
                     //Show recipe in custom tab
-                    child: const Text('CHECK IT OUT'),
+                    child: const Text('CHECK IT OUT', style: globals.smallTextStyle),
                     onPressed: () {
                       _launchURL(context, recipes[i].href);
                       print(
@@ -412,15 +405,15 @@ class _RecipesState extends State<Recipes> {
         width: 8,
         height: 15,
       ));
-      result.add(Text("You have nothing in your Pantry!"));
-      result.add(Text("Add some food, to see what you could cook!"));
+      result.add(Text("You have nothing in your Pantry!", style: globals.mainTextStyle));
+      result.add(Text("Add some food, to see what you could cook!", style: globals.mainTextStyle));
       result.add(RaisedButton(
           color: Colors.green,
           onPressed: () {
             TabController tc = DefaultTabController.of(context);
             tc.animateTo(tc.index - 1);
           },
-          child: Text("Take me there")));
+          child: Text("Take me there", style: globals.mainTextStyle)));
     }
     //Display message if no results  match criteria
     if (result.length == 0) {
@@ -428,15 +421,15 @@ class _RecipesState extends State<Recipes> {
         width: 8,
         height: 15,
       ));
-      result.add(Text("Your Filter fit no results!"));
-      result.add(Text("Add some food, or adjust it!"));
+      result.add(Text("Your Filter fit no results!", style: globals.mainTextStyle));
+      result.add(Text("Add some food, or adjust it!", style: globals.mainTextStyle));
       result.add(RaisedButton(
           color: Colors.green,
           onPressed: () {
             TabController tc = DefaultTabController.of(context);
             tc.animateTo(tc.index - 1);
           },
-          child: Text("Take me to the Pantry")));
+          child: Text("Take me to the Pantry", style: globals.mainTextStyle)));
     }
 
     return result;

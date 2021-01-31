@@ -1,8 +1,8 @@
-# food_app
+# Snack Hunter
 
 Search recipes by ingredients
 
-## Getting Started
+## Usage Notes
 
 This project is a starting point for a Flutter application.
 

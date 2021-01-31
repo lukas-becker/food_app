@@ -1,4 +1,4 @@
-name: food_app
+name: snack_hunter
 description: Search recipes by ingredients
 
 # The following line prevents the package from being accidentally published to
@@ -30,13 +30,13 @@ dependencies:
   sqflite: ^1.3.0
   path: ^1.7.0
   powerset: ^1.0.0
-  flutter_speed_dial: ^1.2.5
   smart_select: ^4.3.2
   html: ^0.14.0+4
   firebase_core: ^0.5.3
   firebase_database: ^4.4.0
   flutter_custom_tabs: "^0.6.0"
   uuid: 2.2.2
+  share: ^0.6.5+4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -58,8 +58,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+     - images/logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

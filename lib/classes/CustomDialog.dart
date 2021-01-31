@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:food_app/classes/Recipe.dart';
-import 'package:food_app/tabs/filteredRecipesWidget.dart';
-import 'package:food_app/tabs/recipeListWidget.dart';
+import 'package:snack_hunter/classes/Recipe.dart';
+import 'package:snack_hunter/tabs/filteredRecipesWidget.dart';
+import 'package:snack_hunter/tabs/recipeListWidget.dart';
 
 import 'DatabaseUtil.dart';
 import 'Item.dart';
-import 'package:food_app/globalVariables.dart' as globals;
+import 'package:snack_hunter/globalVariables.dart' as globals;
 
 /*
   This widget is used when the user tries to filter his recipes.
@@ -13,6 +13,10 @@ import 'package:food_app/globalVariables.dart' as globals;
 */
 
 class CustomDialog extends StatefulWidget {
+  final TabController tabController;
+
+  CustomDialog({Key key, this.tabController}) : super(key: key);
+
   @override
   _CustomDialogState createState() => _CustomDialogState();
 }
@@ -30,8 +34,7 @@ class _CustomDialogState extends State<CustomDialog> {
   void initState() {
     super.initState();
 
-    for (int i = 0; i < notInPantry.length; i++)
-    {
+    for (int i = 0; i < notInPantry.length; i++) {
       checkBoxHandling.addAll({notInPantry[i].toString(): false});
     }
 
@@ -75,13 +78,13 @@ class _CustomDialogState extends State<CustomDialog> {
     }
     // Second, list the ingredients left
     checkboxes.add(
-      Text("Other ingredients to filter:"),
+      Text("Other ingredients to filter:", style: globals.mainTextStyle),
     );
     for (int i = 0; i < notInPantry.length; i++) {
       checkboxes.add(
         CheckboxListTile(
           tristate: false,
-          title: Text(notInPantry[i]),
+          title: Text(notInPantry[i], style: globals.mainTextStyle,),
           value: checkBoxHandling[this.notInPantry[i]],
           onChanged: (bool value) {
             setState(() {
@@ -96,7 +99,7 @@ class _CustomDialogState extends State<CustomDialog> {
     }
     // Display an AlertDialog which enables filtering for the user
     return AlertDialog(
-      title: Text("Filter Recipes"),
+      title: Text("Filter Recipes", style: globals.mainTextStyle,),
       content: SingleChildScrollView(
         child: Column(
           children: checkboxes,
@@ -106,18 +109,19 @@ class _CustomDialogState extends State<CustomDialog> {
           // Use filter or quit filtering
           <Widget>[
         TextButton(
-          child: Text("Filter"),
-          onPressed: () {
-            _filter(context);
-            print("[${DateTime.now().toIso8601String()}] INFO: Filter used");
-          },
-        ),
-        TextButton(
-          child: Text("Cancel"),
+          child: Text("Cancel", style: globals.mainTextStyle,),
           onPressed: () {
             Navigator.pop(context);
             print(
                 "[${DateTime.now().toIso8601String()}] INFO: Filter cancelled");
+          },
+        ),
+        TextButton(
+          child: Text("Filter", style: globals.mainTextStyle,),
+          onPressed: () {
+            widget.tabController.animateTo(0);
+            _filter(context);
+            print("[${DateTime.now().toIso8601String()}] INFO: Filter used");
           },
         ),
       ],
