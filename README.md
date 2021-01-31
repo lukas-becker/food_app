@@ -1,16 +1,16 @@
-# Snack Hunter
 
-Search recipes by ingredients
+# Snack Hunter  
+  
+Search recipes by ingredients, or by name, store your favorites and manage a shopping list.
+  
+## Usage Notes  
+  
+This application was developed in flutter. To build it you need to have flutter installed and in your path variable.
+If these prerequisites are met you can clone the repo and run: 
+```
+flutter build apk
+```
+inside the cloned folder.
 
-## Usage Notes
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+We tested the application on devices and emulators running API level 28, 29 and  30. 
+On level 28 and 29 the debug console will print an error meesage related to firebase. This is an issue in the Android Source that we cannot fix. Apparently it's fixed in API level 30.
