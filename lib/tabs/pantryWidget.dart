@@ -44,7 +44,6 @@ class _PantryState extends State<Pantry> {
           })
         });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
